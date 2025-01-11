@@ -1,0 +1,6 @@
+{
+    "The uploaded file is invalid.": "The uploaded file is invalid.",
+    "Unable to upload file.": "Unable to upload file.",
+    "Unable to upload the file :path as the file storage :storage does not exist.": "Unable to upload the file :path as the file storage :storage does not exist.",
+    "Unable to upload the file :path from the file storage :storage: :message": "Unable to upload the file :path from the file storage :storage: :message"
+}

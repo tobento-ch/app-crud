@@ -1,0 +1,6 @@
+{
+    "The uploaded file is invalid.": "Die hochgeladene Datei ist ungültig.",
+    "Unable to upload file.": "Datei kann nicht hochgeladen werden.",
+    "Unable to upload the file :path as the file storage :storage does not exist.": "Die Datei :path kann nicht hochgeladen werden, da der Dateispeicher :storage nicht vorhanden ist.",
+    "Unable to upload the file :path from the file storage :storage: :message": "Die Datei :path kann nicht in den Dateispeicher :storage hochgeladen werden: :message"
+}

@@ -1,0 +1,160 @@
+@charset "utf-8";
+/* Crud */
+body.crud {max-width: 100%;}
+.crud .field:hover, .crud .field:focus-within {
+  background: var(--color-gray-100);
+  outline: 0.5rem solid var(--color-gray-100);
+}
+.crud .error {scroll-margin: 6rem;}
+.crud .group-title {
+  background: var(--color-primary);
+  padding: 0.25rem;
+  margin: 0.5rem 0 1rem 0;
+}
+.crud section:not(:first-of-type) {
+  margin-top: 8rem;
+}
+.crud .fragment {
+  position: relative;
+  display: block;
+  top: -4rem;
+}
+.crud .filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, max-content));
+  column-gap: 3rem;
+  row-gap: 3rem;
+  align-items: flex-start;
+  justify-content: end;
+  box-sizing: border-box;
+  padding: 1rem 0;
+}
+.crud .filters .field {
+  margin: 0;
+}
+.crud .table-row .field {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 .25rem 0 0;
+}
+.crud .table-row .field:not(:first-child) {
+  margin-top: .5rem;
+}
+.crud .table-row .field-label {
+  margin: 0 .25rem 0 0;
+}
+.crud .table-col .field.list {display: flex; flex-direction: column; align-items: flex-start;}
+.crud .bulk-col {
+  flex: 0.2;
+  overflow: visible;
+  position: relative;
+}
+.crud .filters .closed {
+  display: none;
+}
+.crud .filters:target > .closed {
+  display: block;
+}
+.crud .filters:target > .closed-reversed {
+  display: none;
+}
+.crud .filter-group-body {
+  box-sizing: border-box; /*fix overflow input elements inside details element*/
+}
+.crud .filter-group .field {
+  margin: 1rem 0;
+}
+.crud .bulk {
+  display: none;
+  padding: 1rem 0;
+}
+.crud .bulk:target {
+  display: block;
+}
+.crud .sort::after {
+  content: "↕"; padding-left: 0.5rem;
+}
+.crud .sort-up::after {
+  content: "↑"; padding-left: 0.5rem;
+}
+.crud .sort-down::after {
+  content: "↓"; padding-left: 0.5rem;
+}
+.crud .no-records {
+  margin-top: 1rem;
+}
+.crud .cards{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+}
+.fields {
+  container-type: inline-size;
+  container-name: fields;
+}
+@container fields (min-width: 769px) {
+  .field-crud {display: flex;}
+  .field-crud .field-label {flex-basis: 0; flex-grow: 2; flex-shrink: 0; margin-right: 1.5rem;}
+  .field-crud > .field-label {text-align: right;}
+  .field-crud .field-body {flex-basis: 0; flex-grow: 5; flex-shrink: 1;}
+  .field-crud .field-label .required, .field-crud .field-label .optional {display: block; margin-left: 0; margin-top: var(--spacing-xs);}
+}
+.crud .item-header {
+  border-top: 1px solid var(--color-black);
+}
+.crud .file-actions span:not(:last-child):after {
+  content: " |";
+  color: #333;
+}
+
+.crud .sticky-controls {
+  top: 0;
+  overflow: visible; /*for dropdowns*/
+  background: var(--color-white);
+}
+.crud ol.menu-breadcrumb {
+  margin-bottom: 0.5rem;
+}
+.crud-dropdown {
+  position: relative;
+}
+.crud-dropdown-menu {
+  display: none;
+  position: absolute;
+  padding-top: .25rem;
+  right: 0;
+  z-index: 39;
+}
+.crud-dropdown-body {
+  background: var(--color-white);
+  padding: .25rem 0;
+  min-width: 8rem;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+.crud-dropdown-item {display: block; width: 100%;}
+.crud-dropdown-item .button {width: 100%; padding: .25rem .5rem; justify-content: flex-start;}
+.crud-dropdown-item .button:hover {background: var(--color-gray-100);}
+.crud-dropdown.open .crud-dropdown-menu {display: block;}
+[data-dropdown="bulk"] {position: absolute; top: 0; right: 2.5rem; z-index: 30;}
+/* mobile */
+@media screen and (max-width: 768px), print {
+  .crud-dropdown-menu {right: 50%; transform: translateX(50%);}
+}
+.crud-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.crud-option label {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+.crud-option img {
+  max-width: 50px;
+}
+.crud .editor-textarea {background: var(--color-white);}
+.overflow-visible {
+  overflow: visible;
+}
