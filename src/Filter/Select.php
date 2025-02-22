@@ -207,6 +207,10 @@ class Select extends AbstractFilter
             $name = $name.'.';
         }
         
+        if (empty($this->label) && !isset($attributes['aria-label'])) {
+            $attributes['aria-label'] = $this->name();
+        }
+        
         $body = $form->select(
             name: $name,
             items: $this->getOptions(),

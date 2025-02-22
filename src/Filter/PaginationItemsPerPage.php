@@ -113,16 +113,26 @@ class PaginationItemsPerPage extends AbstractFilter
         
         $form = $view->form();
         $idAttribute = $form->nameToId('filter.pagination.show.'.$this->getGroup());
-        $body = $form->input(
-            name: $form->nameToArray('filter.pagination.show'),
-            type: 'number',
-            value: (string)$this->show,
-            attributes: ['id' => $idAttribute, 'min' => '1', 'max' => (string)$this->paginationFilter->maxItemsPerPage()]
-        );
+        $attributes = [
+            'id' => $idAttribute,
+            'min' => '1',
+            'max' => (string)$this->paginationFilter->maxItemsPerPage(),
+        ];
         
         if (is_null($this->label)) {
             $this->label = $view->trans('Per page');
         }
+        
+        if (empty($this->label)) {
+            $attributes['aria-label'] = $this->name();
+        }
+        
+        $body = $form->input(
+            name: $form->nameToArray('filter.pagination.show'),
+            type: 'number',
+            value: (string)$this->show,
+            attributes: $attributes,
+        );
         
         return $view->render(
             view: $this->view,

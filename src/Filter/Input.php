@@ -198,6 +198,10 @@ class Input extends AbstractFilter
         $attributes = $this->getAttributes();
         $attributes['id'] ??= $form->nameToId('filter.'.$this->name());
         
+        if (empty($this->label) && !isset($attributes['aria-label'])) {
+            $attributes['aria-label'] = $this->name();
+        }
+        
         $body = $form->input(
             name: $form->nameToArray('filter.'.$this->name()),
             type: $this->type,

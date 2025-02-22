@@ -14,7 +14,9 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Filter;
 
 use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Collection\Arr;
 
@@ -34,9 +36,9 @@ class Fields
     protected bool $open = true;
     
     /**
-     * @var array<int, string>
+     * @var null|FieldsInterface $fields
      */
-    protected array $fieldNames = [];
+    protected null|FieldsInterface $fields = null;
     
     /**
      * @var null|array<int, string>
@@ -98,8 +100,18 @@ class Fields
      */
     public function fields(FieldsInterface $fields): static
     {
-        $this->fieldNames = $fields->getNames();
+        $this->fields = $fields;
         return $this;
+    }
+    
+    /**
+     * Returns the fields.
+     *
+     * @return FieldsInterface
+     */
+    public function getFields(): FieldsInterface
+    {
+        return $this->fields ?: new Field\Fields();
     }
     
     /**
@@ -133,7 +145,7 @@ class Fields
      */
     public function toFilters(): array
     {
-        $fieldNames = $this->fieldNames;
+        $fieldNames = $this->getFields()->getNames();
         
         if ($this->only !== null) {
             $fieldNames = array_keys(Arr::onlyPresent(array_flip($fieldNames), $this->only));
@@ -148,14 +160,48 @@ class Fields
         $filters = [];
         
         foreach($fieldNames as $name) {
-            $filters[] = Input::new(name: 'field.'.$name, field: $name)
-                ->group($this->group)
-                ->type('search')
-                ->comparison('like')
-                ->attributes(['aria-label' => $name])
-                ->open($this->open);
+            $field = $this->getFields()->get($name);
+            
+            if (is_null($field)) {
+                continue;
+            }
+            
+            if ($filter = $this->createFilterForField($field)) {
+                $filters[] = $filter;
+            }
         }
         
         return $filters;
+    }
+    
+    /**
+     * Returns the created filter for the given field.
+     *
+     * @param FieldInterface $field
+     * @return null|FilterInterface
+     */
+    protected function createFilterForField(FieldInterface $field): null|FilterInterface
+    {
+        $name = $field->name();
+        $label = $field->label();
+
+        if (
+            ($field instanceof Field\Select && !$field->isMultipleSelection())
+            || $field instanceof Field\Radios
+        ) {
+            return Select::new(name: 'field.'.$name, field: $name)
+                ->group($this->group)
+                ->options($field->getOptions())
+                ->comparison('=')
+                ->attributes(['aria-label' => $label])
+                ->open($this->open);
+        }
+        
+        return Input::new(name: 'field.'.$name, field: $name)
+            ->group($this->group)
+            ->type('search')
+            ->comparison('like')
+            ->attributes(['aria-label' => $label])
+            ->open($this->open);
     }
 }

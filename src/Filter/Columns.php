@@ -88,7 +88,7 @@ class Columns extends AbstractFilter
     public function columns(): array
     {
         return $this->columns ?: [];
-    }    
+    }
     
     /**
      * Applies the data to filter.
@@ -101,7 +101,9 @@ class Columns extends AbstractFilter
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
         foreach($action->fields() as $field) {
-            $this->fields[$field->name()] = $field->label();
+            if ($field->isIndexable()) {
+                $this->fields[$field->name()] = $field->label();
+            }
         }
         
         $this->fields['actions'] = $this->actionsTitle ?: $action->trans('Actions');

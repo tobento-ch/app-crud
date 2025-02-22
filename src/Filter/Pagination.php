@@ -117,8 +117,8 @@ class Pagination extends AbstractFilter
         
         $page = $input->get($this->filterName().'.page');
         $page = is_array($page) ? $page[0] ?? 1 : $page;
-        $this->page = is_scalar($show) ? (int)$page : 1;
-        
+        $this->page = is_scalar($page) ? (int)$page : 1;
+
         // cache total items count if multiple pagination filters: header and footer position e.g.
         if (is_null(static::$totalItems)) {
             $repository = $action->controller()->repository();
@@ -127,7 +127,7 @@ class Pagination extends AbstractFilter
         } else {
             $totalItems = static::$totalItems;
         }
-
+        
         $pagination = new ServicePagination(
             totalItems: $totalItems,
             currentPage: $this->page,
@@ -184,11 +184,21 @@ class Pagination extends AbstractFilter
         $pagination = $this->pagination();
         $form = $view->form();
         $idAttribute = $form->nameToId('filter.'.$this->filterName().'.page.'.$this->getGroup());
+        $attributes = [
+            'id' => $idAttribute,
+            'min' => '1',
+            'max' => (string) max(1, $pagination->getTotalPages()),
+        ];
+        
+        if (empty($this->label)) {
+            $attributes['aria-label'] = $this->name();
+        }
+        
         $body = $form->input(
             name: $form->nameToArray('filter.'.$this->filterName().'.page'),
             type: 'number',
             value: (string)$pagination->getCurrentPage(),
-            attributes: ['id' => $idAttribute, 'min' => '1', 'max' => (string) max(1, $pagination->getTotalPages())],
+            attributes: $attributes,
             selected: null,
             withInput: true,
         );
