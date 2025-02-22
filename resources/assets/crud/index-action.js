@@ -122,7 +122,6 @@ const indexAction = (function(window, document) {
             });
         },
         registerFilters: function() {
-            crud.removeFilterButtons();
             // register events globally as not to loose listeners on update filter DOM.
             ['keyup', 'change'].forEach(evt => {
                 document.addEventListener(evt, function(e) {
@@ -205,19 +204,7 @@ const indexAction = (function(window, document) {
                     }
                 });
                 
-                crud.removeFilterButtons();
                 crud.registerBulks();
-            });
-        },
-        removeFilterButtons: function() {
-            document.querySelectorAll('[data-filters] button').forEach(el => {
-                const filterGroup = el.closest('[data-filters]').getAttribute('data-filters');
-                
-                if (filterGroup === 'field') {
-                    el.remove(); // remove only button for field, otherwise table columns gets screwed up.
-                } else {
-                    el.parentNode.remove();
-                }
             });
         },
         modalFilter: function() {
