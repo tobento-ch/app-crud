@@ -22,7 +22,7 @@
                         <?= $form->input(
                             name: $field->name().'.'.$locale,
                             type: $inputType,
-                            value: $entity->get($field->name(), $field->getDefaultValue($locale), $locale),
+                            value: $field->getValue($field, $locale),
                             attributes: $inputAttributes,
                         ) ?>
                         <?php if ($field->getInfoText(action: $actionName)) { ?>
@@ -47,7 +47,7 @@
             <?= $form->input(
                 name: $field->name(),
                 type: $inputType,
-                value: $entity->get($field->name(), $field->getDefaultValue()),
+                value: $field->getValue($field),
                 attributes: $inputAttributes,
             ) ?>
             <?php if ($field->getInfoText(action: $actionName)) { ?>
