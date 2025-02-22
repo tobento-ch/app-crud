@@ -1,6 +1,19 @@
 const indexActionTable = (function(window, document) {
     'use strict';
 
+    function toInputName(string) {
+        const segments = string.split('.');
+        let name = segments[0];
+
+        delete segments[0];
+
+        segments.forEach(segment => {
+            name += '['+segment+']';
+        });
+
+        return name;
+    }
+    
     const crud = {
         saveField: function(event, el) {
             const formData = new FormData();
@@ -47,7 +60,7 @@ const indexActionTable = (function(window, document) {
                             return;
                         }
                         
-                        const field = el.querySelector('[name^="'+message.key+'"]');
+                        const field = el.querySelector('[name^="'+toInputName(message.key)+'"]');
                         
                         if (field) {
                             let msgEl = el.querySelector('[data-field-error]');
