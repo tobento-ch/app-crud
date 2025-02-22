@@ -6,7 +6,7 @@
                 <div class="field">
                     <div class="field-label text-xxs"><?= $view->esc($name) ?></div>
                     <div class="field-body text-body">
-                        <?= $view->esc($entity->get($field->name(), '', $locale)) ?>
+                        <?= $view->esc($field->getValue($field, $locale)) ?>
                     </div>
                 </div>
 			<?php } ?>
@@ -17,7 +17,7 @@
         <div class="field-label text-700"><?= $view->etrans($field->label()) ?></div>
 		<div class="field-body text-body">
             <?php
-            $textValue = $entity->get($field->name(), '');
+            $textValue = $field->getValue($field);
             if ($field->getType() === 'date') {
                 echo $view->esc($view->date($textValue));
             } elseif ($field->getType() === 'datetime-local') {

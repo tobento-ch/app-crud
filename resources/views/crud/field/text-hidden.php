@@ -6,7 +6,7 @@ if ($field->isTranslatable()) {
         echo $form->input(
             name: $field->name().'.'.$locale,
             type: $inputType,
-            value: $entity->get($field->name(), '', $locale),
+            value: $field->getValue($field, $locale),
             attributes: $inputAttributes,
         );
     }
@@ -14,7 +14,7 @@ if ($field->isTranslatable()) {
     echo $form->input(
         name: $field->name(),
         type: $inputType,
-        value: $entity->get($field->name(), ''),
+        value: $field->getValue($field),
         attributes: $inputAttributes,
     );
 }
