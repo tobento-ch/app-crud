@@ -116,14 +116,20 @@ abstract class AbstractCrudController //implements CrudControllerInterface
     public function createEntityFromObject(object $object): EntityInterface
     {
         if ($object instanceof Arrayable) {
-            return new Entity($object->toArray());
+            return new Entity(
+                attributes: $object->toArray(),
+                idAttributeName: $this->entityIdName(),
+            );
         }
         
         if (
             method_exists($object, 'toArray')
             && is_array($array = $object->toArray())
         ) {
-            return new Entity($array);
+            return new Entity(
+                attributes: $array,
+                idAttributeName: $this->entityIdName(),
+            );
         }
         
         return new Entity(
@@ -165,13 +171,8 @@ abstract class AbstractCrudController //implements CrudControllerInterface
         $filters = $this->getConfiguredFilters($action);
         $filterProcessor->processFilters(filters: $filters, action: $action);
         
-        $entities = $this->repository()->findAll(
-            where: $filters->getWhereParameters(),
-            orderBy: $filters->getOrderByParameters(),
-            limit: $filters->getLimitParameter(),
-        );
+        $entities = new Entities($this->findEntities($filters));
         
-        $entities = new Entities($entities);
         $entities = $entities->map(function(object $item): EntityInterface {
             return $this->createEntityFromObject($item);
         });
@@ -346,10 +347,7 @@ abstract class AbstractCrudController //implements CrudControllerInterface
             ->onlyPresent($action->fields()->storable()->getNames())
             ->all();
         
-        $entity = $this->repository()->create(
-            attributes: $attributes,
-        );
-        
+        $entity = $this->storeEntity($attributes);
         $entity = $this->createEntityFromObject($entity);
         
         // Process stored fields action:
@@ -486,7 +484,8 @@ abstract class AbstractCrudController //implements CrudControllerInterface
         
         if ($requester->isAjax()) {
             $inputKeys = $requester->input()->keys()->all();
-            $fields = $fields->filter(fn (FieldInterface $f): bool => in_array($f->name(), $inputKeys));            
+            $inputKeys = array_merge($inputKeys, array_keys($requester->request()->getUploadedFiles()));
+            $fields = $fields->filter(fn (FieldInterface $f): bool => in_array(explode('.', $f->name())[0], $inputKeys));
         }
 
         $action->setFields($fields);
@@ -500,11 +499,7 @@ abstract class AbstractCrudController //implements CrudControllerInterface
             ->onlyPresent($action->fields()->storable()->getNames())
             ->all();
         
-        $updatedItem = $this->repository()->updateById(
-            id: $id,
-            attributes: $attributes,
-        );
-        
+        $updatedItem = $this->updateEntity($id, $attributes, $action->entity());
         $entity = $this->createEntityFromObject($updatedItem);
         
         // Process updated fields action:
@@ -702,7 +697,7 @@ abstract class AbstractCrudController //implements CrudControllerInterface
         $actionProcessor->processAction(action: $action);
         
         // Delete entity:
-        $this->repository()->deleteById(id: $id);
+        $this->deleteEntity(id: $id, entity: $action->entity());
         
         // Process deleted fields action:
         $actionProcessor->processFieldsAction(
@@ -761,5 +756,61 @@ abstract class AbstractCrudController //implements CrudControllerInterface
         }
         
         return $filters;
+    }
+    
+    /**
+     * Find entities.
+     *
+     * @param FiltersInterface $filters
+     * @return iterable The found entities.
+     */
+    public function findEntities(FiltersInterface $filters): iterable
+    {
+        return $this->repository()->findAll(
+            where: $filters->getWhereParameters(),
+            orderBy: $filters->getOrderByParameters(),
+            limit: $filters->getLimitParameter(),
+        );
+    }
+    
+    /**
+     * Store entity.
+     *
+     * @param array $attributes
+     * @return object The created entity
+     */
+    public function storeEntity(array $attributes): object
+    {
+        return $this->repository()->create(
+            attributes: $attributes,
+        );
+    }
+    
+    /**
+     * Update entity.
+     *
+     * @param int|string $id
+     * @param array $attributes
+     * @param EntityInterface $entity
+     * @return object The updated entity
+     */
+    public function updateEntity(int|string $id, array $attributes, EntityInterface $entity): object
+    {
+        return $this->repository()->updateById(
+            id: $id,
+            attributes: $attributes,
+        );
+    }
+    
+    /**
+     * Delete entity.
+     *
+     * @param int|string $id
+     * @param EntityInterface $entity
+     * @return void
+     */
+    public function deleteEntity(int|string $id, EntityInterface $entity): void
+    {
+        $this->repository()->deleteById(id: $id);
     }
 }

@@ -66,7 +66,7 @@ if (!$filters->group('field')->empty()) {
               }
               $row->column($field->name(), $filterHtml);
           })
-          ->column('actions', '<button class="button text-xs">'.$view->etrans('Apply filters').'</button>')
+          ->column('actions', '<button class="button text-xs display-none-if-js">'.$view->etrans('Apply filters').'</button>')
           ->prependHtml($form->form(['action' => $action->getLinkUrl(), 'method' => 'GET', 'data-form-filter' => 'field']))
           ->appendHtml($form->close())        
           ->html('bulk', ...$action->fields()->getNames())
@@ -147,7 +147,7 @@ foreach($action->entities() as $entity) {
         <?php if (!$filters->group('aside')->empty()) { ?>
             <aside class="page-aside">
                 <?= $form->form(['action' => $action->getLinkUrl(), 'method' => 'GET', 'data-form-filter' => 'aside']) ?>
-                <div class="filtersA text-xs" id="filters-aside" data-filters="aside">
+                <div class="text-xs" id="filters-aside" data-filters="aside">
                     <?php if (! $filters->group('aside')->open(false)->empty()) { ?>
                         <div class="closed-reversed field small">
                             <a href="#filters-aside"><?= $filters->group('aside')->open(true)->empty() ? $view->etrans('Filters') : $view->etrans('More Filters') ?></a>
@@ -159,7 +159,7 @@ foreach($action->entities() as $entity) {
                     <?php foreach($filters->group('aside') as $filter) { ?>
                         <?= $filter->render($view) ?>
                     <?php } ?>
-                    <div class="field small">
+                    <div class="field small display-none-if-js">
                         <?= $form->button(text: $view->trans('Apply filters'), attributes: ['class' => 'button raw fit text-xs']) ?>
                     </div>
                 </div>
@@ -194,7 +194,7 @@ foreach($action->entities() as $entity) {
                     <?php foreach($filters->group('header') as $filter) { ?>
                         <?= $filter->render($view) ?>
                     <?php } ?>
-                    <div class="field small">
+                    <div class="field small display-none-if-js">
                         <?= $form->button(text: $view->trans('Apply filters'), attributes: ['class' => 'button raw fit text-xs']) ?>
                     </div>
                 </div>
@@ -211,7 +211,7 @@ foreach($action->entities() as $entity) {
             
             <?php if (!$filters->group('footer')->empty()) { ?>
                 <?= $form->form(['action' => $action->getLinkUrl(), 'method' => 'GET', 'data-form-filter' => 'footer']) ?>
-                <div class="filters text-xs" id="filters-footer" data-filters="footer">
+                <div class="filters text-xs mt-s" id="filters-footer" data-filters="footer">
                     <?php if (! $filters->group('footer')->open(false)->empty()) { ?>
                         <div class="closed-reversed field small">
                             <a href="#filters-footer"><?= $filters->group('footer')->open(true)->empty() ? $view->etrans('Filters') : $view->etrans('More Filters') ?></a>
@@ -223,7 +223,7 @@ foreach($action->entities() as $entity) {
                     <?php foreach($filters->group('footer') as $filter) { ?>
                         <?= $filter->render($view) ?>
                     <?php } ?>
-                    <div class="field small">
+                    <div class="field small display-none-if-js">
                         <?= $form->button(text: $view->trans('Apply filters'), attributes: ['class' => 'button raw fit text-xs']) ?>
                     </div>
                 </div>
@@ -241,7 +241,7 @@ foreach($action->entities() as $entity) {
                                 <?php foreach($filters->group('modal') as $filter) { ?>
                                     <?= $filter->render($view) ?>
                                 <?php } ?>
-                                <div class="field small">
+                                <div class="field small display-none-if-js">
                                     <?= $form->button(text: $view->trans('Apply filters'), attributes: ['class' => 'button raw fit text-xs']) ?>
                                 </div>
                             </div>
