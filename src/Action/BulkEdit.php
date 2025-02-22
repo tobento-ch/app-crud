@@ -170,12 +170,8 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
             
             $this->actionProcessor()->processFields(action: $updateAction, entity: $entity);
             
-            $entity = $repository->updateById(
-                id: $id,
-                attributes: $attributes,
-            );
-            
-            $entity = $this->controller()->createEntityFromObject($entity);
+            $updatedItem = $this->controller()->updateEntity($id, $attributes, $updateAction->entity());
+            $entity = $this->controller()->createEntityFromObject($updatedItem);
 
             // Process updated fields action:
             $this->actionProcessor()->processFieldsAction(

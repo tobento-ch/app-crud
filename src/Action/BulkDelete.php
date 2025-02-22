@@ -94,7 +94,11 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         $ids = $input->get('ids', []);
         
         foreach(array_values($ids) as $id) {
-                        
+
+            if (!is_string($id) && !is_int($id)) {
+                continue;
+            }
+            
             $entity = $repository->findById(id: $id);
             
             if (is_object($entity)) {
@@ -111,7 +115,8 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
             
             $this->actionProcessor()->processFields(action: $deleteAction, entity: $entity);
             
-            $repository->deleteById(id: $id);
+            // Delete entity:
+            $this->controller()->deleteEntity(id: $id, entity: $deleteAction->entity());
             
             // Process deleted fields action:
             $this->actionProcessor()->processFieldsAction(
