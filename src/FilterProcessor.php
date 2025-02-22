@@ -58,7 +58,6 @@ class FilterProcessor implements FilterProcessorInterface
     {
         $input = $this->requester->input();
         
-        //if ($this->requester->method() === 'POST') {
         if ($input->has('filter')) {
             // we combine session filter data with input data
             // so that indiviual filter forms can be sumbitted
@@ -67,7 +66,7 @@ class FilterProcessor implements FilterProcessorInterface
             $sessionData = $this->session->get('crudFilters.'.$name, []);
             
             $data = $input->get('filter', []);
-            $data = array_merge($sessionData, $data);
+            $data = array_replace_recursive($sessionData, $data);
         } else {
             $name = $action->controller()->resourceName();
             $data = $this->session->get('crudFilters.'.$name, []);
