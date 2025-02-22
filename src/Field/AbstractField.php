@@ -18,6 +18,7 @@ use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Support\Str;
 use Tobento\Service\Validation\Html\HtmlAttributesFactory;
+use Tobento\Service\View\ViewInterface;
 
 /**
  * AbstractField
@@ -754,6 +755,9 @@ abstract class AbstractField implements FieldInterface
             return [];
         }
         
+        $actions = ['create' => 'store', 'edit' => 'update'];
+        $action = $actions[$action] ?? $action;
+        
         $rules = match (true) {
             isset($this->getValidate()[$action]) => $this->getValidate()[$action],
             isset($this->getValidate()['default']) => $this->getValidate()['default'],
@@ -780,6 +784,9 @@ abstract class AbstractField implements FieldInterface
      */
     public function getValidationRulesForAction(string $action): null|array
     {
+        $actions = ['create' => 'store', 'edit' => 'update'];
+        $action = $actions[$action] ?? $action;
+        
         $rules = match (true) {
             isset($this->getValidate()[$action]) => $this->getValidate()[$action],
             isset($this->getValidate()['default']) => $this->getValidate()['default'],
@@ -796,6 +803,7 @@ abstract class AbstractField implements FieldInterface
         }
         
         $localizedRules = [];
+        $localizedRules[$this->name()] = 'array';
         
         foreach(array_keys($this->locales()) as $locale) {
             $localizedRules[$this->name().'.'.$locale] = $rules;
@@ -831,9 +839,6 @@ abstract class AbstractField implements FieldInterface
         if (isset($this->requiredTexts[$action])) {
             return $this->requiredTexts[$action];
         }
-        
-        $actions = ['create' => 'store', 'edit' => 'update'];
-        $action = $actions[$action] ?? $action;
         
         $rules = $this->getValidationRulesForAction($action);
         
@@ -871,9 +876,6 @@ abstract class AbstractField implements FieldInterface
         if (isset($this->optionalTexts[$action])) {
             return $this->optionalTexts[$action];
         }
-        
-        $actions = ['create' => 'store', 'edit' => 'update'];
-        $action = $actions[$action] ?? $action;
         
         $rules = $this->getValidationRulesForAction($action);
         
@@ -982,13 +984,20 @@ abstract class AbstractField implements FieldInterface
      * Processes the show action.
      *
      * @param FieldInterface $field
+     * @param ViewInterface $view
      * @return void
      */
-    public function processShow(FieldInterface $field): void
+    public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        $html = (string)$field->entity()->get($field->name(), '', $field->locale());
-        
-        $field->html(Str::esc($html));
+        $field->html($view->render(
+            view: 'crud/field/show/field',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+                'renderLabel' => true,
+                'text' => '',
+            ],
+        ));
     }
     
     /**
