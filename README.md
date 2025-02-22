@@ -9,8 +9,10 @@ A simple app CRUD.
 - [Documentation](#documentation)
     - [App](#app)
     - [Crud Boot](#crud-boot)
-    - [Crud Crontroller](#crud-controller)
-        - [Create Crontroller](#create-controller)
+    - [Crud Controller](#crud-controller)
+        - [Create Controller](#create-controller)
+            - [Entity Mapping](#entity-mapping)
+            - [Entity Actions](#entity-actions)
         - [Configure Fields](#configure-fields)
         - [Configure Actions](#configure-actions)
         - [Configure Filters](#configure-filters)
@@ -22,6 +24,7 @@ A simple app CRUD.
             - [File Field](#file-field)
             - [Files Field](#files-field)
             - [FileSource Field](#filesource-field)
+            - [Html Field](#html-field)
             - [Items Field](#items-field)
             - [Options Field](#options-field)
             - [PrimaryId Field](#primaryid-field)
@@ -31,6 +34,7 @@ A simple app CRUD.
             - [Text Field](#text-field)
             - [Textarea Field](#textarea-field)
             - [TextEditor Field](#texteditor-field)
+            - [Value Field](#value-field)
         - [Different Fields Per Action](#different-fields-per-action)
         - [Validate Field](#validate-field)
         - [Translatable Field](#translatable-field)
@@ -241,6 +245,52 @@ class ProductsController extends AbstractCrudController
 }
 ```
 
+#### Entity Mapping
+
+You may overwrite the ```createEntityFromObject``` method to map your repository entity object to the CRUD entity.
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Entity\Entity;
+use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\Service\Support\Arrayable;
+
+class ProductsController extends AbstractCrudController
+{
+    /**
+     * Create entity from object.
+     *
+     * @param object $object
+     * @return EntityInterface
+     */
+    public function createEntityFromObject(object $object): EntityInterface
+    {
+        // Default mapping:
+        if ($object instanceof Arrayable) {
+            return new Entity(
+                attributes: $object->toArray(),
+                idAttributeName: $this->entityIdName(),
+            );
+        }
+        
+        if (
+            method_exists($object, 'toArray')
+            && is_array($array = $object->toArray())
+        ) {
+            return new Entity(
+                attributes: $array,
+                idAttributeName: $this->entityIdName(),
+            );
+        }
+        
+        return new Entity(
+            attributes: (array)$object,
+            idAttributeName: $this->entityIdName(),
+        );
+    }
+}
+```
+
 **Entity Id Name**
 
 You may change the entity id name used as the id name of the entity.
@@ -258,6 +308,105 @@ class ProductsController extends AbstractCrudController
     protected function entityIdName(): string
     {
         return 'id';
+    }
+}
+```
+
+#### Entity Actions
+
+You may overwrite the following methods to customize the read and write repository actions.
+
+**findEntities**
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Filter\FiltersInterface;
+
+class ProductsController extends AbstractCrudController
+{
+    /**
+     * Find entities.
+     *
+     * @param FiltersInterface $filters
+     * @return iterable The found entities.
+     */
+    public function findEntities(FiltersInterface $filters): iterable
+    {
+        return $this->repository()->findAll(
+            where: $filters->getWhereParameters(),
+            orderBy: $filters->getOrderByParameters(),
+            limit: $filters->getLimitParameter(),
+        );
+    }
+}
+```
+
+**storeEntity**
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+
+class ProductsController extends AbstractCrudController
+{
+    /**
+     * Store entity.
+     *
+     * @param array $attributes
+     * @return object The created entity
+     */
+    public function storeEntity(array $attributes): object
+    {
+        return $this->repository()->create(
+            attributes: $attributes,
+        );
+    }
+}
+```
+
+**updateEntity**
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Entity\EntityInterface;
+
+class ProductsController extends AbstractCrudController
+{
+    /**
+     * Update entity.
+     *
+     * @param int|string $id
+     * @param array $attributes
+     * @param EntityInterface $entity
+     * @return object The updated entity
+     */
+    public function updateEntity(int|string $id, array $attributes, EntityInterface $entity): object
+    {
+        return $this->repository()->updateById(
+            id: $id,
+            attributes: $attributes,
+        );
+    }
+}
+```
+
+**deleteEntity**
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Entity\EntityInterface;
+
+class ProductsController extends AbstractCrudController
+{
+    /**
+     * Delete entity.
+     *
+     * @param int|string $id
+     * @param EntityInterface $entity
+     * @return void
+     */
+    public function deleteEntity(int|string $id, EntityInterface $entity): void
+    {
+        $this->repository()->deleteById(id: $id);
     }
 }
 ```
@@ -875,6 +1024,52 @@ Field\FileSource::new('image')
     ->displayMessages('error', 'success', 'info', 'notice');
 ```
 
+#### Html Field
+
+The html field may be used if you want to set HTML content.
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Html::new(
+    name: 'title',
+    // you may set a label, otherwise name is used:
+    label: 'TITLE',
+);
+```
+
+**Content**
+
+Use the ```content``` method to set the HTML. Make sure any html you set is being properly escaped if needed:
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Html::new(name: 'title')->content(html: '<p>Lorem</p>');
+```
+
+In addition, you may pass a callable being resolved by autowiring:
+
+```php
+use Tobento\App\Crud\Field;
+use Tobento\Service\View\ViewInterface;
+
+Field\Html::new(name: 'title')->content(function (ViewInterface $view): string {
+    return $view->render('about', []);
+});
+```
+
+**Defaults**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Html::new(name: 'title')
+    ->content(html: '<p>Lorem</p>')
+    ->indexable(true) // default false
+    ->showable(true); // default false
+```
+
 #### Items Field
 
 The items field displays a collection of items allowing you to add, edit and delete items.
@@ -1333,6 +1528,21 @@ use Tobento\App\Crud\Field;
 Field\Text::new(name: 'email')->type('email');
 ```
 
+**Value**
+
+You may set a value using the ```value``` method.
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Text::new(name: 'title')->value('Lorem');
+
+// you may pass an array of values if your field is translatable:
+Field\Text::new(name: 'title')
+    ->translatable()
+    ->value(['en' => 'Lorem', 'de' => 'Lorem ipsum']);
+```
+
 **Default Value**
 
 You may set a default value using the ```defaultValue``` method:
@@ -1449,6 +1659,41 @@ Sure, you may sanitize the html depending on the context such as in your view fi
 
 ```php
 <?= $view->sanitizeHtml(html: $html) ?>
+```
+
+#### Value Field
+
+The value field may be used if you want to set the value directly on the field. The value will never be set by any user input.
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Value::new(
+    name: 'title',
+    // you may set a label, otherwise name is used:
+    label: 'TITLE',
+);
+```
+
+**Value**
+
+Use the ```value``` method to set the value for the field:
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Value::new(name: 'title')->value('Lorem');
+```
+
+**Defaults**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Value::new(name: 'title')
+    ->value('Lorem')
+    ->indexable(true) // default false
+    ->showable(true); // default false
 ```
 
 ### Different Fields Per Action
@@ -1647,9 +1892,12 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
             ->readonly(action: 'edit|update')
             
             // or you may use a closure (parameters are resolved by autowiring):
-            ->readonly(function (ActionInterface $action, FieldInterface $field): bool {
-                return true;
-            }, action: 'edit|update')
+            ->readonly(
+                readonly: function (ActionInterface $action, FieldInterface $field): bool {
+                    return true;
+                },
+                action: 'edit|update'
+            )
             
             ->disabled()
             
@@ -1657,9 +1905,12 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
             ->disabled(action: 'edit|update')
             
             // or you may use a closure (parameters are resolved by autowiring):
-            ->disabled(function (ActionInterface $action, FieldInterface $field): bool {
-                return true;
-            }, action: 'edit|update')
+            ->disabled(
+                disabled: function (ActionInterface $action, FieldInterface $field): bool {
+                    return true;
+                },
+                action: 'edit|update'
+            )
     ];
 }
 ```
@@ -1701,10 +1952,10 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
         Field\Text::new(name: 'foo')
             ->requiredText('Required because of ...')
             // same as:
-            ->requiredText('Required because of ...', action: 'create|edit')
+            ->requiredText(text: 'Required because of ...', action: 'create|edit')
             
             // or using different text per action:
-            ->requiredText('Required because of ...', action: 'edit'),
+            ->requiredText(text: 'Required because of ...', action: 'edit'),
     ];
 }
 ```
@@ -1724,10 +1975,10 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
         Field\Text::new(name: 'foo')
             ->optionalText('optional ...')
             // same as:
-            ->optionalText('optional ...', action: 'create|edit')
+            ->optionalText(text: 'optional ...', action: 'create|edit')
             
             // or using different text per action:
-            ->optionalText('optional ...', action: 'edit'),
+            ->optionalText(text: 'optional ...', action: 'edit'),
     ];
 }
 ```
@@ -1747,10 +1998,10 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
         Field\Text::new(name: 'foo')
             ->infoText('Some info ...')
             // same as:
-            ->infoText('Some info ...', action: 'create|edit')
+            ->infoText(text: 'Some info ...', action: 'create|edit')
             
             // or using different text per action:
-            ->infoText('Some info ...', action: 'edit'),
+            ->infoText(text: 'Some info ...', action: 'edit'),
     ];
 }
 ```
@@ -1761,7 +2012,7 @@ You may use the ```resolve``` method to set any field parameters from a resolved
 
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
-use Tobento\App\Crud\Field\EntityInterface;
+use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field;
@@ -1794,7 +2045,7 @@ You may customize exisiting field actions or add [custom actions](#custom-action
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field\ActionInterface;
-use Tobento\App\Crud\Field\EntityInterface;
+use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field;
@@ -2955,7 +3206,7 @@ The following fields support inline table editing:
 
 #### Fields Filter
 
-The fields filter displays an [input filter](#input-filter) on each field in the table column.
+The fields filter displays an [input filter](#input-filter) or [select filter](#select-filter) on each field in the table column.
 
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
@@ -2977,6 +3228,27 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->except('sku', 'title')
             
             ->toFilters(),
+    ];
+}
+```
+
+If you want a custom filter for the field just do not display the filter using the ```except``` method and add your custom filter with the group ```field```:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter;
+
+protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+{
+    return [
+        ...Filter\Fields::new()
+            ->fields($action->fields())
+            ->except('sku')
+            ->toFilters(),
+        // custom sku filter:
+        Filter\Input::new(name: 'sku', field: 'sku')
+            ->group('field'),
     ];
 }
 ```
