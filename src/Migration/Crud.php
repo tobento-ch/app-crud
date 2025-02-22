@@ -29,6 +29,8 @@ class Crud implements MigrationInterface
 {
     protected array $transFiles;
     
+    protected array $iconFiles;
+    
     /**
      * Create a new Migration.
      *
@@ -47,6 +49,12 @@ class Crud implements MigrationInterface
             $this->dirs->get('trans').'de/' => [
                 $resources.'trans/de/de-crud.json',
                 $resources.'trans/de/validator.crud.json',
+            ],
+        ];
+        
+        $this->iconFiles = [
+            $this->dirs->get('views').'icons/' => [
+                $resources.'views/icons/dots.svg',
             ],
         ];
     }
@@ -82,6 +90,11 @@ class Crud implements MigrationInterface
                 name: 'Crud views',
                 type: 'views',
                 description: 'Crud views.',
+            ),
+            new FilesCopy(
+                files: $this->iconFiles,
+                type: 'icons',
+                description: 'Crud icon files.',
             ),
             new DirCopy(
                 dir: $resources.'assets/crud/',
@@ -139,6 +152,11 @@ class Crud implements MigrationInterface
                 name: 'Crud views',
                 type: 'views',
                 description: 'Crud views.',
+            ),
+            new FilesDelete(
+                files: $this->iconFiles,
+                type: 'icons',
+                description: 'Crud icon files.',
             ),
             new DirDelete(
                 dir: $this->dirs->get('public').'assets/crud/',
