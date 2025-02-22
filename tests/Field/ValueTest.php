@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Test\Field;
 
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\Input;
 
 class ValueTest extends AbstractField
@@ -52,19 +53,33 @@ class ValueTest extends AbstractField
         $this->processShowTests(Field\Value::class);
     }
     
-    public function testProcessSaveMethodAddsValue()
+    public function testProcessBeforeSaveMethodAddsValue()
     {
         $input = new Input([]);
         $field = Field\Value::new(name: 'name')->value('foo');
-        $field->processSave(field: $field, input: $input);
+        $field->processBeforeSave(field: $field, input: $input);
         $this->assertSame(['name' => 'foo'], $input->all());
     }
     
-    public function testProcessSaveMethodWihtoutValue()
+    public function testProcessBeforeSaveMethodWihtoutValue()
     {
         $input = new Input([]);
         $field = Field\Value::new(name: 'name');
-        $field->processSave(field: $field, input: $input);
+        $field->processBeforeSave(field: $field, input: $input);
         $this->assertSame(['name' => null], $input->all());
+    }
+    
+    public function testProcessIndexActionWithString()
+    {
+        $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => 'foo']));
+        $field->processIndexAction(field: $field);
+        $this->assertSame('foo', $field->render());
+    }
+    
+    public function testProcessIndexActionWithArray()
+    {
+        $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => ['foo', 'bar']]));
+        $field->processIndexAction(field: $field);
+        $this->assertSame('[&quot;foo&quot;,&quot;bar&quot;]', $field->render());
     }
 }

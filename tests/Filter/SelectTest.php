@@ -417,7 +417,7 @@ class SelectTest extends TestCase
         $filter = Select::new(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('<select id="filter_sku" name="filter[sku]"><option value="none">---</option></select>', $rendered);
+        $this->assertStringContainsString('<select id="filter_sku" aria-label="sku" name="filter[sku]"><option value="none">---</option></select>', $rendered);
     }
     
     public function testRenderDottedName()
@@ -435,7 +435,7 @@ class SelectTest extends TestCase
             ->attributes(['mulitple', 'data-foo' => ['key' => 'val']]);
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('<select mulitple data-foo=\'{&quot;key&quot;:&quot;val&quot;}\' id="filter_sku" name="filter[sku]"><option value="none">---</option></select>', $rendered);
+        $this->assertStringContainsString('<select mulitple data-foo=\'{&quot;key&quot;:&quot;val&quot;}\' id="filter_sku" aria-label="sku" name="filter[sku]"><option value="none">---</option></select>', $rendered);
     }
     
     public function testRenderWithoutLabel()

@@ -152,6 +152,23 @@ class ColumnsTest extends TestCase
         $this->assertSame(['id'], $filter->columns());
     }
     
+    public function testApplyIgnoresNotIndexableFields()
+    {
+        $filter = Columns::new();
+        
+        $filter->apply(
+            input: new Input(['columns' => ['id', 'sku']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku')->indexable(false),
+            )),
+        );
+        
+        $this->assertSame(['columns' => ['id']], $filter->getAppliedParameters());
+        $this->assertSame(['id'], $filter->columns());
+    }
+    
     public function testRender()
     {
         $filter = Columns::new()->group('header')->label('LABEL')->description('DESC');
@@ -175,6 +192,23 @@ class ColumnsTest extends TestCase
         // unique id with group header:
         $this->assertStringContainsString('id="filter_columns_header_1"', $rendered);
         $this->assertStringContainsString('label for="filter_columns_header_1"', $rendered);
+    }
+    
+    public function testRenderIgnoresNotIndexableFields()
+    {
+        $filter = Columns::new()->group('header')->label('LABEL')->description('DESC');
+        
+        $filter->apply(
+            input: new Input(['columns' => ['id']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku')->indexable(false),
+            )),
+        );
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringNotContainsString('name="filter[columns][]" type="checkbox" value="sku"', $rendered);
     }
     
     public function testRendersCustomView()

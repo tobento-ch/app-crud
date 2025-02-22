@@ -112,4 +112,23 @@ class TextTest extends AbstractField
         $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<input name="name[en]" id="name_en" type="text" value="EN">', $field->render());
     }
+    
+    public function testProcessCreateEditWithValue()
+    {
+        $field = Field\Text::new(name: 'name')->value('Bar');
+        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<input name="name" id="name" type="text" value="Bar">', $field->render());
+        
+        $field = Field\Text::new(name: 'name')->value('Bar')->setEntity(new Entity(['name' => 'Foo']));
+        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<input name="name" id="name" type="text" value="Bar">', $field->render());
+        
+        $field = Field\Text::new(name: 'name')->value('Bar')->translatable();
+        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<input name="name[en]" id="name_en" type="text" value="Bar">', $field->render());
+        
+        $field = Field\Text::new(name: 'name')->value(['en' => 'EN'])->translatable();
+        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<input name="name[en]" id="name_en" type="text" value="EN">', $field->render());
+    }
 }

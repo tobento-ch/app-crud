@@ -43,6 +43,7 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 Column\Text::new('email'),
                 Column\Text::new('firstname'),
                 Column\Text::new('lastname'),
+                Column\Json::new('options'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -58,6 +59,7 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 Field\Text::new('email')->validate('string|email'),
                 Field\Text::new('firstname')->validate('string'),
                 Field\Text::new('lastname')->validate('string'),
+                Field\Text::new('options.color'),
             ],
             actions: [
                 Action\Update::new(),
@@ -126,5 +128,20 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertCrudFormFieldExists(field: 'email', errorText: 'The email must be a string.');
 
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+    }
+    
+    public function testUpdatesEntityUsingAjax()
+    {
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(method: 'PUT', uri: $this->generateUpdateUri(id: 1))->body([
+            'options' => ['color' => 'blue'],
+        ])->headers(['X-Requested-With' => 'XMLHttpRequest']);
+        
+        $this->getSeedFactory(['options' => ['color' => 'red']])->createOne();
+        
+        $http->followRedirects()->assertStatus(200)->assertCrudIndexEntityCount(1);
+
+        $this->assertSame(['color' => 'blue'], $this->getCrudRepository()->findById(1)->get('options'));
     }
 }

@@ -262,7 +262,7 @@ class InputTest extends TestCase
         $filter = Input::new(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('<input id="filter_sku" name="filter[sku]" type="text">', $rendered);
+        $this->assertStringContainsString('<input id="filter_sku" aria-label="sku" name="filter[sku]" type="text">', $rendered);
     }
     
     public function testRenderDottedName()
@@ -280,7 +280,7 @@ class InputTest extends TestCase
             ->attributes(['placeholder' => 'value', 'required', 'data-foo' => ['key' => 'val']]);
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('<input placeholder="value" required data-foo=\'{&quot;key&quot;:&quot;val&quot;}\' id="filter_sku" name="filter[sku]" type="text">', $rendered);
+        $this->assertStringContainsString('<input placeholder="value" required data-foo=\'{&quot;key&quot;:&quot;val&quot;}\' id="filter_sku" aria-label="sku" name="filter[sku]" type="text">', $rendered);
     }
     
     public function testRenderWithoutLabel()

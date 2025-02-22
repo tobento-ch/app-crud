@@ -67,7 +67,7 @@ class OptionsTest extends AbstractField
     {
         $this->processStoreTests(Field\Options::class, withTranslatable: false);
         $this->processUpdateTests(Field\Options::class, withTranslatable: false);
-        $this->processShowTests(Field\Options::class, withTranslatable: false);
+        //$this->processShowTests(Field\Options::class, withTranslatable: false);
     }
     
     public function testProcessIndex()
@@ -77,6 +77,26 @@ class OptionsTest extends AbstractField
         
         $field->processIndex(field: $field);
         
+        $this->assertStringContainsString('red, blue', $field->render());
+    }
+    
+    public function testProcessShow()
+    {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'red']);
+        $repo->create(['name' => 'blue']);
+        
+        $field = Field\Options::new(name: 'color')
+            ->repository($repo)
+            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
+                return new Field\Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('name'),
+                );
+            })
+            ->setEntity(new Entity(['color' => ['1', '2']]));
+
+        $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('red, blue', $field->render());
     }
     

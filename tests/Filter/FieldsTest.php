@@ -117,14 +117,41 @@ class FieldsTest extends TestCase
     {
         $fields = Fields::new()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'id', label: 'LABEL'),
             ));
         
         $filters = $fields->toFilters();
         $filter = $filters[0] ?? null;
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('name="filter[field][id]" type="search"', $rendered);
-        $this->assertStringContainsString('id="filter_field_id"', $rendered);
+        $this->assertStringContainsString('<input aria-label="LABEL" id="filter_field_id" name="filter[field][id]" type="search">', $rendered);
     }
+    
+    public function testRendersSelectElementIfRadiosField()
+    {
+        $fields = Fields::new()
+            ->fields(new Field\Fields(
+                Field\Radios::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']),
+            ));
+        
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringContainsString('<select aria-label="Color" id="filter_field_color" name="filter[field][color]">', $rendered);
+    }
+    
+    public function testRendersSelectElementIfSelectFieldNotMultiple()
+    {
+        $fields = Fields::new()
+            ->fields(new Field\Fields(
+                Field\Select::new(name: 'color', label: 'LABEL')->options(['blue' => 'Blue', 'red' => 'Red']),
+            ));
+        
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringContainsString('<select aria-label="LABEL" id="filter_field_color" name="filter[field][color]">', $rendered);
+    }    
 }

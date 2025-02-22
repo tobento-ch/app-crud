@@ -67,7 +67,7 @@ class SelectTest extends AbstractField
         
         $field->processIndex(field: $field);
         
-        $this->assertStringContainsString('red', $field->render());
+        $this->assertStringContainsString('Red', $field->render());
     }
     
     public function testProcessIndexMultiple()
