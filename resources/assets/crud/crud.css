@@ -158,3 +158,8 @@ body.crud {max-width: 100%;}
 .overflow-visible {
   overflow: visible;
 }
+@media (scripting: enabled) {
+  .crud .display-none-if-js {
+    display: none;
+  }
+}
