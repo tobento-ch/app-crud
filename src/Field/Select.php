@@ -57,7 +57,7 @@ class Select extends AbstractField
         $this->name = $name;
         $this->label = $label;
         $this->process('index', [$this, 'processIndexAction']);
-        $this->process('show', [$this, 'processIndex']);
+        $this->process('show', [$this, 'processShow']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store|update', [$this, 'processSave']);
         
@@ -229,30 +229,51 @@ class Select extends AbstractField
         $this->validate = $parameters;
         return $this;
     }
-
+    
     /**
-     * Processes the index action.
+     * Processes the show action.
      *
      * @param FieldInterface $field
+     * @param ViewInterface $view
      * @return void
      */
-    public function processIndex(FieldInterface $field): void
+    public function processShow(FieldInterface $field, ViewInterface $view): void
     {
         if ($this->isMultipleSelection()) {
             $options = $field->entity()->get($field->name(), []);
             $options = implode(', ', $options);
-            $options = mb_strimwidth($options, 0, 100, '...');
-            $field->html(Str::esc($options));
+            
+            $field->html($view->render(
+                view: 'crud/field/show/field',
+                data: [
+                    'field' => $field,
+                    'entity' => $field->entity(),
+                    'renderLabel' => true,
+                    'text' => $options,
+                ],
+            ));
+            
             return;
         }
         
         $option = $field->entity()->get($field->name());
         
-        if (! is_scalar($option)) {
+        if (!is_scalar($option)) {
             $option = '';
         }
         
-        $field->html(Str::esc((string)$option));
+        $option = (string)$option;
+        $option = $this->getOptions()[$option] ?? $option;
+        
+        $field->html($view->render(
+            view: 'crud/field/show/field',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+                'renderLabel' => true,
+                'text' => $option,
+            ],
+        ));
     }
         
     /**
@@ -367,6 +388,34 @@ class Select extends AbstractField
         }
         
         $this->processIndex($field);
+    }
+    
+    /**
+     * Processes the index action.
+     *
+     * @param FieldInterface $field
+     * @return void
+     */
+    public function processIndex(FieldInterface $field): void
+    {
+        if ($this->isMultipleSelection()) {
+            $options = $field->entity()->get($field->name(), []);
+            $options = implode(', ', $options);
+            $options = mb_strimwidth($options, 0, 100, '...');
+            $field->html(Str::esc($options));
+            return;
+        }
+        
+        $option = $field->entity()->get($field->name());
+        
+        if (! is_scalar($option)) {
+            $option = '';
+        }
+        
+        $option = (string)$option;
+        $option = $this->getOptions()[$option] ?? $option;
+        
+        $field->html(Str::esc($option));
     }
     
     /**

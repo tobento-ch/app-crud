@@ -210,7 +210,7 @@ class File extends AbstractField implements FieldsAwareInterface
                 }
             }
 
-            if (empty($src) && in_array($action->name(), ['create', 'edit', 'copy'])) {
+            if (empty($src) && in_array($action->name(), ['create', 'edit', 'copy', 'show'])) {
                 $fields = [
                     $this->configureFileSource(Field\FileSource::new('src.'.$action->getLocale(), '')),
                 ];
@@ -226,7 +226,7 @@ class File extends AbstractField implements FieldsAwareInterface
         } else {
             $src = $action->entity()->get($this->name().'.src');
 
-            if (empty($src) && in_array($action->name(), ['create', 'edit', 'copy'])) {
+            if (empty($src) && in_array($action->name(), ['create', 'edit', 'copy', 'show'])) {
                 $fields = [
                     $this->configureFileSource(Field\FileSource::new('src', '')),
                 ];

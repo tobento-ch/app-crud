@@ -28,6 +28,11 @@ class Text extends AbstractField
      * @var string
      */
     protected string $inputType = 'text';
+
+    /**
+     * @var null|string|array
+     */
+    protected null|string|array $value = null;
     
     /**
      * @var string|array
@@ -66,6 +71,43 @@ class Text extends AbstractField
         return new static($name, $label);
     }
 
+    /**
+     * Sets the value.
+     *
+     * @param string|array $value
+     * @return static $this
+     */
+    public function value(string|array $value): static
+    {
+        $this->value = $value;
+        return $this;
+    }
+    
+    /**
+     * Returns the value for the field.
+     *
+     * @param Text $field
+     * @param null|string $locale
+     * @return string
+     */
+    public function getValue(Text $field, null|string $locale = null): string
+    {
+        if (!is_null($this->value)) {
+            if (!is_null($locale)) {
+                $value = $this->value[$locale] ?? $this->value;
+                return is_string($value) ? $value : '';
+            }
+
+            return is_string($this->value) ? $this->value : '';            
+        }
+        
+        if (!is_null($locale)) {
+            return $field->entity()->get($field->name(), $field->getDefaultValue($locale), $locale);
+        }
+        
+        return $field->entity()->get($field->name(), $field->getDefaultValue());
+    }
+    
     /**
      * Sets the default value.
      *
@@ -199,7 +241,7 @@ class Text extends AbstractField
             return;
         }
         
-        $this->processIndex($field);
+        $field->html(Str::esc($field->getValue($field, $field->locale())));
     }
     
     /**
@@ -230,7 +272,7 @@ class Text extends AbstractField
             $html = $form->input(
                 name: $field->name(),
                 type: $field->getType(),
-                value: $field->entity()->get($field->name(), ''),
+                value: $field->getValue($field),
                 attributes: $attributes,
             );
 
@@ -246,7 +288,7 @@ class Text extends AbstractField
             $html .= $form->input(
                 name: $field->name().'.'.$locale,
                 type: $field->getType(),
-                value: $field->entity()->get($field->name(), '', $locale),
+                value: $field->getValue($field, $locale),
                 attributes: $attributes,
             );
             $html .= '</div>';

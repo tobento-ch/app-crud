@@ -57,7 +57,7 @@ class Radios extends AbstractField
         $this->name = $name;
         $this->label = $label;
         $this->process('index', [$this, 'processIndexAction']);
-        $this->process('show', [$this, 'processIndex']);
+        $this->process('show', [$this, 'processShow']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store|update', [$this, 'processSave']);
         
@@ -237,7 +237,53 @@ class Radios extends AbstractField
      */
     public function processIndex(FieldInterface $field): void
     {
-        $field->html(Str::esc($field->entity()->get($field->name(), '')));
+        $value = $field->entity()->get($field->name());
+        
+        if (is_bool($value)) {
+            $value = $value === false ? '0' : '1';
+        }
+        
+        if (!is_scalar($value)) {
+            $value = '';
+        }
+        
+        $value = (string)$value;
+        $value = $this->getOptions()[$value] ?? $value;
+        
+        $field->html(Str::esc($value));
+    }
+    
+    /**
+     * Processes the show action.
+     *
+     * @param FieldInterface $field
+     * @param ViewInterface $view
+     * @return void
+     */
+    public function processShow(FieldInterface $field, ViewInterface $view): void
+    {
+        $value = $field->entity()->get($field->name());
+        
+        if (is_bool($value)) {
+            $value = $value === false ? '0' : '1';
+        }
+        
+        if (!is_scalar($value)) {
+            $value = '';
+        }
+        
+        $value = (string)$value;
+        $value = $this->getOptions()[$value] ?? $value;
+        
+        $field->html($view->render(
+            view: 'crud/field/show/field',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+                'renderLabel' => true,
+                'text' => $value,
+            ],
+        ));
     }
         
     /**
@@ -259,10 +305,20 @@ class Radios extends AbstractField
         $attributes['id'] ??= $form->nameToId($field->name());
         $name = $form->nameToArray($field->name());
         
+        $selected = $field->entity()->get($field->name(), $field->getSelected());
+        
+        if (is_bool($selected)) {
+            $selected = $selected === false ? '0' : '1';
+        }
+        
+        if (!is_scalar($selected)) {
+            $selected = '';
+        }
+        
         $body = $form->radios(
             name: $name,
             items: $field->getOptions(),
-            selected: (string)$field->entity()->get($field->name(), $field->getSelected()),
+            selected: (string)$selected,
             attributes: $attributes,
             labelAttributes: [],
             withInput: true,
@@ -321,11 +377,21 @@ class Radios extends AbstractField
         $attributes['tabindex'] = '5';
         $name = $form->nameToArray($field->name());
         
+        $selected = $field->entity()->get($field->name(), $field->getSelected());
+        
+        if (is_bool($selected)) {
+            $selected = $selected === false ? '0' : '1';
+        }
+        
+        if (!is_scalar($selected)) {
+            $selected = '';
+        }
+        
         $html = '<div class="field list">';
         $html .= $form->radios(
             name: $name,
             items: $field->getOptions(),
-            selected: (string)$field->entity()->get($field->name(), $field->getSelected()),
+            selected: (string)$selected,
             attributes: $attributes,
             labelAttributes: [],
             withInput: true,

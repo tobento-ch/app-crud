@@ -57,7 +57,7 @@ class Checkboxes extends AbstractField
         $this->name = $name;
         $this->label = $label;
         $this->process('index', [$this, 'processIndexAction']);
-        $this->process('show', [$this, 'processIndex']);
+        $this->process('show', [$this, 'processShow']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store:before|update:before', [$this, 'processBeforeSave']);
         $this->process('store|update', [$this, 'processSave']);
@@ -242,6 +242,29 @@ class Checkboxes extends AbstractField
         $options = implode(', ', $options);
         $options = mb_strimwidth($options, 0, 100, '...');
         $field->html(Str::esc($options));
+    }
+    
+    /**
+     * Processes the show action.
+     *
+     * @param FieldInterface $field
+     * @param ViewInterface $view
+     * @return void
+     */
+    public function processShow(FieldInterface $field, ViewInterface $view): void
+    {
+        $options = $field->entity()->get($field->name(), []);
+        $options = implode(', ', $options);
+
+        $field->html($view->render(
+            view: 'crud/field/show/field',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+                'renderLabel' => true,
+                'text' => $options,
+            ],
+        ));
     }
         
     /**

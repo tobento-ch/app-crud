@@ -98,19 +98,31 @@ class Textarea extends AbstractField
      */
     public function processIndex(FieldInterface $field): void
     {
-        $this->processShow($field);
+        $text = (string)$field->entity()->get($field->name(), '', $field->locale());
+        $text = mb_strimwidth($text, 0, 100, '...');
+        
+        $field->html(nl2br(Str::esc($text)));
     }
     
     /**
      * Processes the show action.
      *
      * @param FieldInterface $field
+     * @param ViewInterface $view
      * @return void
      */
-    public function processShow(FieldInterface $field): void
+    public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        $html = (string)$field->entity()->get($field->name(), '', $field->locale());
+        $text = (string)$field->entity()->get($field->name(), '', $field->locale());
         
-        $field->html(nl2br(Str::esc($html)));
+        $field->html($view->render(
+            view: 'crud/field/show/field',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+                'renderLabel' => true,
+                'text' => $text,
+            ],
+        ));
     }
 }

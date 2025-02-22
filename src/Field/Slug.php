@@ -76,6 +76,22 @@ class Slug extends AbstractField
     }
     
     /**
+     * Returns the value for the field.
+     *
+     * @param Slug $field
+     * @param null|string $locale
+     * @return string
+     */
+    public function getValue(Slug $field, null|string $locale = null): string
+    {
+        if (!is_null($locale)) {
+            return $field->entity()->get($field->name(), $field->getDefaultValue($locale), $locale);
+        }
+        
+        return $field->entity()->get($field->name(), $field->getDefaultValue());
+    }
+    
+    /**
      * Returns the default value.
      *
      * @param null|string $locale

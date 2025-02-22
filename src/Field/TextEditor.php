@@ -16,7 +16,7 @@ namespace Tobento\App\Crud\Field;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\InputInterface;
-use Tobento\App\HtmlSanitizer\HtmlSanitizerInterface;
+use Tobento\Service\Support\Str;
 use Tobento\Service\View\ViewInterface;
 
 /**
@@ -41,7 +41,7 @@ class TextEditor extends AbstractField
     ) {
         $this->name = $name;
         $this->label = $label;
-        $this->process('index', [$this, 'processIndex']);
+        $this->process('index', [$this, 'processIndexAction']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('show', [$this, 'processShowAction']);
         $this->process('store', [$this, 'processStore']);
@@ -129,16 +129,33 @@ class TextEditor extends AbstractField
     }
     
     /**
+     * Processes the index action.
+     *
+     * @param FieldInterface $field
+     * @return void
+     */
+    public function processIndexAction(FieldInterface $field): void
+    {
+        $html = (string)$field->entity()->get($field->name(), '', $field->locale());
+        $html = mb_strimwidth($html, 0, 100, '...');
+        $field->html(Str::esc($html));
+    }
+    
+    /**
      * Processes the show action.
      *
      * @param FieldInterface $field
-     * @param HtmlSanitizerInterface $htmlSanitizer
+     * @param ViewInterface $view
      * @return void
      */
-    public function processShowAction(FieldInterface $field, HtmlSanitizerInterface $htmlSanitizer): void
+    public function processShowAction(FieldInterface $field, ViewInterface $view): void
     {
-        $html = (string)$field->entity()->get($field->name(), '', $field->locale());
-        
-        $field->html('<div class="content">'.$htmlSanitizer->sanitize($html).'</div>');
+        $field->html($view->render(
+            view: 'crud/field/show/text-editor',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+            ],
+        ));
     }
 }

@@ -16,6 +16,7 @@ namespace Tobento\App\Crud\Field;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\InputInterface;
+use Tobento\Service\Support\Str;
 use Tobento\Service\View\ViewInterface;
 
 /**
@@ -29,16 +30,22 @@ class Value extends AbstractField
     protected mixed $value = null;
     
     /**
-     * Create a new Text.
+     * Create a new Value.
      *
      * @param string $name
+     * @param null|string $label
      */
     final public function __construct(
         string $name,
+        null|string $label = null,
     ) {
         $this->name = $name;
-        $this->process('store|update', [$this, 'processSave']);
+        $this->label = $label;
+        $this->process('index', [$this, 'processIndexAction']);
+        $this->process('store:before|update:before', [$this, 'processBeforeSave']);
+        $this->process('show', [$this, 'processShow']);
         $this->indexable(false);
+        $this->showable(false);
         $this->configure();
     }
 
@@ -49,9 +56,9 @@ class Value extends AbstractField
      * @param null|string $label
      * @return static
      */
-    public static function new(string $name): static
+    public static function new(string $name, null|string $label = null): static
     {
-        return new static($name);
+        return new static($name, $label);
     }
     
     /**
@@ -77,13 +84,38 @@ class Value extends AbstractField
     }
     
     /**
-     * Processes the store action.
+     * Processes the index action.
+     *
+     * @param FieldInterface $field
+     * @return void
+     */
+    public function processIndexAction(FieldInterface $field): void
+    {
+        $value = $field->entity()->get($field->name());
+        
+        if (is_scalar($value)) {
+            $field->html(Str::esc((string)$value));
+            return;
+        }
+        
+        if (is_array($value)) {
+            $value = json_encode($value);
+            $value = mb_strimwidth($value, 0, 100, '...');
+            $field->html(Str::esc($value));
+            return;
+        }
+        
+        $field->html('');
+    }
+    
+    /**
+     * Processes the before save action.
      *
      * @param Value $field
      * @param InputInterface $input
      * @return void
      */
-    public function processSave(
+    public function processBeforeSave(
         Value $field,
         InputInterface $input,
     ): void {
