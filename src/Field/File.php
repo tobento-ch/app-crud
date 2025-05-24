@@ -350,7 +350,10 @@ class File extends AbstractField implements FieldsAwareInterface
             $loc = $locale ?: $defaultLocale;
             $fieldSrc = $fields->get($field->name().'.src.'.$loc);
             
-            if (is_null($fieldSrc)) {
+            if (
+                is_null($fieldSrc)
+                || ($fieldSrc instanceof FileSource && is_null($fieldSrc->getWriteResponse()))
+            ) {
                 $fieldSrc = $fields->get($field->name().'.src.'.$defaultLocale);
             }
         } else {
@@ -365,7 +368,7 @@ class File extends AbstractField implements FieldsAwareInterface
             && !is_null($fieldSrc->getWriteResponse())
             && empty($input->get($inputKey))
         ) {
-            $filename = $this->modifyFilename($fieldSrc->getWriteResponse()->originalFilename());
+            $filename = $this->modifyFilename($fieldSrc->getWriteResponse()->originalFilename(), $locale);
             $input->set($inputKey, $filename);
         }
     }
@@ -483,12 +486,13 @@ class File extends AbstractField implements FieldsAwareInterface
      * Returns the modified filename.
      *
      * @param string $filename
+     * @param null|string $locale
      * @return string
      */
-    protected function modifyFilename(string $filename): string
+    protected function modifyFilename(string $filename, null|string $locale): string
     {
         if (is_callable($this->filenameModifier)) {
-            return call_user_func($this->filenameModifier, $filename);
+            return call_user_func($this->filenameModifier, $filename, $locale);
         }
         
         return $filename;
