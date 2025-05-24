@@ -116,7 +116,7 @@ class Select extends AbstractFilter
         }
 
         $selected = $input->get($this->name());
-        
+                
         if (is_string($selected) && array_key_exists($selected, $this->getOptions())) {
             $this->selected = $selected;
             return;
@@ -138,7 +138,7 @@ class Select extends AbstractFilter
      */
     public function getAppliedParameters(): array
     {
-        if (empty($this->getSelected())) {
+        if (empty($this->getSelected()) && $this->getSelected() !== '0') {
             return [];
         }
         
@@ -155,8 +155,8 @@ class Select extends AbstractFilter
         if (is_array($this->whereParameters)) {
             return $this->whereParameters;
         }
-        
-        if (empty($this->getSelected()) || empty($this->fieldName())) {
+
+        if ((empty($this->getSelected()) && $this->getSelected() !== '0') || empty($this->fieldName())) {
             return [];
         }
         
@@ -186,7 +186,7 @@ class Select extends AbstractFilter
      */
     public function isActive(): bool
     {
-        return empty($this->getSelected()) || empty($this->fieldName()) ? false : true;
+        return (empty($this->getSelected()) && $this->getSelected() !== '0') || empty($this->fieldName()) ? false : true;
     }
 
     /**
@@ -210,7 +210,7 @@ class Select extends AbstractFilter
         if (empty($this->label) && !isset($attributes['aria-label'])) {
             $attributes['aria-label'] = $this->name();
         }
-        
+                
         $body = $form->select(
             name: $name,
             items: $this->getOptions(),

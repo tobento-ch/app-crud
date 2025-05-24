@@ -133,7 +133,7 @@ class Radios extends AbstractFilter
      */
     public function getAppliedParameters(): array
     {
-        if (empty($this->getSelected()) || $this->getSelected() === '_none') {
+        if ((empty($this->getSelected()) && $this->getSelected() !== '0') || $this->getSelected() === '_none') {
             return [];
         }
         
@@ -151,7 +151,11 @@ class Radios extends AbstractFilter
             return $this->whereParameters;
         }
         
-        if (empty($this->getSelected()) || $this->getSelected() === '_none' || empty($this->fieldName())) {
+        if (
+            (empty($this->getSelected()) && $this->getSelected() !== '0')
+            || $this->getSelected() === '_none'
+            || empty($this->fieldName())
+        ) {
             return [];
         }
         
@@ -175,7 +179,7 @@ class Radios extends AbstractFilter
      */
     public function isActive(): bool
     {
-        return empty($this->getSelected()) || empty($this->fieldName()) ? false : true;
+        return (empty($this->getSelected()) && $this->getSelected() !== '0') || empty($this->fieldName()) ? false : true;
     }
 
     /**
