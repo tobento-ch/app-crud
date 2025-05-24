@@ -1,6 +1,6 @@
 <?php $form = $view->form(); ?>
 <?php if ($field->isTranslatable()) { ?>        
-	<div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>" data-translatable="1">
+    <div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>" data-translatable="1">
         <div class="field-label">
             <?= $form->label(
                 text: $view->trans($field->label()),
@@ -9,8 +9,8 @@
                 optionalText: $view->trans($field->getOptionalText(action: $actionName)),
             ) ?>
         </div>
-		<div class="field-body">
-			<?php foreach($field->locales() as $locale => $name) { ?>
+        <div class="field-body">
+            <?php foreach($field->locales() as $locale => $name) { ?>
                 <div class="field">
                     <div class="text-xxs mb-xxs">
                         <?= $form->label(
@@ -29,11 +29,11 @@
                         <?php } ?>
                     </div>
                 </div>
-			<?php } ?>
-		</div>
-	</div>
+            <?php } ?>
+        </div>
+    </div>
 <?php } else { ?>
-	<div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>">
+    <div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>">
         <div class="field-label">
             <?= $form->label(
                 text: $view->trans($field->label()),
@@ -42,7 +42,7 @@
                 optionalText: $view->trans($field->getOptionalText(action: $actionName)),
             ) ?>
         </div>
-		<div class="field-body">
+        <div class="field-body">
             <?= $form->textarea(
                 name: $field->name(),
                 value: $entity->get($field->name(), ''),
@@ -51,6 +51,6 @@
             <?php if ($field->getInfoText(action: $actionName)) { ?>
                 <p class="text-xxs"><?= $view->etrans($field->getInfoText(action: $actionName)) ?></p>
             <?php } ?>
-		</div>
-	</div>
+        </div>
+    </div>
 <?php } ?>

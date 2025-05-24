@@ -5,7 +5,7 @@ $view->asset('assets/crud/field-text-editor.js')->attr('type', 'module');
 $form = $view->form();
 ?>
 <?php if ($field->isTranslatable()) { ?>        
-	<div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>" data-translatable="1">
+    <div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>" data-translatable="1">
         <div class="field-label">
             <?= $form->label(
                 text: $view->trans($field->label()),
@@ -14,8 +14,8 @@ $form = $view->form();
                 optionalText: $view->trans($field->getOptionalText(action: $actionName)),
             ) ?>
         </div>
-		<div class="field-body">
-			<?php foreach($field->locales() as $locale => $name) { ?>
+        <div class="field-body">
+            <?php foreach($field->locales() as $locale => $name) { ?>
                 <div class="field">
                     <div class="field-label text-xxs">
                         <?= $form->label(
@@ -36,11 +36,11 @@ $form = $view->form();
                         <?php } ?>
                     </div>
                 </div>
-			<?php } ?>
-		</div>
-	</div>
+            <?php } ?>
+        </div>
+    </div>
 <?php } else { ?>
-	<div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>">
+    <div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>">
         <div class="field-label">
             <?= $form->label(
                 text: $view->trans($field->label()),
@@ -49,7 +49,7 @@ $form = $view->form();
                 optionalText: $view->trans($field->getOptionalText(action: $actionName)),
             ) ?>
         </div>
-		<div class="field-body">
+        <div class="field-body">
             <div class="content">
                 <?= $form->textarea(
                     name: $field->name(),
@@ -60,6 +60,6 @@ $form = $view->form();
             <?php if ($field->getInfoText(action: $actionName)) { ?>
                 <p class="text-xxs"><?= $view->etrans($field->getInfoText(action: $actionName)) ?></p>
             <?php } ?>
-		</div>
-	</div>
+        </div>
+    </div>
 <?php } ?>

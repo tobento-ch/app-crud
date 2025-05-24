@@ -272,6 +272,7 @@ foreach($action->entities() as $entity) {
             <?php } ?>
             
             <?= $view->render('crud/modal/confirm') ?>
+        </main>
         
         <?= $view->render('inc/footer') ?>
     </body>
