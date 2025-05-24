@@ -70,6 +70,7 @@ class CrudTableRenderer extends Renderer
 
         $attributes = new Attributes($table->getAttributes());
         $attributes->add('class', 'table');
+        $attributes->add('role', 'table');
         $html = '<div'.$attributes.'>';
         
         foreach($groups as $groupName => $rows) {
@@ -85,6 +86,7 @@ class CrudTableRenderer extends Renderer
 
                 $attributes = new Attributes($row->getAttributes());
                 $attributes->add('class', 'table-row');
+                $attributes->set('role', 'row');
 
                 if ($row->isHeading()) {
                     $attributes->add('class', 'th');
@@ -106,12 +108,19 @@ class CrudTableRenderer extends Renderer
                     if ($column->key() === 'bulk') {
                         $size = '1';
                     }
+                    
+                    $role = 'cell';
+
+                    if ($row->isHeading()) {
+                        $role = 'columnheader';
+                    }
 
                     if (empty($column->attributes())) {
-                        $html .= '<div class="table-col grow-'.Str::esc((string)$size).'">'.$text.'</div>';
+                        $html .= '<div class="table-col grow-'.Str::esc((string)$size).'" role="'.$role.'">'.$text.'</div>';
                     } else {
                         $attributes = new Attributes($column->attributes());
                         $attributes->add('class', 'table-col grow-'.Str::esc((string)$size));
+                        $attributes->set('role', $role);
                         $html .= '<div'.$attributes.'>'.$text.'</div>';
                     }
                 }
