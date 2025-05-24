@@ -438,6 +438,42 @@ class SelectTest extends AbstractField
         $this->assertSame('required|minItems:2|maxItems:10', $rules['color'][0] ?? null);
         $this->assertInstanceof(Rule\Passes::class, $rules['color'][1] ?? null);
     }
+    
+    public function testOptionAttributesAreRendered()
+    {
+        $field = Field\Select::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->optionAttributes([
+                '*' => ['data-all' => 'value'],
+                'blue' => ['data-blue' => 'value'],
+            ]);
+        
+        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString(
+            '<select id="color" name="color"><option data-all="value" data-blue="value" value="blue">Blue</option><option data-all="value" value="red">Red</option></select>',
+            $field->render()
+        );
+    }
+    
+    public function testOptgroupAttributesAreRendered()
+    {
+        $field = Field\Select::new(name: 'color')
+            ->options([
+                'Frontend' => [
+                    'guest' => 'Guest',
+                ],
+                'Backend' => [
+                    'editor' => 'Editor',
+                ],
+            ])
+            ->optgroupAttributes(['data-foo' => 'value']);
+        
+        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString(
+            '<select id="color" name="color"><optgroup data-foo="value" label="Frontend"><option value="guest">Guest</option></optgroup><optgroup data-foo="value" label="Backend"><option value="editor">Editor</option></optgroup></select>',
+            $field->render()
+        );
+    }
 }
 
 class ColorRepo

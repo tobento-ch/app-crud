@@ -73,6 +73,24 @@ class SelectTest extends TestCase
         
         $this->assertSame(['foo' => 'blue'], $filter->getAppliedParameters());
         $this->assertSame(['sku' => ['=' => 'blue']], $filter->getWhereParameters());
+        $this->assertTrue($filter->isActive());
+    }
+    
+    public function testApplyZeroValue()
+    {
+        $filter = Select::new(name: 'foo', field: 'sku')->options(['0' => 'Inactive', '1' => 'Active']);
+        
+        $filter->apply(
+            input: new Input(['foo' => '0']),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $this->assertSame(['foo' => '0'], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => ['=' => '0']], $filter->getWhereParameters());
+        $this->assertTrue($filter->isActive());
     }
     
     public function testApplyValueWithOptionsUsingClosure()

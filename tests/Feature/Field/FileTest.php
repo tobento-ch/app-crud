@@ -330,6 +330,33 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         );
     }
     
+    public function testStoreActionUploadsFileTranslatableUsesStoreFilenameToTranslatableFallsbackToDefault()
+    {
+        $this->withFile(function () {
+            return Field\File::new('file')
+                ->fields(
+                    Field\Text::new('alt', 'Alt Text')->translatable(),
+                )
+                ->storeFilenameTo(field: 'alt')
+                ->translatable();
+        });
+        
+        $fileStorage = $this->fakeFileStorage();
+        $http = $this->fakeHttp();
+        $http->request(method: 'POST', uri: $this->generateStoreUri())->body([
+            'file' => ['src' => [
+                'en' => $http->getFileFactory()->createImage('f-bar.jpg', 50, 50),
+            ]],
+        ]);
+        
+        $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
+
+        $this->assertSame(
+            ['en' => 'f bar', 'de' => 'f bar'],
+            $this->getCrudRepository()->findById(1)->get('file.alt')
+        );
+    }
+    
     public function testStoreActionUploadsFileTranslatableUsesStoreFilenameTo()
     {
         $this->withFile(function () {
