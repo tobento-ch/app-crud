@@ -764,7 +764,7 @@ Field\File::new(name: 'file')
     ->storeFilenameTo(field: 'name');
     
     // with using a filename modifier (callable):
-    ->storeFilenameTo(field: 'name', modify: static function(string $filename): string {
+    ->storeFilenameTo(field: 'name', modify: static function(string $filename, null|string $locale): string {
         return $filename;
     });
 ```
@@ -1400,6 +1400,15 @@ You may set additional HTML select attributes using the ```attributes``` method:
 use Tobento\App\Crud\Field;
 
 Field\Select::new('colors')->attributes(['multiple', 'size' => '10']);
+
+Field\Select::new('colors')->optionAttributes([
+    // all options using wildcard:
+    '*' => ['data-foo' => 'value'],
+    // specific option using option value:
+    'blue' => ['data-bar' => 'value'],
+]);
+
+Field\Select::new('colors')->optgroupAttributes(['data-foo' => 'value']);
 ```
 
 **Validation**
