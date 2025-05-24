@@ -24,11 +24,11 @@
         <?= $view->render('inc/nav') ?>
 
         <aside class="page-aside">
-        	<nav>
+            <nav>
             <ul class="menu-v spaced menu-main">
-				<?php foreach($action->fields()->column('groupName', 'groupId') as $groupId => $groupName) { ?>
-					<li><a href="#<?= $view->esc($groupId) ?>"><?= $view->esc($groupName) ?></a></li>
-				<?php } ?>
+                <?php foreach($action->fields()->column('groupName', 'groupId') as $groupId => $groupName) { ?>
+                    <li><a href="#<?= $view->esc($groupId) ?>"><?= $view->esc($groupName) ?></a></li>
+                <?php } ?>
             </ul>
             </nav>
         </aside>
