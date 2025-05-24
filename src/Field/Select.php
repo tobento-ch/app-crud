@@ -45,6 +45,16 @@ class Select extends AbstractField
     protected null|string|iterable $selected = null;
     
     /**
+     * @var array
+     */
+    protected array $optionAttributes = [];
+    
+    /**
+     * @var array
+     */
+    protected array $optgroupAttributes = [];
+    
+    /**
      * Create a new Select.
      *
      * @param string $name
@@ -202,6 +212,50 @@ class Select extends AbstractField
     }
     
     /**
+     * Sets the select option attributes.
+     *
+     * @param array $attributes
+     * @return static $this
+     */
+    public function optionAttributes(array $attributes): static
+    {
+        $this->optionAttributes = $attributes;
+        return $this;
+    }
+    
+    /**
+     * Returns the select option attributes.
+     *
+     * @return array
+     */
+    public function getOptionAttributes(): array
+    {
+        return $this->optionAttributes;
+    }
+    
+    /**
+     * Sets the select optgroup attributes.
+     *
+     * @param array $attributes
+     * @return static $this
+     */
+    public function optgroupAttributes(array $attributes): static
+    {
+        $this->optgroupAttributes = $attributes;
+        return $this;
+    }
+    
+    /**
+     * Returns the select optgroup attributes.
+     *
+     * @return array
+     */
+    public function getOptgroupAttributes(): array
+    {
+        return $this->optgroupAttributes;
+    }
+    
+    /**
      * Set if the attribute is translatable.
      *
      * @param bool $translatable
@@ -313,8 +367,8 @@ class Select extends AbstractField
             items: $field->getOptions(),
             selected: $field->entity()->get($field->name(), $field->getSelected()),
             selectAttributes: $attributes,
-            optionAttributes: [],
-            optgroupAttributes: [],
+            optionAttributes: $this->getOptionAttributes(),
+            optgroupAttributes: $this->getOptgroupAttributes(),
             emptyOption: $field->getEmptyOption(),
             withInput: true,
         );
@@ -453,8 +507,8 @@ class Select extends AbstractField
             items: $field->getOptions(),
             selected: $field->entity()->get($field->name(), $field->getSelected()),
             selectAttributes: $attributes,
-            optionAttributes: [],
-            optgroupAttributes: [],
+            optionAttributes: $this->getOptionAttributes(),
+            optgroupAttributes: $this->getOptgroupAttributes(),
             emptyOption: $field->getEmptyOption(),
             withInput: true,
         );
