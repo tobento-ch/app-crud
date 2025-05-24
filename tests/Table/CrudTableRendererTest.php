@@ -50,7 +50,7 @@ class CrudTableRendererTest extends TestCase
         ]);
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="items"><div><div class="table-row"><div class="table-col grow-1">shirt</div><div class="table-col grow-1">Shirt</div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="items"><div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">shirt</div><div class="table-col grow-1" role="cell">Shirt</div></div></div></div></div>',
             $renderer->render($table)
         );
     }
@@ -67,7 +67,7 @@ class CrudTableRendererTest extends TestCase
         ]);
         
         $this->assertSame(
-            '<div data-foo="value" class="bar table"><div data-table-group="items"><div><div class="table-row"><div class="table-col grow-1">shirt</div><div class="table-col grow-1">Shirt</div></div></div></div></div>',
+            '<div data-foo="value" class="bar table" role="table"><div data-table-group="items"><div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">shirt</div><div class="table-col grow-1" role="cell">Shirt</div></div></div></div></div>',
             $renderer->render($table)
         );
     }    
@@ -82,7 +82,7 @@ class CrudTableRendererTest extends TestCase
               ->column(key: 'title', text: 'Title', attributes: ['data-foo' => 'Foo', 'class' => 'bar']);
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="items"><div><div class="table-row"><div class="table-col grow-1">Sku</div><div data-foo="Foo" class="bar table-col grow-1">Title</div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="items"><div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">Sku</div><div data-foo="Foo" class="bar table-col grow-1" role="cell">Title</div></div></div></div></div>',
             $renderer->render($table)
         );
     }
@@ -101,7 +101,7 @@ class CrudTableRendererTest extends TestCase
         ]);
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="items"><div><div class="table-row"><div class="table-col grow-1">shirt</div></div><div class="table-row"><div class="table-col grow-1">cap</div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="items"><div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">shirt</div></div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">cap</div></div></div></div></div>',
             $renderer->render($table)
         );
     }
@@ -116,7 +116,7 @@ class CrudTableRendererTest extends TestCase
         ])->heading()->id('heading');
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="heading"><div><div class="table-row th"><div class="table-col grow-1">shirt</div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="heading"><div><div class="table-row th" role="row"><div class="table-col grow-1" role="columnheader">shirt</div></div></div></div></div>',
             $renderer->render($table)
         );
     }
@@ -131,7 +131,7 @@ class CrudTableRendererTest extends TestCase
         ])->id('filters');
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="filters"><div><div class="table-row"><div class="table-col grow-1">shirt</div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="filters"><div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">shirt</div></div></div></div></div>',
             $renderer->render($table)
         );
     }
@@ -147,7 +147,7 @@ class CrudTableRendererTest extends TestCase
         ])->html('desc');
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="items"><div><div class="table-row"><div class="table-col grow-1">&lt;p&gt;intro&lt;/p&gt;</div><div class="table-col grow-1"><p>desc</p></div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="items"><div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">&lt;p&gt;intro&lt;/p&gt;</div><div class="table-col grow-1" role="cell"><p>desc</p></div></div></div></div></div>',
             $renderer->render($table)
         );        
     }
@@ -166,7 +166,7 @@ class CrudTableRendererTest extends TestCase
         ]);
         
         $this->assertSame(
-            '<div class="table"><div data-table-group="items"><div><div data-id="foo" class="table-row"><div class="table-col grow-1">shirt</div></div><div class="table-row"><div class="table-col grow-1">cap</div></div></div></div></div>',
+            '<div class="table" role="table"><div data-table-group="items"><div><div data-id="foo" class="table-row" role="row"><div class="table-col grow-1" role="cell">shirt</div></div><div class="table-row" role="row"><div class="table-col grow-1" role="cell">cap</div></div></div></div></div>',
             $renderer->render($table)
         );
     }    
