@@ -90,7 +90,7 @@ class Html extends AbstractField
     public function processRender(Html $field, AppInterface $app): void
     {
         if (is_callable($field->getContent())) {
-            $field->html($app->call($field->getContent()));
+            $field->html($app->call($field->getContent(), ['field' => $field]));
             return;
         }
         
