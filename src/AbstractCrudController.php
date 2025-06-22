@@ -25,6 +25,7 @@ use Tobento\App\Crud\Action\BulkActionInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Fields;
+use Tobento\App\Crud\Field\ParentFieldsAwareInterface;
 use Tobento\App\Crud\Filter\FilterInterface;
 use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Filter\Filters;
@@ -43,7 +44,7 @@ use Tobento\Service\Support\Arrayable;
 /**
  * AbstractCrudController
  */
-abstract class AbstractCrudController //implements CrudControllerInterface
+abstract class AbstractCrudController
 {
     /**
      * @var RepositoryInterface
@@ -485,7 +486,10 @@ abstract class AbstractCrudController //implements CrudControllerInterface
         if ($requester->isAjax()) {
             $inputKeys = $requester->input()->keys()->all();
             $inputKeys = array_merge($inputKeys, array_keys($requester->request()->getUploadedFiles()));
-            $fields = $fields->filter(fn (FieldInterface $f): bool => in_array(explode('.', $f->name())[0], $inputKeys));
+            $fields = $fields->filter(
+                fn (FieldInterface $f): bool
+                => $f instanceof ParentFieldsAwareInterface || in_array(explode('.', $f->name())[0], $inputKeys)
+            );
         }
 
         $action->setFields($fields);
