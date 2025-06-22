@@ -387,17 +387,13 @@ class Radios extends AbstractField
             $selected = '';
         }
         
-        $html = '<div class="field list">';
-        $html .= $form->radios(
+        $html = $form->select(
             name: $name,
             items: $field->getOptions(),
             selected: (string)$selected,
-            attributes: $attributes,
-            labelAttributes: [],
+            selectAttributes: $attributes,
             withInput: true,
-            wrapClass: 'wrap-v',
         );
-        $html .= '</div>';
         
         $field->html($html);
     }
