@@ -27,6 +27,11 @@ final class Delete extends AbstractAction
     private $undeletable = null;
     
     /**
+     * @var string
+     */
+    private string $undeletableReason = '';
+    
+    /**
      * Create a new Delete.
      *
      * @param null|string|Closure $title
@@ -86,11 +91,23 @@ final class Delete extends AbstractAction
      * Sets the undeletable ids or using a callback returning whether the entity is undeletable.
      *
      * @param callable|array<array-key, int|string> $ids
+     * @param string $reason
      * @return static $this
      */
-    public function undeletable(callable|array $ids): static
+    public function undeletable(callable|array $ids, string $reason = ''): static
     {
         $this->undeletable = $ids;
+        $this->undeletableReason = $reason;
         return $this;
+    }
+    
+    /**
+     * Returns the undeletable reason.
+     *
+     * @return string
+     */
+    public function undeletableReason(): string
+    {
+        return $this->undeletableReason;
     }
 }
