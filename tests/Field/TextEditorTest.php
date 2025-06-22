@@ -67,6 +67,13 @@ class TextEditorTest extends AbstractField
         $this->assertStringContainsString('<textarea data-editor=\'[]\' name="name[en]" id="name_en">Foo</textarea>', $field->render());
     }
     
+    public function testProcessIndexAction()
+    {
+        $field = Field\TextEditor::new(name: 'name')->setEntity(new Entity(['name' => '<h1>Lorem</h1><p>lorem   &nbsp;  ipsum</p>']));
+        $field->processIndexAction(field: $field);
+        $this->assertSame('Lorem lorem ipsum', $field->render());
+    }
+    
     public function testCustomAttributesAreRendered()
     {
         $field = Field\TextEditor::new(name: 'name')
