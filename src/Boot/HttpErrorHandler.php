@@ -80,7 +80,7 @@ class HttpErrorHandler extends ErrorHandler
             
             $responser->messages()->add(
                 level: 'error',
-                message: 'Record with the ID :id is undeletable.',
+                message: $t->getMessage() ? $t->getMessage() : 'Record with the ID :id is undeletable.',
                 parameters: [':id' => $t->id()],
             );
             
@@ -102,7 +102,7 @@ class HttpErrorHandler extends ErrorHandler
             
             $responser->messages()->add(
                 level: 'error',
-                message: 'Record with the ID :id is unupdatable.',
+                message: $t->getMessage() ? $t->getMessage() : 'Record with the ID :id is unupdatable.',
                 parameters: [':id' => $t->id()],
             );
             
