@@ -403,6 +403,7 @@ class Select extends AbstractField
         $options = $input->get($field->name());
         
         if (! $field->isMultipleSelection()) {
+            
             if (isset($field->getEmptyOption()[0]) && $options === $field->getEmptyOption()[0]) {
                 $input->set($field->name(), '');
                 return;
@@ -422,7 +423,7 @@ class Select extends AbstractField
         if ($field->getEmptyOption()) {
             $options = $options->except([$field->getEmptyOption()[0]]);
         }
-
+        
         $input->set($field->name(), array_flip($options->all()));
     }
     
