@@ -24,6 +24,7 @@ A simple app CRUD.
             - [File Field](#file-field)
             - [Files Field](#files-field)
             - [FileSource Field](#filesource-field)
+            - [Group Field](#group-field)
             - [Html Field](#html-field)
             - [Items Field](#items-field)
             - [Options Field](#options-field)
@@ -1024,6 +1025,87 @@ Field\FileSource::new('image')
     ->displayMessages('error', 'success', 'info', 'notice');
 ```
 
+#### Group Field
+
+The group field may be used if you want to group fields.
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Group::new(name: 'seo')
+    // define the fields:
+    ->fields(
+        Field\Text::new('meta_title', 'Meta Title')->translatable(),
+        Field\Text::new('meta_desc', 'Meta Description')->translatable(),
+    )
+    // you may group the fields, otherwise groups from the defined fields are used:
+    ->group('SEO')
+    
+    // you may prepend the group name to each field:
+    ->prependGroupName()
+    
+    // you may display the fields as card layout:
+    ->displayAsCard()
+    
+    // you may display the group label when displaying as card:
+    ->displayLabel();
+```
+
+**Custom Groups**
+
+The main purpose for the group field is that you can create a custom group for repeated usage:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Field\FieldInterface;
+
+class SeoFields extends Field\Group
+{
+    protected function configure(): void
+    {
+        $this->group('Seo');
+        $this->fields();
+    }
+
+    public function fields(FieldInterface ...$fields): static
+    {
+        $this->fields = [
+            Field\Text::new('meta_title', 'Meta Title')->translatable(),
+            Field\Text::new('meta_desc', 'Meta Description')->translatable(),
+        ];
+        
+        return $this;
+    }
+}
+```
+
+Usage of custom group:
+
+```php
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+
+SeoFields::new(name: 'seo')
+    // you may rename fields:
+    ->renameFields(['meta_desc' => 'meta_description'])
+    
+    // you may remove fields:
+    ->removeField('meta_title')
+    
+    // you may modify fields:
+    ->modifyField(name: 'meta_title', modifier: function(FieldInterface $field): void {
+        $field->translatable(false);
+    })
+    
+    // you may modify fields:
+    ->modifyFields(modifier: function(FieldsInterface $fields): FieldsInterface {
+        // modify ...
+        return $fields;
+    });
+```
+
 #### Html Field
 
 The html field may be used if you want to set HTML content.
@@ -1054,7 +1136,7 @@ In addition, you may pass a callable being resolved by autowiring:
 use Tobento\App\Crud\Field;
 use Tobento\Service\View\ViewInterface;
 
-Field\Html::new(name: 'title')->content(function (ViewInterface $view): string {
+Field\Html::new(name: 'title')->content(function (Field\Html $field, ViewInterface $view): string {
     return $view->render('about', []);
 });
 ```
@@ -2284,7 +2366,7 @@ protected function configureActions(): iterable|ActionsInterface
     return [
         Action\Update::new()
             // by entity ids using an array:
-            ->unupdatable([12, 13])
+            ->unupdatable(ids: [12, 13], reason: 'Unupdatable because of...')
             
             // or using a closure:
             ->unupdatable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar'])),
@@ -2417,7 +2499,7 @@ protected function configureActions(): iterable|ActionsInterface
     return [
         Action\Delete::new()
             // by entity ids using an array:
-            ->undeletable([12, 13])
+            ->undeletable(ids: [12, 13], reason: 'Undeletable because of...')
             
             // or using a closure:
             ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar'])),
@@ -3212,6 +3294,7 @@ The following fields support inline table editing:
 * [Radios Field](#radios-field)
 * [Select Field](#select-field)
 * [Text Field](#text-field)
+* [Textarea Field](#textarea-field)
 
 #### Fields Filter
 
