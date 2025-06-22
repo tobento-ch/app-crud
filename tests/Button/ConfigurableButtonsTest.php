@@ -326,6 +326,56 @@ class ConfigurableButtonsTest extends TestCase
 
         $this->assertSame([true, false, true], $exists);
     }
+    
+    public function testMultipleWithGroupsWithoutOnlyNorExcept()
+    {
+        $action = new ConfigurableButtonsAction();
+
+        $buttons = new Buttons(
+            (new Button('list', 'group'))->name('list'),
+            (new Button('foo', 'group'))->name('foo'),
+            (new Button('bar', 'group'))->name('bar'),
+        );
+        
+        $labels = [];
+        
+        $btns = $action
+            ->groupButtons(
+                name: 'list',
+                label: 'List',
+            )
+            ->applyButtonsConfig($buttons);
+        
+        foreach($btns->get('list')->getButtons() as $button) {
+            $labels[] = $button->getLabel();
+        }
+        
+        $this->assertSame(['list', 'foo', 'bar'], $labels);
+    }
+    
+    public function testMultipleWithGroupsWithoutOnlyNorExceptWithButton()
+    {
+        $action = new ConfigurableButtonsAction();
+
+        $buttons = new Buttons(
+            (new Button('foo', 'group'))->name('foo'),
+            (new Button('bar', 'group'))->name('bar'),
+        );
+        
+        $labels = [];
+        
+        $btns = $action
+            ->groupButtons(
+                button: (new Dropdown('list', 'group'))->name('list'),
+            )
+            ->applyButtonsConfig($buttons);
+        
+        foreach($btns->get('list')->getButtons() as $button) {
+            $labels[] = $button->getLabel();
+        }
+        
+        $this->assertSame(['foo', 'bar'], $labels);
+    }
 }
 
 class ConfigurableButtonsAction
