@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Exception;
 
 use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Action\Delete;
 use RuntimeException;
 use Throwable;
 
@@ -38,8 +39,8 @@ class EntityUndeletableException extends RuntimeException
         int $code = 0,
         null|Throwable $previous = null
     ) {
-        if ($message === '') {            
-            $message = sprintf('Entity with the id %s is undeletable.', $id);
+        if ($message === '' && $action instanceof Delete) {
+            $message = $action->undeletableReason();
         }
         
         parent::__construct($message, $code, $previous);
