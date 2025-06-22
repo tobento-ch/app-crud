@@ -287,6 +287,22 @@ trait ConfigurableButtons
                     }
                 }
                 
+                if (empty($group['except']) && empty($group['only'])) {
+                    if (isset($group['button']) && $group['button'] instanceof ButtonInterface) {
+                        $groupName = $group['button']->getGroup();
+                    } else {
+                        $groupName = $buttons->get($group['name'] ?? '')?->getGroup();
+                    }
+                    
+                    foreach ($buttons->group($groupName ?: '') as $button) {
+                        $groupedButtons[] = $button->primary(false)->raw();
+                        if ($button->getName() !== ($group['name'] ?? '')) {
+                            $removeButtons[$button->getName()] = $button->getName();
+                        }
+                        $this->buttonGroupedTo[$button->getName()] = $groupButtonName;
+                    }
+                }
+                
                 if (empty($groupedButtons)) {
                     continue;
                 }
