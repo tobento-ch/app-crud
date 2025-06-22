@@ -36,7 +36,7 @@ class Textarea extends AbstractField
     ) {
         $this->name = $name;
         $this->label = $label;
-        $this->process('index', [$this, 'processIndex']);
+        $this->process('index', [$this, 'processIndexAction']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store', [$this, 'processStore']);
         $this->process('update', [$this, 'processUpdate']);
@@ -93,15 +93,75 @@ class Textarea extends AbstractField
     /**
      * Processes the index action.
      *
-     * @param FieldInterface $field
+     * @param ActionInterface $action
+     * @param Textarea $field
+     * @param ViewInterface $view
      * @return void
      */
-    public function processIndex(FieldInterface $field): void
+    public function processIndexAction(ActionInterface $action, Textarea $field, ViewInterface $view): void
     {
+        if ($this->isTableEditable()) {
+            $this->processIndexTable($action, $field, $view);
+            return;
+        }
+        
         $text = (string)$field->entity()->get($field->name(), '', $field->locale());
         $text = mb_strimwidth($text, 0, 100, '...');
         
         $field->html(nl2br(Str::esc($text)));
+    }
+    
+    /**
+     * Processes the index table action.
+     *
+     * @param ActionInterface $action
+     * @param Textarea $field
+     * @param ViewInterface $view
+     * @return void
+     * @psalm-suppress UndefinedInterfaceMethod
+     */
+    protected function processIndexTable(ActionInterface $action, Textarea $field, ViewInterface $view): void
+    {
+        $attributes = array_merge(
+            $field->getHtmlValidationAttributes(
+                $action->name(),
+                'textarea',
+                $view->trans($field->label())
+            ),
+            $field->getAttributes(),
+        );
+        $attributes['id'] = '';
+        $attributes['tabindex'] = '5';
+        
+        $entity = $action->entity();
+        
+        $form = $view->form();
+        
+        if (! $field->isTranslatable()) {
+            $html = $form->textarea(
+                name: $field->name(),
+                value: $entity->get($field->name(), ''),
+                attributes: $attributes,
+            );
+
+            $field->html($html);
+            return;
+        }
+        
+        $html = '';
+        
+        foreach($field->locales() as $locale => $name) {
+            $html .= '<div class="mb-xs">';
+            $html .= '<div class="mb-xxs">'.$view->esc($name).'</div>';
+            $html .= $form->textarea(
+                name: $field->name().'.'.$locale,
+                value: $entity->get($field->name(), '', $locale),
+                attributes: $attributes,
+            );
+            $html .= '</div>';
+        }
+        
+        $field->html($html);
     }
     
     /**
