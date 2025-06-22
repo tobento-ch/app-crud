@@ -137,7 +137,14 @@ class TextEditor extends AbstractField
     public function processIndexAction(FieldInterface $field): void
     {
         $html = (string)$field->entity()->get($field->name(), '', $field->locale());
+        
+        $html = str_replace('<', ' <', $html);
+        $html = strip_tags($html);
+        $html = str_replace('&nbsp;', '', $html);
+        $html = preg_replace('/\s+/', ' ', $html);
+        $html = trim($html);
         $html = mb_strimwidth($html, 0, 100, '...');
+        
         $field->html(Str::esc($html));
     }
     
