@@ -59,7 +59,7 @@ class HtmlTest extends AbstractField
     
     public function testProcessRenderMethodUsingCallable()
     {
-        $field = Field\Html::new(name: 'name')->content(function(): string {
+        $field = Field\Html::new(name: 'name')->content(function(Field\Html $field): string {
             return '<p>foo</p>';
         });
         $field->processRender(field: $field, app: (new AppFactory())->createApp());
