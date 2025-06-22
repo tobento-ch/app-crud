@@ -91,7 +91,7 @@ class FieldsSortOrder extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
-        $this->sortableFields = $action->fields()->getNames();
+        $this->sortableFields = $action->fields()->withParentFields($action)->getNames();
         
         // handle the resort for changing sorting state.
         if (is_string($resort = $input->get('resort'))) {

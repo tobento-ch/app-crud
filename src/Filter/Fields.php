@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Filter;
 
 use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Action\Index;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field;
@@ -141,11 +142,17 @@ class Fields
     /**
      * Returns the created filters.
      *
+     * @param null|ActionInterface $action
      * @return array<int, FilterInterface>
      */
-    public function toFilters(): array
+    public function toFilters(null|ActionInterface $action = null): array
     {
-        $fieldNames = $this->getFields()->getNames();
+        if (is_null($action)) {
+            $action = Index::new();
+        }
+        
+        $fields = $this->getFields()->withParentFields($action);
+        $fieldNames = $fields->getNames();
         
         if ($this->only !== null) {
             $fieldNames = array_keys(Arr::onlyPresent(array_flip($fieldNames), $this->only));
@@ -160,7 +167,7 @@ class Fields
         $filters = [];
         
         foreach($fieldNames as $name) {
-            $field = $this->getFields()->get($name);
+            $field = $fields->get($name);
             
             if (is_null($field)) {
                 continue;

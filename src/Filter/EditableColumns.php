@@ -98,7 +98,7 @@ class EditableColumns extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
-        foreach($action->fields() as $field) {
+        foreach($action->fields()->withParentFields($action) as $field) {
             if (in_array($field->name(), $this->editableColumns())) {
                 $this->fields[$field->name()] = $field->label();
             }
@@ -119,11 +119,11 @@ class EditableColumns extends AbstractFilter
         
         // mark field as table editable:
         if (is_array($this->columns)) {
-            foreach($action->fields() as $field) {
+            foreach($action->fields()->withParentFields($action) as $field) {
                 if (in_array($field->name(), $this->columns)) {
                     $field->tableEditable(true);
                 }
-            }            
+            }
         }
     }
     

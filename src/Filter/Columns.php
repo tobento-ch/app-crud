@@ -100,7 +100,7 @@ class Columns extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
-        foreach($action->fields() as $field) {
+        foreach($action->fields()->withParentFields($action) as $field) {
             if ($field->isIndexable()) {
                 $this->fields[$field->name()] = $field->label();
             }
