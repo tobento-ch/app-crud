@@ -41,8 +41,8 @@ $table->row()
           }
       })
       ->id('heading')
-      ->when($buttons->group('entity')->has(), function($row): void {
-          $row->column('actions', 'Actions', ['data-header-col' => 'actions']);
+      ->when($buttons->group('entity')->has(), function($row) use ($view): void {
+          $row->column('actions', $view->trans('Actions'), ['data-header-col' => 'actions']);
       })
       ->heading()
       ->html(...$action->fields()->getNames())
