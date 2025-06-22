@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field;
 
 use Traversable;
 use ArrayIterator;
+use Tobento\App\Crud\Action\ActionInterface;
 
 /**
  * Fields
@@ -87,6 +88,31 @@ class Fields implements FieldsInterface
         return $this->filter(
             fn(FieldInterface $a): bool => $a->parentField() === $field
         );
+    }
+    
+    /**
+     * Returns a new instance with the included parents fields.
+     *
+     * @param ActionInterface $action
+     * @return static
+     */
+    public function withParentFields(ActionInterface $action): static
+    {
+        $fields = [];
+        
+        foreach($this->all() as $field) {
+            $fields[$field->name()] = $field;
+            
+            if ($field instanceof ParentFieldsAwareInterface) {
+                foreach($field->getFields($action) as $f) {
+                    $fields[$f->name()] = $f;
+                }
+            }
+        }
+        
+        $new = clone $this;
+        $new->fields = $fields;
+        return $new;
     }
     
     /**

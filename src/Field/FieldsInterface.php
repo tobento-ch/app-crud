@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field;
 
 use IteratorAggregate;
 use Countable;
+use Tobento\App\Crud\Action\ActionInterface;
 
 /**
  * FieldsInterface
@@ -44,6 +45,14 @@ interface FieldsInterface extends IteratorAggregate, Countable
      * @return static
      */
     public function parent(null|string $field): static;
+    
+    /**
+     * Returns a new instance with the included parents fields.
+     *
+     * @param ActionInterface $action
+     * @return static
+     */
+    public function withParentFields(ActionInterface $action): static;
     
     /**
      * Returns a new instance with (un)translatable fields only.
