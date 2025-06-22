@@ -15,23 +15,28 @@ namespace Tobento\App\Crud\Test\Exception;
 
 use PHPUnit\Framework\TestCase;
 use Tobento\App\Crud\Exception\EntityUnupdatableException;
-use Tobento\App\Crud\Action\Index;
+use Tobento\App\Crud\Action\Update;
 use RuntimeException;
 
 class EntityUnupdatableExceptionTest extends TestCase
 {
     public function testException()
     {
-        $action = Index::new();
+        $action = Update::new();
         $e = new EntityUnupdatableException(id: 'foo', action: $action);
         
         $this->assertInstanceof(RuntimeException::class, $e);
         $this->assertSame('foo', $e->id());
         $this->assertTrue($action === $e->action());
-        $this->assertSame('Entity with the id foo is unupdatable.', $e->getMessage());
+        $this->assertSame('', $e->getMessage());
         
         $e = new EntityUnupdatableException(id: 5, action: $action, message: 'Custom');
         $this->assertSame(5, $e->id());
         $this->assertSame('Custom', $e->getMessage());
+        
+        $action = Update::new();
+        $action->unupdatable([5], 'Reason');
+        $e = new EntityUnupdatableException(id: 5, action: $action, message: '');
+        $this->assertSame('Reason', $e->getMessage());
     }
 }
