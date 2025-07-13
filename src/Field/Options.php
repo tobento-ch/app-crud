@@ -437,8 +437,8 @@ class Options extends AbstractField
         $selectedOptions = $this->getSelectedOptions($selectedIds);
         $searchValue = null;
         
-        if ($action->getInput()->has('search.'.$field->name())) {
-            $searchValue = $action->getInput()->get('search.'.$field->name(), '');
+        if ($action->getInput()->has('options-search.'.$field->name())) {
+            $searchValue = $action->getInput()->get('options-search.'.$field->name(), '');
         }
         
         $field->html($view->render(
