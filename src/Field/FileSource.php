@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Field;
 
 use InvalidArgumentException;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
@@ -577,7 +578,9 @@ class FileSource extends AbstractField
      * @param FileSource $field
      * @param InputInterface $input
      * @param StoragesInterface $storages
-     * @param ResponserInterface $responser,
+     * @param PictureGeneratorInterface $pictureGenerator
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param ResponserInterface $responser
      * @return void
      */
     public function processSave(
@@ -586,6 +589,7 @@ class FileSource extends AbstractField
         InputInterface $input,
         StoragesInterface $storages,
         PictureGeneratorInterface $pictureGenerator,
+        EventDispatcherInterface $eventDispatcher,
         ResponserInterface $responser,
     ): void {
         // no file at all:
@@ -612,12 +616,7 @@ class FileSource extends AbstractField
                 ) {
                     $storage->delete(path: $path);
                     
-                    if ($this->pictureDefinition) {
-                        $pictureGenerator->pictureRepository()->delete(
-                            path: $path,
-                            definition: $this->pictureDefinition,
-                        );
-                    }
+                    $this->deletedFileSource($pictureGenerator, $eventDispatcher, $path);
                     
                     if (in_array('notice', $this->messageLevelsToDisplay)) {
                         $responser->messages()->add(
@@ -689,13 +688,7 @@ class FileSource extends AbstractField
                 ) {
                     $storage->delete(path: $path);
                     
-                    // delete generated picture!
-                    if ($this->pictureDefinition) {
-                        $pictureGenerator->pictureRepository()->delete(
-                            path: $path,
-                            definition: $this->pictureDefinition,
-                        );
-                    }
+                    $this->deletedFileSource($pictureGenerator, $eventDispatcher, $path);
                     
                     if (in_array('notice', $this->messageLevelsToDisplay)) {
                         $responser->messages()->add(
@@ -856,6 +849,7 @@ class FileSource extends AbstractField
      * @param InputInterface $input
      * @param StoragesInterface $storages
      * @param PictureGeneratorInterface $pictureGenerator
+     * @param EventDispatcherInterface $eventDispatcher
      * @param ResponserInterface $responser
      * @return void
      */
@@ -865,6 +859,7 @@ class FileSource extends AbstractField
         InputInterface $input,
         StoragesInterface $storages,
         PictureGeneratorInterface $pictureGenerator,
+        EventDispatcherInterface $eventDispatcher,
         ResponserInterface $responser,
     ): void {
         $storageName = $field->entity()->get($field->getStorageField(), $field->getStorageName());
@@ -879,12 +874,7 @@ class FileSource extends AbstractField
         ) {
             $storage->delete(path: $path);
             
-            if ($this->pictureDefinition) {
-                $pictureGenerator->pictureRepository()->delete(
-                    path: $path,
-                    definition: $this->pictureDefinition,
-                );                
-            }
+            $this->deletedFileSource($pictureGenerator, $eventDispatcher, $path);
 
             if (in_array('notice', $this->messageLevelsToDisplay)) {
                 $responser->messages()->add(
@@ -894,6 +884,29 @@ class FileSource extends AbstractField
                 );
             }
         }
+    }
+    
+    /**
+     * Deletes the generated pictures for the given path.
+     *
+     * @param PictureGeneratorInterface $pictureGenerator
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param string $path
+     * @return void
+     */
+    protected function deletedFileSource(
+        PictureGeneratorInterface $pictureGenerator,
+        EventDispatcherInterface $eventDispatcher,
+        string $path
+    ): void {
+        if ($this->pictureDefinition) {
+            $pictureGenerator->pictureRepository()->delete(
+                path: $path,
+                definition: $this->pictureDefinition,
+            );
+        }
+        
+        $eventDispatcher->dispatch(new \Tobento\App\Crud\Event\FileSourceDeleted($path));
     }
     
     /**
