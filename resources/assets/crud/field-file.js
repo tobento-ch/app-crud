@@ -36,8 +36,9 @@ const fieldFile = (function(window, document) {
                         inp.setAttribute('value', '');
                         fieldEl.prepend(inp);
                     });
-                    
-                    fileEl.parentNode.removeChild(fileEl);
+                    setTimeout(() => {
+                        fileEl.parentNode.removeChild(fileEl);
+                    }, 50);
                     break;
                 case 'move.up':
                     itemsEl = e.target.closest('[data-files-files]');
