@@ -1025,6 +1025,16 @@ Field\FileSource::new('image')
     ->displayMessages('error', 'success', 'info', 'notice');
 ```
 
+**Events**
+
+```php
+use Tobento\App\Crud\Event;
+```
+
+| Event | Description |
+| --- | --- |
+| ```Event\FileSourceDeleted::class``` | The event will dispatch **after** a file source has been deleted. |
+
 #### Group Field
 
 The group field may be used if you want to group fields.
