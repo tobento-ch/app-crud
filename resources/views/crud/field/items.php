@@ -4,10 +4,10 @@ $form = $view->form();
 ?>
 <div data-field="<?= $view->esc($field->name()) ?>">
     <?php if ($withoutLabel === false && $field->label()) { ?>
-        <div class="mb-xs"><?= $view->etrans($field->label()) ?></div>
+        <div class="mb-xs"><?= $view->esc($field->label()) ?></div>
     <?php } ?>
     <?php if ($field->getInfoText(action: $actionName)) { ?>
-        <p class="text-xxs mb-xs"><?= $view->etrans($field->getInfoText(action: $actionName)) ?></p>
+        <p class="text-xxs mb-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
     <?php } ?>
     <?= $form->getMessage($field->name()); ?>
     <div data-items-items="<?= $view->esc($field->name()) ?>">
@@ -29,7 +29,7 @@ $form = $view->form();
         <?php } ?>
 
         <div class="mb-m">
-            <span class="button" data-items-action="new"><?= $view->etrans($field->getAddText()) ?></span>
+            <span class="button" data-items-action="new"><?= $view->esc($field->getAddText()) ?></span>
         </div>
 
         <template data-items-template="">

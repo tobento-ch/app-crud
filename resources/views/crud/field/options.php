@@ -7,10 +7,10 @@ $name = $form->nameToArray($field->name().'.');
 <div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>">
     <div class="field-label">
         <?= $form->label(
-            text: $view->trans($field->label()),
+            text: $field->label(),
             for: null,
-            requiredText: $view->trans($field->getRequiredText(action: $actionName)),
-            optionalText: $view->trans($field->getOptionalText(action: $actionName)),
+            requiredText: $field->getRequiredText(action: $actionName),
+            optionalText: $field->getOptionalText(action: $actionName),
         ) ?>
     </div>
     <div class="field-body" data-options="<?= $view->esc($field->name()) ?>">
@@ -38,7 +38,7 @@ $name = $form->nameToArray($field->name().'.');
             ) ?>
         </div>
         <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs mb-s"><?= $view->etrans($field->getInfoText(action: $actionName)) ?></p>
+            <p class="text-xxs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
         <?php } ?>
         <div class="crud-options" data-unselected="<?= $view->esc($field->name()) ?>">
             <?= $form->getMessage($form->nameToArray($field->name())) ?>
