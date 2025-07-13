@@ -1,6 +1,19 @@
 const fieldOptions = (function(window, document) {
     'use strict';
+    
+    function toInputName(string) {
+        const segments = string.split('.');
+        let name = segments[0];
 
+        delete segments[0];
+
+        segments.forEach(segment => {
+            name += '['+segment+']';
+        });
+
+        return name;
+    }
+    
     const options = {
         register: function() {
             // we add click event globally as not to loose listeners on update DOM
@@ -43,14 +56,18 @@ const fieldOptions = (function(window, document) {
                 case 'add':
                     e.preventDefault();
                     actionEl.setAttribute('data-options-action', 'remove');
-                    actionEl.querySelector('input[type="checkbox"]').checked = true;
-                    selectedEl.appendChild(actionEl);
+                    setTimeout(() => {
+                        actionEl.querySelector('input[type="checkbox"]').checked = true;
+                        selectedEl.appendChild(actionEl);
+                    }, 10);
                     break;
                 case 'remove':
                     e.preventDefault();
                     actionEl.setAttribute('data-options-action', 'add');
-                    actionEl.querySelector('input[type="checkbox"]').checked = false;
-                    unselectedEl.prepend(actionEl);
+                    setTimeout(() => {
+                        actionEl.querySelector('input[type="checkbox"]').checked = false;
+                        unselectedEl.prepend(actionEl);
+                    }, 10);
                     break;
             }
         },
@@ -65,7 +82,7 @@ const fieldOptions = (function(window, document) {
             const formData = new FormData();
             const fieldName = optionsEl.getAttribute('data-options');
             
-            formData.append('search['+fieldName+']', e.target.value);
+            formData.append(toInputName('options-search.'+fieldName), e.target.value);
 
             const queryString = new URLSearchParams(formData).toString();
             let [uri, hash] = window.location.href.split("#");
@@ -76,7 +93,7 @@ const fieldOptions = (function(window, document) {
             }).then(response => {
                 return response.text();
             }).then(string => {
-                const selector = ['[data-unselected="'+fieldName+'"]'];
+                const selector = '[data-unselected="'+fieldName+'"]';
                 const doc = (new DOMParser()).parseFromString(string, 'text/html');
                 const newEl = doc.querySelector(selector);
                 const oldEl = document.querySelector(selector);
