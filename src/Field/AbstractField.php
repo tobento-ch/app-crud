@@ -19,6 +19,7 @@ use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Support\Str;
 use Tobento\Service\Validation\Html\HtmlAttributesFactory;
 use Tobento\Service\View\ViewInterface;
+use function Tobento\App\Translation\trans;
 
 /**
  * AbstractField
@@ -843,7 +844,7 @@ abstract class AbstractField implements FieldInterface
         $rules = $this->getValidationRulesForAction($action);
         
         if ($this->hasRequiredValidationRule(rules: $rules)) {
-            return 'required';
+            return function_exists('\Tobento\App\Translation\trans') ? trans('required') : 'required';
         }
         
         return '';
@@ -880,7 +881,7 @@ abstract class AbstractField implements FieldInterface
         $rules = $this->getValidationRulesForAction($action);
         
         if (! $this->hasRequiredValidationRule(rules: $rules)) {
-            return 'optional';
+            return function_exists('\Tobento\App\Translation\trans') ? trans('optional') : 'optional';
         }
         
         return '';
