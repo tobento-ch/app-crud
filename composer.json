@@ -21,6 +21,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.0",
+        "tobento/app-event": "^1.0",
         "tobento/app-html-sanitizer": "^1.0",
         "tobento/app-http": "^1.0.5",
         "tobento/app-media": "^1.0",
@@ -60,7 +61,6 @@
         "tobento/service-filesystem": "^1.0.5",
         "tobento/service-imager": "^1.0",
         "league/mime-type-detection": "^1.15",
-        "tobento/app-event": "^1.0",
         "tobento/app-logging": "^1.0"
     },
     "autoload": {
