@@ -57,6 +57,7 @@ class Crud extends Boot
         // Misc:
         \Tobento\App\Validation\Boot\Validator::class,
         \Tobento\App\Media\Boot\Media::class,
+        \Tobento\App\Event\Boot\Event::class,
         \Tobento\App\Slugging\Boot\Slugging::class,
         \Tobento\App\HtmlSanitizer\Boot\HtmlSanitizer::class,
         
