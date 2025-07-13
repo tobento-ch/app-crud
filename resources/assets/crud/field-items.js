@@ -1,6 +1,19 @@
 const fieldItems = (function(window, document) {
     'use strict';
 
+    function toInputName(string) {
+        const segments = string.split('.');
+        let name = segments[0];
+
+        delete segments[0];
+
+        segments.forEach(segment => {
+            name += '['+segment+']';
+        });
+
+        return name;
+    }
+    
     const fieldItems = {
         register: function() {
             // we add click event globally as not to loose listeners on update DOM
@@ -57,16 +70,20 @@ const fieldItems = (function(window, document) {
                     break;
                 case 'delete':
                     itemEl = e.target.closest('[data-items-item]');
-                    itemEl.parentNode.removeChild(itemEl);
-                    fieldItems.reindexItems(itemsEl);
-                    const len = itemsEl.querySelectorAll('[data-items-item]').length;
-                    if (len === 0) {
-                        const inp = document.createElement('input');
-                        inp.setAttribute('name', itemsEl.getAttribute('data-items-items'));
-                        inp.setAttribute('type', 'hidden');
-                        inp.setAttribute('data-items-empty', '');
-                        itemsEl.prepend(inp);
-                    }
+                    
+                    setTimeout(() => {
+                        itemEl.parentNode.removeChild(itemEl);
+                        fieldItems.reindexItems(itemsEl);
+                        const len = itemsEl.querySelectorAll('[data-items-item]').length;
+                        if (len === 0) {
+                            const inp = document.createElement('input');
+                            inp.setAttribute('name', toInputName(itemsEl.getAttribute('data-items-items')));
+                            inp.setAttribute('type', 'hidden');
+                            inp.setAttribute('data-items-empty', '');
+                            itemsEl.prepend(inp);
+                        }
+                    }, 50);
+                    
                     break;
             }
         },
