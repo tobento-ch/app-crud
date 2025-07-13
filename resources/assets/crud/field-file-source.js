@@ -169,7 +169,9 @@ const fieldFileSource = (function(window, document) {
                     modal.open();
                     break;
                 case 'delete':
-                    fileEl.parentNode.removeChild(fileEl);
+                    setTimeout(() => {
+                        fileEl.parentNode.removeChild(fileEl);
+                    }, 50);
                     const inp = document.createElement('input');
                     inp.setAttribute('name', fileEl.querySelector('[data-file]').getAttribute('name'));
                     inp.setAttribute('type', 'hidden');
