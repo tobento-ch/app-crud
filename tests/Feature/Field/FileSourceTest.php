@@ -18,6 +18,7 @@ use Tobento\App\AppInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
+use Tobento\App\Crud\Event\FileSourceDeleted;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\App\Media\FileStorage\FileWriter;
@@ -678,6 +679,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     
     public function testUpdateActionUploadsFileAndDeletesOldFile()
     {
+        $events = $this->fakeEvents();
         $fileStorage = $this->fakeFileStorage();
         $http = $this->fakeHttp();
         $http->request(method: 'PATCH', uri: $this->generateUpdateUri(id: 1))->body([
@@ -696,6 +698,10 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame(1, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
         $this->assertSame('profile.jpg', $this->getCrudRepository()->findById(1)->get('filesrc'));
         $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'readme1.txt'));
+        
+        $events->assertDispatched(FileSourceDeleted::class, static function(FileSourceDeleted $event): bool {
+            return $event->path() === 'readme1.txt';
+        });
     }
     
     public function testUpdateActionUploadsFileAndDeletesGeneratedPicture()
@@ -1106,7 +1112,8 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     }
     
     public function testDeleteActionDeletesFile()
-    {        
+    {
+        $events = $this->fakeEvents();
         $fileStorage = $this->fakeFileStorage();
         $http = $this->fakeHttp();
         $http->request(method: 'DELETE', uri: $this->generateDeleteUri(id: 1));
@@ -1120,6 +1127,10 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
         $this->assertNull($this->getCrudRepository()->findById(1));
+        
+        $events->assertDispatched(FileSourceDeleted::class, static function(FileSourceDeleted $event): bool {
+            return $event->path() === 'info.txt';
+        });
     }
     
     public function testDeleteActionDeletesGeneratedPicture()
