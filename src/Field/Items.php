@@ -13,10 +13,12 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field;
 
+use Tobento\App\Crud\Action;
 use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Entity\Entity;
+use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Field\Fields;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Support\Str;
@@ -69,9 +71,9 @@ class Items extends AbstractField implements FieldsAwareInterface
         $this->process('index', [$this, 'processIndexItems']);
         $this->process('create', [$this, 'processCreate']);
         $this->process('copy', [$this, 'processCreate']);
-        $this->process('store', [$this, 'processStore']);
         $this->process('edit', [$this, 'processEdit']);
-        $this->process('update', [$this, 'processUpdate']);
+        $this->process('update:before', [$this, 'processBeforeUpdate']);
+        $this->process('store|update', [$this, 'processSave']);
         $this->process('show', [$this, 'processShow']);
         $this->configure();
         $this->storable(false);
@@ -216,6 +218,8 @@ class Items extends AbstractField implements FieldsAwareInterface
      */
     public function getFields(ActionInterface $action): FieldsInterface
     {
+        $items = $action->getInput()->get($this->name(), []);
+        
         $itemsCount = count($action->getInput()->get($this->name(), []));
         
         if ($itemsCount === 0 && !in_array($action->name(), ['store', 'update'])) {
@@ -226,24 +230,32 @@ class Items extends AbstractField implements FieldsAwareInterface
             $itemsCount = $this->defaultItems;
         }
         
-        if ($itemsCount === 0 && $action->getInput()->has($this->name())) {
-            $this->storable(true);
-        }
-        
         if (is_null($this->fields)) {
             throw new LogicException('You need to define the fields first!');
         }
         
         // Create fields:
         $fields = [];
+        $key = 1;
         
         for ($i = 1; $i <= $itemsCount; $i++) {
+            // skip empty items which will be deleted.
+            if (array_key_exists($i, $items) && empty($items[$i])) {
+                continue;
+            }
+            
             foreach($this->fields as $field) {
                 $field = clone $field;
-                $field->rename($this->name().'.'.$i.'.'.$field->name());
-                $field->attributes($field->getAttributes() + ['data-index' => (string)$i]);
+                $field->rename($this->name().'.'.$key.'.'.$field->name());
+                $field->attributes($field->getAttributes() + ['data-index' => (string)$key]);
                 $fields[] = $field;
             }
+            
+            $key++;
+        }
+        
+        if (count($fields) === 0 && $action->getInput()->has($this->name())) {
+            $this->storable(true);
         }
         
         return new Fields(...$fields);
@@ -332,13 +344,52 @@ class Items extends AbstractField implements FieldsAwareInterface
     }
     
     /**
+     * Processes the save action.
+     *
+     * @param ActionProcessorInterface $actionProcessor
+     * @param ActionInterface $action
+     * @param FieldInterface $field
+     * @return void
+     */
+    public function processBeforeUpdate(
+        ActionProcessorInterface $actionProcessor,
+        ActionInterface $action,
+        FieldInterface $field,
+    ): void {
+        $itemIdsToDelete = [];
+        $itemsNew = [];
+        $key = 1;
+        $items = $action->getInput()->get($this->name(), []);
+        
+        if (empty($items)) {
+            $items = $action->entity()->get($this->name(), []);
+            $itemIdsToDelete = array_keys($items);
+        } else {
+            foreach($items as $id => $item) {
+                if (empty($item)) {
+                    $itemIdsToDelete[] = $id;
+                    continue;
+                }
+                $itemsNew[$key] = $item;
+                $key++;
+            }
+        }
+        
+        $this->deleteItems($actionProcessor, $action, $field, $itemIdsToDelete);
+        
+        $action->getInput()->set($field->name(), $itemsNew);
+    }
+
+    /**
      * Processes the store action.
      *
+     * @param ActionInterface $action
      * @param FieldInterface $field
      * @param InputInterface $input
      * @return void
      */
-    public function processStore(
+    public function processSave(
+        ActionInterface $action,
         FieldInterface $field,
         InputInterface $input,
     ): void {
@@ -348,6 +399,54 @@ class Items extends AbstractField implements FieldsAwareInterface
         
         if (!is_array($input->get($field->name()))) {
             $input->set($field->name(), []);
+        }
+    }
+    
+    /**
+     * Deletes the given items.
+     *
+     * @param ActionProcessorInterface $actionProcessor
+     * @param ActionInterface $action
+     * @param FieldInterface $field
+     * @param array<array-key, int> $itemIds
+     * @return void
+     */
+    protected function deleteItems(
+        ActionProcessorInterface $actionProcessor,
+        ActionInterface $action,
+        FieldInterface $field,
+        array $itemIds,
+    ): void {
+        if (empty($itemIds)) {
+            return;
+        }
+                
+        $fields = [];
+        
+        foreach($itemIds as $id) {
+            foreach($this->fields as $f) {
+                $f = clone $f;
+                $f->rename($this->name().'.'.$id.'.'.$f->name());
+                $f->attributes($f->getAttributes() + ['data-index' => (string)$id]);
+                $fields[] = $f;
+            }
+        }
+        
+        $deleteAction = $action->actions()->get('delete');
+        
+        if (! $deleteAction instanceof Action\Delete) {
+            throw new ActionNotFoundException(actionName: 'delete');
+        }
+        
+        $deleteAction->setFields(new Fields(...$fields));
+        $deleteAction->setEntity($action->entity());
+        
+        $actionProcessor->processFields(action: $deleteAction, entity: $action->entity());
+        
+        $actionProcessor->processFieldsAction(action: $deleteAction, actionName: 'deleted');
+        
+        foreach($itemIds as $id) {
+            $action->entity()->delete($field->name().'.'.$id);
         }
     }
 }
