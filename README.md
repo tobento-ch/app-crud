@@ -1035,6 +1035,19 @@ use Tobento\App\Crud\Event;
 | --- | --- |
 | ```Event\FileSourceDeleted::class``` | The event will dispatch **after** a file source has been deleted. |
 
+
+**Delete Generated Pictures**
+
+If you generate pictures from the file source using the [Media Picture Feature](https://github.com/tobento-ch/app-media#picture-feature), You may want to define an event listener in the ```app/config/event.php``` file to deleted generated images once a file source is deleted:
+
+```php
+'listeners' => [
+    \Tobento\App\Crud\Event\FileSourceDeleted::class => [
+        \Tobento\App\Crud\Listener\DeletesGeneratedPictures::class,
+    ],
+],
+```
+
 #### Group Field
 
 The group field may be used if you want to group fields.
