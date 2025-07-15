@@ -62,26 +62,17 @@ const fieldItems = (function(window, document) {
                     }
                     
                     fieldItems.reindexItems(itemsEl);
-                    
-                    const inpEl = itemsEl.querySelector('[data-items-empty]');
-                    if (inpEl) {
-                        inpEl.remove();
-                    }
                     break;
                 case 'delete':
                     itemEl = e.target.closest('[data-items-item]');
                     
                     setTimeout(() => {
-                        itemEl.parentNode.removeChild(itemEl);
+                        itemEl.innerHTML = '';
+                        const inp = document.createElement('input');
+                        inp.setAttribute('name', toInputName(itemsEl.getAttribute('data-items-items')+'.{num}'));
+                        inp.setAttribute('type', 'hidden');
+                        itemEl.appendChild(inp);
                         fieldItems.reindexItems(itemsEl);
-                        const len = itemsEl.querySelectorAll('[data-items-item]').length;
-                        if (len === 0) {
-                            const inp = document.createElement('input');
-                            inp.setAttribute('name', toInputName(itemsEl.getAttribute('data-items-items')));
-                            inp.setAttribute('type', 'hidden');
-                            inp.setAttribute('data-items-empty', '');
-                            itemsEl.prepend(inp);
-                        }
                     }, 50);
                     
                     break;
