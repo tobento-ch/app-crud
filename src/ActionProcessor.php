@@ -18,6 +18,9 @@ use Tobento\Service\Autowire\Autowire;
 use Tobento\App\Crud\Url\UrlResolverInterface;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action\Actions;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\Fields;
+use Tobento\App\Crud\Field\FieldsAwareInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Button\Buttons;
@@ -140,17 +143,21 @@ class ActionProcessor implements ActionProcessorInterface
         null|EntityInterface $entity = null,
     ): void {
         // Handle subfields:
-        $fields = [];
+        /*$fields = [];
         foreach($action->fields() as $field) {
-            if ($field instanceof \Tobento\App\Crud\Field\FieldsAwareInterface) {
+            if ($field instanceof FieldsAwareInterface) {
                 foreach($field->getFields($action) as $f) {
                     $fields[] = $f;
                 }
             }
             $fields[] = $field;
-        }
+        }*/
+        
+        $fields = $this->collectFields($action->fields(), $action);
+        
+        //echo '<pre>'; print_r((new Fields(...$fields))->getNames()); exit;
 
-        $action->setFields(new \Tobento\App\Crud\Field\Fields(...$fields));
+        $action->setFields(new Fields(...$fields));
         
         // Fields:
         $entity = $entity ?: $action->entity();
@@ -247,5 +254,25 @@ class ActionProcessor implements ActionProcessorInterface
     public function call(mixed $callable, array $parameters = []): mixed
     {
         return $this->autowire->call($callable, $parameters);
+    }
+    
+    /**
+     * Collects fields with sub fields.
+     *
+     * @param FieldsInterface $fields
+     * @param ActionInterface $action
+     * @param array<array-key, FieldInterface> $items The previous collected fields
+     * @return array<array-key, FieldInterface>
+     */
+    protected function collectFields(FieldsInterface $fields, ActionInterface $action, $items = []): array
+    {
+        foreach($fields as $field) {
+            if ($field instanceof FieldsAwareInterface) {
+                $items = $this->collectFields($field->getFields($action), $action, $items);
+            }
+            $items[] = $field;
+        }
+        
+        return $items;
     }
 }
