@@ -173,6 +173,38 @@ class UrlResolverTest extends TestCase
         $this->assertSame('https://example.com/invoice/3', $url);
     }
     
+    public function testResolveButtonUrlMethodWithLinkToRouteClosureReturningNull()
+    {
+        $router = Factory::createRouter();
+        $router->get('invoice/{id}', function () {})->name('viewInvoice');
+        $ur = new UrlResolver(router: $router);
+        
+        $url = $ur->resolveButtonUrl(
+            button: Button::new(label: 'label', group: 'group')->linkToRoute('viewInvoice', function (EntityInterface $entity) {
+                return null;
+            }),
+            action: Action\Edit::new()->setController($this->getController()),
+            entity: new Entity(['id' => 3]),
+        );
+        
+        $this->assertSame('', $url);
+    }
+    
+    public function testResolveButtonUrlMethodWithLinkToRouteSetsEmptyUrlStringIfRouteNotFound()
+    {
+        $router = Factory::createRouter();
+
+        $ur = new UrlResolver(router: $router);
+        
+        $url = $ur->resolveButtonUrl(
+            button: Button::new(label: 'label', group: 'group')->linkToRoute('viewInvoice', ['id' => 5]),
+            action: Action\Create::new()->setController($this->getController()),
+            entity: new Entity(['id' => 1]),
+        );
+        
+        $this->assertSame('', $url);
+    }
+    
     public function testResolveActionLinkToUrlMethodWithLinkToUrl()
     {
         $ur = new UrlResolver(router: Factory::createRouter());
