@@ -143,6 +143,18 @@ class Files extends AbstractField implements FieldsAwareInterface
      */
     public function getFields(ActionInterface $action): FieldsInterface
     {
+        return $this->createFields($action);
+    }
+    
+    /**
+     * Returns the fields.
+     *
+     * @param ActionInterface $action
+     * @param bool $withSubfields
+     * @return FieldsInterface
+     */
+    protected function createFields(ActionInterface $action, bool $withSubfields = false): FieldsInterface
+    {
         $input = $action->getInput();
         $inputSrc = $input->get($this->name().'.src', []);
         $input->delete($this->name().'.src');
@@ -181,9 +193,11 @@ class Files extends AbstractField implements FieldsAwareInterface
                 ->orderable($filesCount > 1);
 
             $field->rename($this->name().'.'.$i);
-
-            foreach($field->getFields($action) as $childField) {
-                $fields[] = $childField;
+            
+            if ($withSubfields) {
+                foreach($field->getFields($action) as $childField) {
+                    $fields[] = $childField;
+                }
             }
 
             $fields[] = $field;
@@ -287,7 +301,7 @@ class Files extends AbstractField implements FieldsAwareInterface
         $newInput = clone $input;
         $files = $newInput
             ->collection()
-            ->onlyPresent($this->getFields($action)->storable()->getNames())
+            ->onlyPresent($this->createFields(action: $action, withSubfields: true)->storable()->getNames())
             ->get($field->name(), []);
         
         usort($files, fn($a, $b) => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
