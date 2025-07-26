@@ -33,6 +33,11 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
      * @var bool
      */
     protected bool $prependGroupName = false;
+
+    /**
+     * @var bool
+     */
+    protected bool $displayAsField = false;
     
     /**
      * @var bool
@@ -103,6 +108,18 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
     public function prependGroupName(bool $prepend = true): static
     {
         $this->prependGroupName = $prepend;
+        return $this;
+    }
+
+    /**
+     * Set if to display the items as field.
+     *
+     * @param bool $field
+     * @return static $this
+     */
+    public function displayAsField(bool $field = true): static
+    {
+        $this->displayAsField = $field;
         return $this;
     }
     
@@ -270,6 +287,7 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
                 'entity' => $field->entity(),
                 'actionName' => $action->name(),
                 'fields' => $fields,
+                'displayAsField' => $this->displayAsField,
                 'asCard' => $this->displayAsCard,
                 'displayLabel' => $this->displayLabel,
             ],
