@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Url;
 
 use Tobento\Service\Routing\RouterInterface;
+use Tobento\Service\Routing\UrlException;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action\ActionsInterface;
 use Tobento\App\Crud\Button\ButtonInterface;
@@ -108,9 +109,17 @@ class UrlResolver implements UrlResolverInterface
             $routeParameters = $routeParameters($entity);
         }
         
+        if (!is_array($routeParameters)) {
+            return '';
+        }
+        
         $routeName = $this->resolveRouteName($routeName, $action);
         
-        return (string)$this->router->url($routeName, $routeParameters);
+        try {
+            return (string)$this->router->url($routeName, $routeParameters);
+        } catch (UrlException $e) {
+            return '';
+        }
     }
     
     /**
