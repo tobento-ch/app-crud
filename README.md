@@ -1066,6 +1066,9 @@ Field\Group::new(name: 'seo')
     
     // you may prepend the group name to each field:
     ->prependGroupName()
+
+    // you may display the fields as field layout:
+    ->displayAsField()
     
     // you may display the fields as card layout:
     ->displayAsCard()
@@ -2596,9 +2599,31 @@ $button = Button\Button::new(label: 'Label', group: 'entity');
 // renders a <button> element
 
 $delete = Button\Delete::new(label: 'Label', group: 'entity');
-// renders a <form> element to delete an entity: 
+// renders a <form> element to delete an entity
 
 $dropdown = Button\Dropdown::new(label: 'Label', group: 'entity');
+
+$form = Button\Form::new(label: 'Label', group: 'entity')->method('POST');
+// renders a <form> element with the entity id as hidden input.
+```
+
+You may use the html button if you need full control. Make sure you escape the html properly!
+
+```php
+use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\Service\Tag\AttributesInterface;
+use Tobento\Service\View\ViewInterface;
+
+$html = Button\Html::new(group: 'entity')
+    ->html('<button>Label</button>');
+    
+    // Or:
+    ->html(function(Button\Html $button, ViewInterface $view): string {
+        $url = $button->getUrl(); // the resolved url
+        $entity = $button->getEntity(); // null|EntityInterface
+        $attributes = $button->getAttributes(); // AttributesInterface
+        return 'html';
+    });
 ```
 
 **Linking Methods**
@@ -2617,8 +2642,11 @@ $link = Button\Link::new(label: 'View invoice', group: 'entity')
     ])
 
     // link to a route using a closure:
-    ->linkToRoute('viewInvoice', function(EntityInterface $entity): array {
+    ->linkToRoute('viewInvoice', function(EntityInterface $entity): null|array {
         return ['id' => $entity->id()];
+        
+        // you may return null if not to display the button:
+        return null;
     })
 
     // link to an url:
