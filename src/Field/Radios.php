@@ -402,6 +402,7 @@ class Radios extends AbstractField
      * Returns the valid options rule.
      *
      * @return Passes
+     * @psalm-suppress InvalidScalarArgument
      */
     protected function validOptionsRule(): Passes
     {
@@ -409,10 +410,7 @@ class Radios extends AbstractField
             passes: function(mixed $value): bool {
                 $options = $this->getOptions();
 
-                if (
-                    is_string($value)
-                    && array_key_exists($value, $options)
-                ) {
+                if (is_scalar($value) && array_key_exists($value, $options)) {
                     return true;
                 }
                 

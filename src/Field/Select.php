@@ -521,6 +521,7 @@ class Select extends AbstractField
      * Returns the valid options rule.
      *
      * @return Passes
+     * @psalm-suppress InvalidScalarArgument
      */
     protected function validOptionsRule(): Passes
     {
@@ -542,7 +543,7 @@ class Select extends AbstractField
 
                 if (is_array($value) && $this->isMultipleSelection()) {
                     foreach($value as $val) {
-                        if (!is_string($val) || !array_key_exists($val, $options)) {
+                        if (!is_scalar($val) || !array_key_exists($val, $options)) {
                             return false;
                         }
                     }

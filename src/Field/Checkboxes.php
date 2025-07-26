@@ -410,6 +410,7 @@ class Checkboxes extends AbstractField
      * Returns the valid options rule.
      *
      * @return Passes
+     * @psalm-suppress InvalidScalarArgument
      */
     protected function validOptionsRule(): Passes
     {
@@ -419,7 +420,7 @@ class Checkboxes extends AbstractField
 
                 if (is_array($value)) {
                     foreach($value as $val) {
-                        if (!is_string($val) || !array_key_exists($val, $options)) {
+                        if (!is_scalar($val) || !array_key_exists($val, $options)) {
                             return false;
                         }
                     }
