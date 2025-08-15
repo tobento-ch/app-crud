@@ -34,6 +34,7 @@ class BulkEditTest extends AbstractAction
         $this->controllerTests(Action\BulkEdit::new(name: 'edit-status'));
         $this->actionsTests(Action\BulkEdit::new(name: 'edit-status'));
         $this->inputTests(Action\BulkEdit::new(name: 'edit-status'));
+        $this->assertTrue(Action\BulkDelete::new()->displayButton());
     }
     
     public function testDefaultAction()
