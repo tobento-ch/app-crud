@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud;
 
+use JsonException;
 use Psr\Container\ContainerInterface;
 use Tobento\App\Crud\Filter\FilterInterface;
 use Tobento\App\Crud\Filter\FiltersInterface;
@@ -21,12 +22,12 @@ use Tobento\App\Crud\Filter\Resolve;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\Service\Autowire\Autowire;
 use Tobento\Service\Collection\Arr;
+use Tobento\Service\Cookie\CookiesInterface;
+use Tobento\Service\Cookie\CookieValuesInterface;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Session\SessionInterface;
+use Throwable;
 
-/**
- * FilterProcessor
- */
 class FilterProcessor implements FilterProcessorInterface
 {
     /**
@@ -38,11 +39,13 @@ class FilterProcessor implements FilterProcessorInterface
      * Create a new FilterProcessor.
      *
      * @param ContainerInterface $container
+     * @param RequesterInterface $requester
+     * @param string $storage cookie or seesion
      */
     public function __construct(
         ContainerInterface $container,
         protected RequesterInterface $requester,
-        protected SessionInterface $session,
+        protected string $storage = 'cookie',
     ) {
         $this->autowire = new Autowire($container);
     }
@@ -62,14 +65,12 @@ class FilterProcessor implements FilterProcessorInterface
             // we combine session filter data with input data
             // so that indiviual filter forms can be sumbitted
             // without losing previously filtered values.
-            $name = $action->controller()->resourceName();
-            $sessionData = $this->session->get('crudFilters.'.$name, []);
+            $storageData = $this->fetchData(action: $action);
             
             $data = $input->get('filter', []);
-            $data = array_replace_recursive($sessionData, $data);
+            $data = array_replace_recursive($storageData, $data);
         } else {
-            $name = $action->controller()->resourceName();
-            $data = $this->session->get('crudFilters.'.$name, []);
+            $data = $this->fetchData(action: $action);
         }
         
         // clear filter data:
@@ -107,9 +108,67 @@ class FilterProcessor implements FilterProcessorInterface
         }
         
         if ($input->has('filter') || $input->has('clear-filter')) {
-            $name = $action->controller()->resourceName();
             $data = $filters->getAppliedParameters();
-            $this->session->set('crudFilters.'.$name, $data);
+            $this->storeData(action: $action, data: $data);
+        }
+    }
+    
+    /**
+     * Fetches data from storage.
+     *
+     * @param ActionInterface $action
+     * @return array
+     */
+    protected function fetchData(ActionInterface $action): array
+    {
+        $name = $action->controller()->resourceName().'-'.$action->name();
+        
+        if ($this->storage === 'session') {
+            $session = $this->autowire->container()->get(SessionInterface::class);
+            return $session->get('crud-filters-'.$name, []);
+        }
+        
+        if ($this->storage === 'cookie') {
+            $cookieValues = $this->requester->request()->getAttribute(CookieValuesInterface::class);
+
+            try {
+                return json_decode($cookieValues->get('crud-filters-'.$name), true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException|Throwable $e) {
+                return [];
+            }
+        }
+        
+        return [];
+    }
+    
+    /**
+     * Stores data into storage.
+     *
+     * @param ActionInterface $action
+     * @param array $data
+     * @return void
+     */
+    protected function storeData(ActionInterface $action, array $data): void
+    {
+        $name = $action->controller()->resourceName().'-'.$action->name();
+        
+        if ($this->storage === 'session') {
+            $session = $this->autowire->container()->get(SessionInterface::class);
+            $session->set('crud-filters-'.$name, $data);
+            return;
+        }
+        
+        if ($this->storage === 'cookie') {
+            $cookies = $this->requester->request()->getAttribute(CookiesInterface::class);
+            
+            try {
+                $cookies->add(
+                    name: 'crud-filters-'.$name,
+                    value: json_encode($data, JSON_THROW_ON_ERROR),
+                );
+            } catch (JsonException|Throwable $e) {
+                //
+            }
         }
     }
     
