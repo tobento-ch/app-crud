@@ -238,6 +238,30 @@ class InputTest extends TestCase
         $this->assertSame(['field' => ['=' => 'value']], $filter->getWhereParameters());
     }
     
+    public function testApplyClearsParameters()
+    {
+        $filter = Input::new(name: 'foo.bar', field: 'sku');
+        
+        $filter->apply(
+            input: new Ip(['foo' => ['bar' => 'value']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $filter->apply(
+            input: new Ip([]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $this->assertSame([], $filter->getAppliedParameters());
+        $this->assertSame([], $filter->getWhereParameters());
+    }
+    
     public function testRender()
     {
         $filter = Input::new(name: 'sku', field: 'sku')->group('header')->label('LABEL')->description('DESC');

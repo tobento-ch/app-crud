@@ -65,6 +65,69 @@ class ColumnsTest extends TestCase
         $this->assertTrue($filter->isActive());
     }
     
+    public function testApplyUsesDefaultFields()
+    {
+        $filter = Columns::new()->default('title', 'sku');
+        
+        $filter->apply(
+            input: new Input(),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+                Field\Text::new(name: 'title'),
+            )),
+        );
+        
+        $this->assertSame(['columns' => ['title', 'sku']], $filter->getAppliedParameters());
+        $this->assertSame(['title', 'sku'], $filter->columns());
+        $this->assertTrue($filter->isActive());
+    }
+    
+    public function testApplyReordersFields()
+    {
+        $filter = Columns::new()->reorder('title', 'sku');
+        
+        $action = Index::new()->setFields(new Fields(
+            Field\Text::new(name: 'id'),
+            Field\Text::new(name: 'sku'),
+            Field\Text::new(name: 'title'),
+        ));
+        
+        $filter->apply(
+            input: new Input(),
+            filters: new Filters(),
+            action: $action,
+        );
+        
+        $this->assertSame(['columns' => ['title', 'sku', 'id', 'actions']], $filter->getAppliedParameters());
+        $this->assertSame(['title', 'sku', 'id', 'actions'], $filter->columns());
+        $this->assertTrue($filter->isActive());
+        $this->assertSame(['title', 'sku', 'id'], $action->fields()->getNames());
+    }
+    
+    public function testApplyReordersFieldsFromInput()
+    {
+        $filter = Columns::new()->reorder('title', 'sku');
+        
+        $action = Index::new()->setFields(new Fields(
+            Field\Text::new(name: 'id'),
+            Field\Text::new(name: 'sku'),
+            Field\Text::new(name: 'title'),
+        ));
+        
+        $filter->apply(
+            input: new Input(['columns' => ['sku', 'id']]),
+            filters: new Filters(),
+            action: $action,
+        );
+        
+        $this->assertSame(['columns' => ['sku', 'id']], $filter->getAppliedParameters());
+        $this->assertSame(['sku', 'id'], $filter->columns());
+        $this->assertTrue($filter->isActive());
+        $this->assertSame(['sku', 'id', 'title'], $action->fields()->getNames());
+    }
+    
     public function testApplyWithEmptyDataAppliesDefaultFields()
     {
         $filter = Columns::new();
@@ -169,6 +232,34 @@ class ColumnsTest extends TestCase
         $this->assertSame(['id'], $filter->columns());
     }
     
+    public function testApplyClearsColumns()
+    {
+        $filter = Columns::new();
+        
+        $filter->apply(
+            input: new Input(['columns' => ['id', 'sku']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+                Field\Text::new(name: 'title'),
+            )),
+        );
+        
+        $filter->apply(
+            input: new Input(['columns' => ['sku']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+                Field\Text::new(name: 'title'),
+            )),
+        );
+        
+        $this->assertSame(['columns' => ['sku']], $filter->getAppliedParameters());
+        $this->assertSame(['sku'], $filter->columns());
+    }
+    
     public function testRender()
     {
         $filter = Columns::new()->group('header')->label('LABEL')->description('DESC');
@@ -189,9 +280,11 @@ class ColumnsTest extends TestCase
         $this->assertStringContainsString('name="filter[columns][]" type="checkbox" value="sku"', $rendered);
         $this->assertStringContainsString('name="filter[columns][]" type="hidden" value="_none"', $rendered);
         
+        $this->assertStringContainsString('class="crud-drag', $rendered);
+        
         // unique id with group header:
-        $this->assertStringContainsString('id="filter_columns_header_1"', $rendered);
-        $this->assertStringContainsString('label for="filter_columns_header_1"', $rendered);
+        $this->assertStringContainsString('id="filter_columns_header_sku"', $rendered);
+        $this->assertStringContainsString('label for="filter_columns_header_sku"', $rendered);
     }
     
     public function testRenderIgnoresNotIndexableFields()
@@ -209,6 +302,23 @@ class ColumnsTest extends TestCase
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('name="filter[columns][]" type="checkbox" value="sku"', $rendered);
+    }
+    
+    public function testRenderWithoutSorting()
+    {
+        $filter = Columns::new()->sortable(false);
+        
+        $filter->apply(
+            input: new Input(['columns' => ['id']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku')->indexable(false),
+            )),
+        );
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringNotContainsString('class="crud-drag', $rendered);
     }
     
     public function testRendersCustomView()

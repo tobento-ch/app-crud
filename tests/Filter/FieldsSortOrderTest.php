@@ -233,6 +233,113 @@ class FieldsSortOrderTest extends TestCase
         $this->assertSame(null, $filter->getValueFor('sku'));
     }
     
+    public function testApplyWithDefault()
+    {
+        $filter = FieldsSortOrder::new()->addDefault(name: 'sku', value: 'asc');
+        
+        $filter->apply(
+            input: new Input([]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $this->assertSame(['sort' => ['sku' => 'asc']], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => 'asc'], $filter->getOrderByParameters());
+        $this->assertSame('asc', $filter->getValueFor('sku'));
+        $this->assertTrue($filter->isActive());
+    }
+    
+    public function testApplyWithDefaultNotAppliedIfInput()
+    {
+        $filter = FieldsSortOrder::new()->addDefault(name: 'sku', value: 'asc');
+        
+        $filter->apply(
+            input: new Input(['sort' => ['sku' => 'desc']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $this->assertSame(['sort' => ['sku' => 'desc']], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => 'desc'], $filter->getOrderByParameters());
+        $this->assertSame('desc', $filter->getValueFor('sku'));
+        $this->assertTrue($filter->isActive());
+    }
+    
+    public function testApplyWithActive()
+    {
+        $filter = FieldsSortOrder::new()->addActive(name: 'sku', value: 'asc');
+        
+        $filter->apply(
+            input: new Input(['sort' => ['sku' => 'desc']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $this->assertSame(['sort' => ['sku' => 'asc']], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => 'asc'], $filter->getOrderByParameters());
+        $this->assertSame('asc', $filter->getValueFor('sku'));
+        $this->assertTrue($filter->isActive());
+    }
+    
+    public function testApplyWithActiveGetsAppliedAfterApply()
+    {
+        $filter = FieldsSortOrder::new();
+        
+        $filter->apply(
+            input: new Input(['sort' => ['sku' => 'desc']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $filter->addActive(name: 'sku', value: 'asc');
+        
+        $this->assertSame(['sort' => ['sku' => 'asc']], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => 'asc'], $filter->getOrderByParameters());
+        $this->assertSame('asc', $filter->getValueFor('sku'));
+        $this->assertTrue($filter->isActive());
+    }    
+    
+    public function testApplyClearsSorted()
+    {
+        $filter = FieldsSortOrder::new();
+        
+        $filter->apply(
+            input: new Input(['sort' => ['sku' => 'asc', 'title' => 'desc']]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+                Field\Text::new(name: 'title'),
+            )),
+        );
+        
+        $filter->apply(
+            input: new Input([]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'id'),
+                Field\Text::new(name: 'sku'),
+                Field\Text::new(name: 'title'),
+            )),
+        );        
+        
+        $this->assertSame(['sort' => []], $filter->getAppliedParameters());
+        $this->assertSame([], $filter->getOrderByParameters());
+        $this->assertFalse($filter->isActive());
+    }
+    
     public function testIsSortable()
     {
         $filter = FieldsSortOrder::new();

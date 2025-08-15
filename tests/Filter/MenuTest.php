@@ -188,7 +188,7 @@ class MenuTest extends TestCase
         $this->assertFalse($filter->isActive());
     }
     
-    public function AtestApplyWithInvalidValueDoesNotApply()
+    public function testApplyWithInvalidValueDoesNotApply()
     {
         $filter = Menu::new(name: 'foo', field: 'sku')
             ->items([

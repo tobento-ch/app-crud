@@ -337,6 +337,49 @@ class RadiosTest extends TestCase
         $this->assertSame(['sku' => ['=' => 'blue']], $filter->getWhereParameters());
     }
     
+    public function testApplyWithDefinedSelectedNotAppliedIfInput()
+    {
+        $filter = Radios::new(name: 'foo', field: 'sku')
+            ->selected('blue')
+            ->options(['blue' => 'Blue', 'red' => 'Red']);
+        
+        $filter->apply(
+            input: new Input(['foo' => 'red']),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $this->assertSame(['foo' => 'red'], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => ['=' => 'red']], $filter->getWhereParameters());
+    }
+    
+    public function testApplyClearsParameters()
+    {
+        $filter = Radios::new(name: 'foo', field: 'sku')
+            ->options(['blue' => 'Blue', 'red' => 'Red']);
+        
+        $filter->apply(
+            input: new Input(['foo' => 'red']),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'sku'),
+            )),
+        );
+        
+        $filter->apply(
+            input: new Input([]),
+            filters: new Filters(),
+            action: Index::new()->setFields(new Fields(
+                Field\Text::new(name: 'sku'),
+            )),
+        );        
+        
+        $this->assertSame([], $filter->getAppliedParameters());
+        $this->assertSame([], $filter->getWhereParameters());
+    }
+    
     public function testRender()
     {
         $filter = Radios::new(name: 'sku', field: 'sku')

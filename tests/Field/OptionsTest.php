@@ -35,6 +35,7 @@ class OptionsTest extends AbstractField
             columns: [
                 Column\Id::new(),
                 Column\Text::new('name'),
+                Column\Text::new('type'),
             ],
         );
     }
@@ -240,6 +241,40 @@ class OptionsTest extends AbstractField
         );
     }
     
+    public function testProcessCreateEditRendersSearchInputUsesBaseWhere()
+    {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'foo', 'type' => 'tag']);
+        $repo->create(['name' => 'bar', 'type' => 'color']);
+        
+        $field = Field\Options::new(name: 'name')
+            ->repository($repo)
+            ->baseWhere(['type' => 'tag'])
+            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
+                return new Field\Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('name'),
+                );
+            })
+            ->setEntity(new Entity(['name' => ['1', '2']]));
+        
+        $field->processCreateEdit(
+            action: Action\Edit::new(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertStringContainsString(
+            '<input name="name[]" type="checkbox" value="1" checked>',
+            $field->render()
+        );
+        
+        $this->assertStringNotContainsString(
+            '<input name="name[]" type="checkbox" value="2" checked>',
+            $field->render()
+        );
+    }
+    
     public function testProcessSave()
     {
         $field = Field\Options::new(name: 'color');
@@ -282,6 +317,33 @@ class OptionsTest extends AbstractField
         );
         
         $this->assertTrue($validation->isValid());
+    }
+    
+    public function testValidateFailsIfInvalidOptionUsingBaseWhere()
+    {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'foo', 'type' => 'tag']);
+        $repo->create(['name' => 'bar', 'type' => 'color']);
+        
+        $field = Field\Options::new(name: 'name')
+            ->repository($repo)
+            ->baseWhere(['type' => 'tag'])
+            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
+                return new Field\Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('name'),
+                );
+            })
+            ->setEntity(new Entity(['name' => ['1', '2']]));
+        
+        $rules = $field->getValidationRulesForAction('create');
+        
+        $validation = Factory::createValidator()->validate(
+            data: ['name' => ['1', '2']],
+            rules: $rules,
+        );
+        
+        $this->assertFalse($validation->isValid());
     }
     
     public function testValidateFailsIfInvalidOption()
