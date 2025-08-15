@@ -39,6 +39,11 @@ class Options extends AbstractField
     protected null|string|RepositoryInterface $repository = null;
 
     /**
+     * @var array
+     */
+    protected array $baseWhere = [];
+    
+    /**
      * @var string
      */
     protected string $storeColumn = 'id';
@@ -118,6 +123,18 @@ class Options extends AbstractField
     public function repository(string|RepositoryInterface $repository): static
     {
         $this->repository = $repository;
+        return $this;
+    }
+    
+    /**
+     * Sets the base where parameters for fetching the options.
+     *
+     * @param array $where
+     * @return static $this
+     */
+    public function baseWhere(array $where): static
+    {
+        $this->baseWhere = $where;
         return $this;
     }
     
@@ -206,7 +223,7 @@ class Options extends AbstractField
      */
     public function getOptions(array $selected, null|string $search = null): iterable
     {
-        $where = [];
+        $where = $this->baseWhere;
 
         if (!empty($selected) && is_null($search)) {
             $where[$this->storeColumn] = ['not in' => $selected];
@@ -243,11 +260,10 @@ class Options extends AbstractField
      */
     public function getSelectedOptions(array $selected): iterable
     {
-        $items = $this->getRepository()->findAll(where: [
-            $this->storeColumn => ['in' => $selected],
-        ]);
-
-        return $items;
+        $where = $this->baseWhere;
+        $where[$this->storeColumn] = ['in' => $selected];
+        
+        return $this->getRepository()->findAll(where: $where);
     }
     
     /**
@@ -519,9 +535,10 @@ class Options extends AbstractField
                     return false;
                 }
 
-                $count = $this->getRepository()->count(where: [
-                    $this->storeColumn => ['in' => $value],
-                ]);
+                $where = $this->baseWhere;
+                $where[$this->storeColumn] = ['in' => $value];
+                
+                $count = $this->getRepository()->count(where: $where);
 
                 return count($value) === $count;
             },
