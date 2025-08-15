@@ -74,11 +74,34 @@ const indexAction = (function(window, document) {
                     modals.get(this.name).close();
                     form.reset();                    
                 }
+                
+                crud.fire('bulk.saved', [event, this]);
             });
         }
     }
 
     const crud = {
+        listeners: {},
+        listen: function(eventName, callback) {
+            if (typeof this.listeners[eventName] === 'undefined') {
+                this.listeners[eventName] = [];
+            }
+            
+            this.listeners[eventName].push(callback);
+        },
+        fire: function(eventName, parameters) {
+            if (typeof this.listeners[eventName] === 'object') {
+                this.listeners[eventName].forEach(listener => {
+                    if (typeof listener === 'function') {
+                        if (parameters instanceof Array) {
+                            listener(...parameters);
+                        } else if (parameters instanceof Object) {
+                            listener(parameters);
+                        }
+                    }
+                });
+            }
+        },
         registerBulks: function() {
             const bulksEl = document.querySelector('input[name="bulks"]');
             
@@ -100,17 +123,21 @@ const indexAction = (function(window, document) {
             // Show dropdown menu on input click:
             document.addEventListener('click', (e) => {
                 const el = event.target.closest('[name^="bulk"]');
+                const dropdownEl = document.querySelector('[data-dropdown="bulk"]');
+                
+                if (!dropdownEl) {
+                    return;
+                }
+                
                 if (el) {
                     const count = document.querySelectorAll('[name="bulk[]"]:checked').length;
-                    const dropdownEl = document.querySelector('[data-dropdown="bulk"]');
-                    if (dropdownEl && count > 0) {
+                    if (count > 0) {
                         dropdownEl.classList.remove('display-none');
                         el.parentNode.appendChild(dropdownEl);
                     } else {
                         dropdownEl.classList.add('display-none');
                     }
                 } else if (! e.target.closest('.crud-dropdown')) {
-                    const dropdownEl = document.querySelector('[data-dropdown="bulk"]');
                     dropdownEl.classList.add('display-none');
                     document.body.appendChild(dropdownEl);
                 }
@@ -205,6 +232,7 @@ const indexAction = (function(window, document) {
                 });
                 
                 crud.registerBulks();
+                crud.fire('filter.updated', [event]);
             });
         },
         modalFilter: function() {
