@@ -47,6 +47,7 @@ class Crud extends Boot
         \Tobento\App\Http\Boot\ErrorHandler::class,
         \Tobento\App\Http\Boot\Routing::class,
         \Tobento\App\Http\Boot\Session::class,
+        \Tobento\App\Http\Boot\Cookies::class,
         \Tobento\App\Http\Boot\RequesterResponser::class,
         \Tobento\App\Crud\Boot\HttpErrorHandler::class,
         
