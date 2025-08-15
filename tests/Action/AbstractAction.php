@@ -17,13 +17,15 @@ use PHPUnit\Framework\TestCase;
 use Tobento\App\Crud\Action\ActionsInterface;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action\Actions;
-use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Button\ButtonInterface;
 use Tobento\App\Crud\Button\ButtonsInterface;
 use Tobento\App\Crud\Button;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field\Fields;
 use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Filter;
+use Tobento\App\Crud\Filter\Filters;
+use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Entity\EntitiesInterface;
 use Tobento\App\Crud\Entity\Entities;
 use Tobento\App\Crud\Entity\EntityInterface;
@@ -102,6 +104,15 @@ abstract class AbstractAction extends TestCase
         $this->assertSame(1, $action->setFields(new Fields(
             new Field\Text('foo'),
         ))->fields()->count());
+    }
+    
+    public function filterTests(ActionInterface $action)
+    {
+        $this->assertInstanceof(FiltersInterface::class, $action->filters());
+        $this->assertSame(0, $action->setFilters(new Filters())->filters()->count());
+        $this->assertSame(1, $action->setFilters(new Filters(
+            Filter\FieldsSortOrder::new(),
+        ))->filters()->count());
     }
     
     public function entitiesTests(ActionInterface $action)
