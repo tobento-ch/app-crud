@@ -234,7 +234,10 @@ foreach($action->entities() as $entity) {
                 <div class="modal modal-fade top right" data-modal='{"id": "filters"}'>
                     <div class="modal-background"></div>
                     <div class="modal-content modal-m">
-                        <div class="modal-head"><span class="link modal-close"><?= $view->etrans('close') ?></span></div>
+                        <div class="modal-head buttons spaced-between">
+                            <span class="link"><a href="?clear-filter=1" data-filter="modal.clear"><?= $view->etrans('Clear Filters') ?></a></span>
+                            <span class="link modal-close"><?= $view->etrans('close') ?></span>
+                        </div>
                         <div class="modal-body">
                             <?= $form->form(['action' => $action->getLinkUrl(), 'method' => 'GET', 'data-form-filter' => 'modal']) ?>
                             <div class="text-xs" id="filters-modal" data-filters="modal">
@@ -257,6 +260,10 @@ foreach($action->entities() as $entity) {
                         <?= $bulkAction->render($view) ?>
                     <?php } ?>
                 </div>
+            <?php } ?>
+            <?php
+            $bulkActions = $bulkActions->filter(fn ($a) => $a->displayButton());
+            if (!$bulkActions->empty()) { ?>
                 <div class="crud-dropdown display-none" data-dropdown="bulk">
                     <button class="button text-xs"><?= $view->etrans('Actions') ?></button>
                     <div class="crud-dropdown-menu">
