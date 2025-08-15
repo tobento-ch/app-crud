@@ -43,4 +43,11 @@ interface BulkActionInterface
      * @return string
      */
     public function render(ViewInterface $view): string;
+    
+    /**
+     * Returns whether to display the button to perform the action.
+     *
+     * @return bool
+     */
+    public function displayButton(): bool;
 }
