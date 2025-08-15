@@ -43,6 +43,7 @@
         "tobento/service-menu": "^1.0",
         "tobento/js-editor": "^1.0",
         "tobento/js-notifier": "^1.0",
+        "tobento/js-sortable": "^1.0",
         "tobento/css-modal": "^1.0",
         "psr/container": "^2.0"
     },
