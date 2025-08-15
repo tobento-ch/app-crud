@@ -58,6 +58,7 @@ A simple app CRUD.
             - [Delete Action](#delete-action)
             - [Bulk Delete Action](#bulk-delete-action)
             - [Bulk Edit Action](#bulk-edit-action)
+            - [Bulk Tree Update Action](#bulk-tree-update-action)
         - [Buttons](#buttons)
             - [Creating Buttons](#creating-buttons)
             - [Adding Buttons](#adding-buttons)
@@ -88,8 +89,15 @@ A simple app CRUD.
             - [Pagination Items Per Page Filter](#pagination-items-per-page-filter)
             - [Radios Filter](#radios-filter)
             - [Select Filter](#select-filter)
+            - [Views Filter](#views-filter)
         - [Filter Groups](#filter-groups)
+        - [Filter Processor](#filter-processor)
         - [Filter Limitations](#filter-limitations)
+    - [Resource Types](#resource-types)
+        - [Create Resource Types](#create-resource-types)
+        - [Create Resource Type](#create-resource-type)
+        - [Create Controller Supporting Resource Types](#create-controller-supporting-resource-types)
+        - [Configure Resource Types](#configure-resource-types)
     - [Security](#security)
     - [Testing](#testing)
         - [Crud Controller Testing](#crud-controller-testing)
@@ -511,6 +519,47 @@ class ProductsController extends AbstractCrudController
             Filter\Pagination::new(),
         ];
     }
+}
+```
+
+#### Different Filters Per Action
+
+**Option 1**
+
+Using the action name:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter;
+
+protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+{
+    yield Filter\Columns::new()->open(false);
+
+    if (in_array($action->name(), ['custom'])) {
+        yield Filter\FieldsSortOrder::new();
+    }
+}
+```
+
+**Option 2**
+
+Using the action ```setFilters``` method:
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Filter;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    return [
+        Action\Index::new(title: 'Products')
+            ->setFilters(new Filter\Filters(
+                Filter\Columns::new()->open(false),
+            )),
+    ];
 }
 ```
 
@@ -1241,8 +1290,11 @@ use Tobento\Service\Repository\RepositoryInterface;
 Field\Options::new('categories')
     ->repository(CategoriesRepository::class) // class-string|RepositoryInterface
     
+    // you may add base where queries:
+    ->baseWhere(['type' => 'blog'])
+    
     // you may change the limit of the searchable options to be displayed:
-    ->limit(15); // default is 25
+    ->limit(15) // default is 25
 
     // you may change the column value to be stored:
     ->storeColumn('sku') // 'id' is default
@@ -2581,6 +2633,28 @@ The following fields support bulk editing:
 * [Text Field](#text-field)
 * [Textarea Field](#textarea-field)
 
+#### Bulk Tree Update Action
+
+If using the ```crud/index-tree``` view on the ```Index``` action, which enables you to reorder entities by drag-and-drop. The ```BulkTreeUpdate``` action updates entities sort order after drag-and-drop.
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    return [
+        Action\Index::new()->view('crud/index-tree'),
+        
+        Action\BulkTreeUpdate::new()
+            // you may change the field names:
+            ->mapping(id: 'id', parentId: 'parent_id', sortorder: 'sortorder'), // defaults
+    ];
+}
+```
+
+Instead of setting the ```crud/index-tree``` view on the ```Index``` action, you may consider using the [Views Filter](#views-filter) to switch between views.
+
 ### Buttons
 
 All build-in actions have already specified the buttons for linking to other actions. You may configure the buttons by the following methods.
@@ -3179,7 +3253,16 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
 {
     return [
         Filter\Columns::new()
-        
+            // you may set the default active columns,
+            // otherwise the first 5 fields and actions will be used.
+            ->default('title', 'date', 'actions')
+            
+            // you may reorder the columns:
+            ->reorder('title', 'date', 'actions')
+            
+            // you may disable that columns can be sorted by dragging.
+            ->sortable(false)
+            
             // hide on default:
             ->open(false)
 
@@ -3414,7 +3497,13 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->only('sku', 'title')
             
             // or
-            ->except('sku', 'title'),
+            ->except('sku', 'title')
+
+            // you may add a default sort order:
+            ->addDefault(name: 'title', value: 'asc') // 'asc' or 'desc'
+            
+            // you may add an active sort order:
+            ->addActive(name: 'title', value: 'asc'), // 'asc' or 'desc'
     ];
 }
 ```
@@ -4021,6 +4110,76 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
 }
 ```
 
+#### Views Filter
+
+Adds multiple HTML input elements of the type radio to switch views.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter;
+use Tobento\App\Crud\Input\Input;
+
+protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+{
+    return [
+        Filter\Views::new()
+            // specify the views to switch:
+            ->addView(id: 'default', view: 'crud/index', label: 'Table')
+            ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree')
+            
+            // you may set the default view:
+            ->defaultView(id: 'tree')
+            
+            // you may use the after method to modify filters:
+            ->after(function(Filter\Views $filter, FiltersInterface $filters, ActionInterface $action): void {           
+                if ($filter->viewChanged()) {
+                    foreach($filters as $f) {
+                        if (in_array($f->name(), ['columns'])) {
+                            continue;
+                        }
+                        
+                        $f->apply(new Input([]), $filters, $action);
+                    }
+                }
+
+                if ($filter->viewId() === 'tree') {
+                    $filters->get('sort')?->addActive(name: 'sortorder', value: 'asc');
+                }
+            }),
+                
+            // hide on default:
+            ->open(false)
+            
+            // display above table (default):
+            ->group('header')
+            
+            // display below table:
+            ->group('footer')
+            
+            // display in modal:
+            ->group('modal')
+            
+            // display in the aside area:
+            ->group('aside')
+            
+            // display in table at the field:
+            ->group('field')
+            
+            // you may set a label:
+            ->label('View')
+            
+            // you may set a description:
+            ->description('Lorem ipsum')
+            
+            // you may set a custom view:
+            ->view('custom/crud/filter'),
+    ];
+}
+```
+
+Check out the [Bulk Tree Update Action](#bulk-tree-update-action) section if you use ```crud/index-tree``` view which is required to update entities sort order after drag-and-drop.
+
 ### Filter Groups
 
 **Available filter groups (if the filter supports it)**
@@ -4055,6 +4214,17 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
 }
 ```
 
+### Filter Processor
+
+By default, filtered data is stored in cookies, you may store the data in session instead by the following code:
+
+```php
+use Tobento\App\Crud\FilterProcessor;
+use Tobento\App\Crud\FilterProcessorInterface;
+
+$app->set(FilterProcessorInterface::class, FilterProcessor::class)->with(['storage' => 'session']);
+```
+
 ### Filter Limitations
 
 As the [CRUD controller](#crud-controller) uses the [Repository Interface](https://github.com/tobento-ch/service-repository#repository-interface) and filtering is done using the ```findAll``` method you are not able to make complex queries by filters.
@@ -4067,9 +4237,236 @@ $entities = $repository->findAll(
 );
 ```
 
+## Resource Types
+
+You may create different resource types such as a ```BlogArticleType``` and ```DefaultArticleType``` for instance. Each type can have its own fields configured.
+
+### Create Resource Types
+
+```php
+use Tobento\App\Crud\ResourceTypes;
+use Tobento\App\Crud\ResourceTypesInterface;
+
+interface ArticleTypesInterface extends ResourceTypesInterface
+{
+    //
+}
+
+class ArticleTypes extends ResourceTypes implements ArticleTypesInterface
+{
+    //
+}
+```
+
+### Create Resource Type
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\ResourceTypeInterface;
+
+class BlogArticleType implements ResourceTypeInterface
+{
+    /**
+     * Returns the type name.
+     *
+     * @return string
+     */
+    public function name(): string
+    {
+        return 'blog';
+    }
+    
+    /**
+     * Returns the title.
+     *
+     * @return string
+     */
+    public function title(): string
+    {
+        return 'Blog Article';
+    }
+    
+    /**
+     * Configure fields.
+     *
+     * @param ActionInterface $action
+     * @return iterable<FieldInterface>|FieldsInterface
+     */
+    public function configureFields(ActionInterface $action): iterable|FieldsInterface
+    {
+        yield Field\PrimaryId::new('id');
+        
+        yield Field\Text::new('title');
+        
+        if (in_array($action->name(), ['create', 'store'])) {
+            yield Field\Text::new(name: 'type')
+                ->type('hidden')
+                ->value($this->name())
+                ->validate(store: sprintf('required|in:%s', $this->name()));
+        }
+    }
+    
+    /**
+     * Configure actions.
+     *
+     * @param ActionsInterface $actions
+     * @return void
+     */
+    public function configureActions(ActionsInterface $actions): void
+    {
+        // add create button on index action:
+        if ($indexAction = $actions->get('index')) {
+            $indexAction->addButton(
+                Button\Link::new(label: 'Blog Article', group: 'global')
+                    ->name('create.blog')
+                    ->linkToRoute('articles.create', function(EntityInterface $entity): array {
+                        return ['type' => $this->name()];
+                    })
+            );
+        }
+    }
+}
+```
+
+### Create Controller Supporting Resource Types
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter\FilterInterface;
+use Tobento\App\Crud\Filter;
+use Tobento\App\Http\Exception\NotFoundException;
+use Tobento\Service\Repository\RepositoryInterface;
+
+class ArticleController extends AbstractCrudController
+{
+    /**
+     * Must be unique, lowercase and only of [a-z-] characters.
+     */
+    public const RESOURCE_NAME = 'articles';
+    
+    /**
+     * Create a new ArticleController.
+     *
+     * @param RepositoryInterface $repository
+     */
+    public function __construct(
+        ArticleRepository $repository,
+        protected ArticleTypesInterface $types,
+    ) {
+        $this->repository = $repository;
+    }
+    
+    /**
+     * Returns the configured fields.
+     *
+     * @param ActionInterface $action
+     * @return iterable<FieldInterface>|FieldsInterface
+     */
+    protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+    {
+        // return the fields for the index action:
+        if  ($action->name() === 'index') {
+            return [
+                Field\PrimaryId::new('id'),
+                Field\Select::new(name: 'type', label: 'Type')->options($this->types->titles()),
+                Field\Text::new('sku'),
+                //...
+            ];
+        }
+        
+        // return the specific fields from the type:
+        $typeName = $action->getInput()->get('type', 'default');
+        
+        if  (in_array($action->name(), ['edit', 'update', 'delete'])) {
+            $typeName = $action->entity()->get('type', 'default');
+        }
+        
+        if (!$this->types->has($typeName)) {
+            throw new NotFoundException();
+        }
+        
+        return $this->types->get($typeName)->configureFields($action);        
+    }
+    
+    /**
+     * Returns the configured actions.
+     *
+     * @return iterable<ActionInterface>|ActionsInterface
+     */
+    protected function configureActions(): iterable|ActionsInterface
+    {
+        $actions = new Action\Actions(
+            Action\Index::new(title: 'Articles')
+                ->removeButton('create')
+                ->groupButtons(
+                    button: Button\Dropdown::new(label: 'Create New', icon: '', group: 'global')->name('create.list'),
+                ),
+            //...
+        );
+        
+        // configure actions for each type:
+        foreach($this->types as $type) {
+            $type->configureActions($actions);
+        }
+        
+        return $actions;
+    }
+    
+    /**
+     * Returns the configured filters.
+     *
+     * @param ActionInterface $action
+     * @return iterable<FilterInterface>|FiltersInterface
+     */
+    protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+    {
+        return [
+            Filter\Columns::new()->open(false),
+            //...
+        ];
+    }
+}
+```
+
+### Configure Resource Types
+
+Implement your interface within the app:
+
+```php
+$app->set(
+    ArticleTypesInterface::class,
+    static function (): ArticleTypesInterface {
+        return new ArticleTypes(
+            new BlogArticleType(),
+        );
+    }
+);
+```
+
+Sometimes, it may be useful to add additional types from another location using the [App on](https://github.com/tobento-ch/app#on) method to add types only on demand:
+
+```php
+$app->on(
+    ArticleTypesInterface::class,
+    static function (ArticleTypesInterface $types): void {
+        $types->add(new AnotherArticleType());
+    }
+);
+```
+
 ## Security
 
-Keep in mind that the repository is responsibilty to protect against any SQL injections for instance! If your are using the [Repository Storage](https://github.com/tobento-ch/service-repository-storage) you will be save.
+Keep in mind that the repository is responsible to protect against any SQL injections for instance! If your are using the [Repository Storage](https://github.com/tobento-ch/service-repository-storage) you will be save.
 
 ## Testing
 
