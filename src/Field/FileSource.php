@@ -148,13 +148,13 @@ class FileSource extends AbstractField
         
         $this->picture(definition: new ArrayDefinition('crud-file-src', [
             'img' => [
-                'src' => [100, 100],
+                'src' => [64, 64],
                 'loading' => 'lazy',
             ],
             'sources' => [
                 [
                     'srcset' => [
-                        '' => [100, 100],
+                        '' => [64, 64],
                     ],
                     'type' => 'image/webp',
                 ],
