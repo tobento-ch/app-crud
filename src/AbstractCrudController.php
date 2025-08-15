@@ -168,11 +168,15 @@ abstract class AbstractCrudController
             $action->setFields($this->getConfiguredFields(action: $action));
         }
         
-        // Process filters:
-        $filters = $this->getConfiguredFilters($action);
-        $filterProcessor->processFilters(filters: $filters, action: $action);
+        // Handle filters:
+        if ($action->filters()->empty()) {
+            $action->setFilters($this->getConfiguredFilters($action));
+        }
+
+        $filterProcessor->processFilters(filters: $action->filters(), action: $action);
         
-        $entities = new Entities($this->findEntities($filters));
+        // Handle Entities:
+        $entities = new Entities($this->findEntities($action->filters()));
         
         $entities = $entities->map(function(object $item): EntityInterface {
             return $this->createEntityFromObject($item);
@@ -196,7 +200,7 @@ abstract class AbstractCrudController
             data: [
                 'action' => $action->setFields($action->fields()->parent(null)),
                 'buttons' => $action->buttons(),
-                'filters' => $filters,
+                'filters' => $action->filters(),
                 'bulkActions' => $bulkActions,
                 'locale' => 'en',
             ],
@@ -248,7 +252,12 @@ abstract class AbstractCrudController
 
         // Bulk process:
         $action->setActionProcessor($actionProcessor);
-        $actionProcessor->call($action->getBulkProcessAction());
+
+        $response = $actionProcessor->call($action->getBulkProcessAction());
+        
+        if ($response instanceof ResponseInterface) {
+            return $response;
+        }
 
         return $responser->redirect(uri: $action->getLinkUrl());
     }
