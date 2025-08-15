@@ -141,4 +141,14 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
             ],
         );
     }
+    
+    /**
+     * Returns whether to display the button to perform the action.
+     *
+     * @return bool
+     */
+    public function displayButton(): bool
+    {
+        return true;
+    }
 }
