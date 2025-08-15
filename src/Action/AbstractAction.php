@@ -25,6 +25,8 @@ use Tobento\App\Crud\Entity\EntitiesInterface;
 use Tobento\App\Crud\Entity\Entities;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Entity\Entity;
+use Tobento\App\Crud\Filter\Filters;
+use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Translation\TranslatorInterface;
@@ -42,6 +44,11 @@ abstract class AbstractAction implements ActionInterface
      * @var null|FieldsInterface
      */
     protected null|FieldsInterface $fields = null;
+    
+    /**
+     * @var null|FiltersInterface
+     */
+    protected null|FiltersInterface $filters = null;
     
     /**
      * @var null|ButtonsInterface
@@ -373,6 +380,32 @@ abstract class AbstractAction implements ActionInterface
     public function getFieldsActions(): array
     {
         return [];
+    }
+    
+    /**
+     * Sets the filters.
+     *
+     * @param FiltersInterface $filters
+     * @return static $this
+     */
+    public function setFilters(FiltersInterface $filters): static
+    {
+        $this->filters = $filters;
+        return $this;
+    }
+    
+    /**
+     * Returns the filters.
+     *
+     * @return FiltersInterface
+     */
+    public function filters(): FiltersInterface
+    {
+        if (is_null($this->filters)) {
+            return new Filters();
+        }
+        
+        return $this->filters;
     }
     
     /**
