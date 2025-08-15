@@ -55,6 +55,7 @@ class Crud implements MigrationInterface
         $this->iconFiles = [
             $this->dirs->get('views').'icons/' => [
                 $resources.'views/icons/dots.svg',
+                $resources.'views/icons/grip-vertical.svg',
             ],
         ];
     }
@@ -123,6 +124,13 @@ class Crud implements MigrationInterface
                 name: 'JS Notifier assets',
                 type: 'assets',
                 description: 'JS Notifier assets.',
+            ),
+            new DirCopy(
+                dir: $this->dirs->get('vendor').'tobento/js-sortable/src/',
+                destDir: $this->dirs->get('public').'assets/js-sortable/',
+                name: 'JS Sortable assets',
+                type: 'assets',
+                description: 'JS Sortable assets.',
             ),
             new DirCopy(
                 dir: $this->dirs->get('vendor').'tobento/service-form/resources/',
