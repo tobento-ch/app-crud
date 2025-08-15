@@ -28,6 +28,7 @@ class IndexTest extends AbstractAction
         $this->localeTests(Action\Index::new());
         $this->buttonTests(Action\Create::new());
         $this->fieldTests(Action\Index::new());
+        $this->filterTests(Action\Index::new());
         $this->entitiesTests(Action\Index::new());
         $this->entityTests(Action\Index::new());
         $this->controllerTests(Action\Index::new());
