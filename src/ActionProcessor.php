@@ -143,20 +143,7 @@ class ActionProcessor implements ActionProcessorInterface
         null|EntityInterface $entity = null,
     ): void {
         // Handle subfields:
-        /*$fields = [];
-        foreach($action->fields() as $field) {
-            if ($field instanceof FieldsAwareInterface) {
-                foreach($field->getFields($action) as $f) {
-                    $fields[] = $f;
-                }
-            }
-            $fields[] = $field;
-        }*/
-        
         $fields = $this->collectFields($action->fields(), $action);
-        
-        //echo '<pre>'; print_r((new Fields(...$fields))->getNames()); exit;
-
         $action->setFields(new Fields(...$fields));
         
         // Fields:
