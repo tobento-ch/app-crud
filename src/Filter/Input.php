@@ -109,6 +109,8 @@ class Input extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
+        $this->searchValue = null;
+        
         if (! $input->has($this->name())) {
             return;
         }

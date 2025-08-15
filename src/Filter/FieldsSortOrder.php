@@ -39,6 +39,16 @@ class FieldsSortOrder extends AbstractFilter
     protected array $sorted = [];
     
     /**
+     * @var array<string, null|string>
+     */
+    protected array $defaultSorted = [];
+    
+    /**
+     * @var array<string, null|string>
+     */
+    protected array $activeSorted = [];
+    
+    /**
      * @var array<int, string>
      */
     protected array $sortableFields = [];
@@ -82,6 +92,39 @@ class FieldsSortOrder extends AbstractFilter
     }
     
     /**
+     * Adds a default sorting for the given name.
+     *
+     * @param string $name
+     * @param string $value
+     * @return static
+     */
+    public function addDefault(string $name, string $value): static
+    {
+        if (in_array($value, ['asc', 'desc'])) {
+            $this->defaultSorted[$name] = $value;
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Adds an active sorting for the given name.
+     *
+     * @param string $name
+     * @param string $value
+     * @return static
+     */
+    public function addActive(string $name, string $value): static
+    {
+        if (in_array($value, ['asc', 'desc'])) {
+            $this->activeSorted[$name] = $value;
+            $this->sorted[$name] = $value;
+        }
+        
+        return $this;
+    }
+    
+    /**
      * Applies the data to filter.
      *
      * @param InputInterface $input Might come from user input. So be careful.
@@ -91,7 +134,12 @@ class FieldsSortOrder extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
+        $this->sorted = [];
         $this->sortableFields = $action->fields()->withParentFields($action)->getNames();
+        
+        if (! $input->has($this->name())) {
+            $this->sorted = $this->defaultSorted;
+        }
         
         // handle the resort for changing sorting state.
         if (is_string($resort = $input->get('resort'))) {
@@ -102,8 +150,6 @@ class FieldsSortOrder extends AbstractFilter
         if (!is_array($input->get($this->name()))) {
             $input->set($this->name(), []);
         }
-        
-        $sort = [];
         
         if ($this->resort && !$input->has($this->name().'.'.$this->resort)) {
             $input->set($this->name().'.'.$this->resort, null);
@@ -129,10 +175,10 @@ class FieldsSortOrder extends AbstractFilter
                 continue;
             }
             
-            $sort[$name] = $value;
+            $this->sorted[$name] = $value;
         }
         
-        $this->sorted = $sort;
+        $this->sorted = array_merge($this->sorted, $this->activeSorted);
     }
     
     /**

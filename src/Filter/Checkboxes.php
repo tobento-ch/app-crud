@@ -33,6 +33,11 @@ class Checkboxes extends AbstractFilter
     /**
      * @var array
      */
+    protected array $defaultSelected = [];
+    
+    /**
+     * @var array
+     */
     protected array $options = [];
     
     /**
@@ -111,7 +116,10 @@ class Checkboxes extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
+        $this->selected = [];
+        
         if (!$input->has($this->name())) {
+            $this->selected = $this->defaultSelected;
             return;
         }
 
@@ -248,7 +256,7 @@ class Checkboxes extends AbstractFilter
      */
     public function selected(array $values): static
     {
-        $this->selected = $values;
+        $this->defaultSelected = $values;
         
         return $this;
     }

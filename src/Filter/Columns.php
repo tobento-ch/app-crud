@@ -14,7 +14,10 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Filter;
 
 use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\Fields;
+use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Input\InputInterface;
+use Tobento\Service\Tag\Attributes;
 use Tobento\Service\View\ViewInterface;
 
 /**
@@ -36,6 +39,21 @@ class Columns extends AbstractFilter
      * @var null|string
      */
     protected null|string $actionsTitle = null;
+
+    /**
+     * @var array<array-key, string>
+     */
+    protected array $defaultColumns = [];
+    
+    /**
+     * @var array<array-key, string>
+     */
+    protected array $reorderColumns = [];
+    
+    /**
+     * @var bool
+     */
+    protected bool $sortable = true;
 
     /**
      * Create a new Columns.
@@ -71,6 +89,47 @@ class Columns extends AbstractFilter
     }
     
     /**
+     * Sets the default columns to be displayed.
+     *
+     * @param string ...$column
+     * @return static
+     */
+    public function default(string ...$column)
+    {
+        $this->defaultColumns = $column;
+        
+        if (empty($this->reorderColumns)) {
+            $this->reorderColumns = $column;
+        }
+        
+        return $this;
+    }
+    
+    /**
+     * Reorders the columns.
+     *
+     * @param string ...$column
+     * @return static
+     */
+    public function reorder(string ...$column)
+    {
+        $this->reorderColumns = $column;
+        return $this;
+    }
+    
+    /**
+     * Set whether columns can be resorted.
+     *
+     * @param bool $sortable
+     * @return static
+     */
+    public function sortable(bool $sortable = true)
+    {
+        $this->sortable = $sortable;
+        return $this;
+    }
+    
+    /**
      * Returns the name.
      *
      * @return string
@@ -100,7 +159,20 @@ class Columns extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
-        foreach($action->fields()->withParentFields($action) as $field) {
+        $this->columns = [];
+        
+        $columns = [];
+
+        if (is_array($inputColumns = $input->get($this->name()))) {
+            $inputColumns = array_filter($inputColumns, fn (mixed $v) => is_string($v));
+            $this->reorder(...$inputColumns);
+            $columns = $inputColumns;
+        }
+        
+        $fields = $this->reorderFields($action->fields()->withParentFields($action));
+        $action->setFields($fields);
+        
+        foreach($fields->withParentFields($action) as $field) {
             if ($field->isIndexable()) {
                 $this->fields[$field->name()] = $field->label();
             }
@@ -108,18 +180,16 @@ class Columns extends AbstractFilter
         
         $this->fields['actions'] = $this->actionsTitle ?: $action->trans('Actions');
         
-        $columns = [];
-
-        if (is_array($inputColumns = $input->get($this->name()))) {
-            $columns = $inputColumns;
-        }
-        
         if (
             empty($columns)
             || (count($columns) === 1 && in_array('_none', $columns))
         ) {
-            $columns = array_slice(array_keys($this->fields), 0, 5);
-            $columns[] = 'actions';
+            if (!empty($this->defaultColumns)) {
+                $columns = $this->defaultColumns;
+            } else {
+                $columns = array_slice(array_keys($this->fields), 0, 5);
+                $columns[] = 'actions';
+            }
         }
         
         // verify and assign:
@@ -163,17 +233,51 @@ class Columns extends AbstractFilter
      */
     public function render(ViewInterface $view): string
     {
+        if ($this->sortable) {
+            $view->asset('assets/crud/filter-columns.js')->attr('type', 'module');
+        }
+        
         $form = $view->form();
-        $idAttribute = $form->nameToId('filter.'.$this->name().'.'.$this->getGroup());
-        $body = $form->checkboxes(
-            name: $form->nameToArray('filter.'.$this->name()),
-            items: $this->fields,
-            selected: $this->columns ?: [],
-            attributes: ['id' => $idAttribute],
-            labelAttributes: [],
-            withInput: true,
-            wrapClass: 'wrap-v'
-        );
+        
+        $attributes = new Attributes([
+            'data-filter-sortable' => 'filter.'.$this->name().'.'.$this->getGroup(),
+        ]);
+        
+        $body = '<div'.$attributes.'>';
+        
+        $name = $form->nameToArray('filter.'.$this->name().'.');
+        
+        foreach($this->fields as $value => $label) {
+            $id = $form->nameToId('filter.'.$this->name().'.'.$this->getGroup().'.'.$value);
+
+            if ($value === 'actions' || !$this->sortable) {
+                $body .= '<span class="wrap-v">';
+            } else {
+                $body .= '<span class="wrap-v drag-item">';
+            }
+            
+            $body .= '<span>';
+            $body .= $form->input(
+                name: $name,
+                type: 'checkbox',
+                value: $value,
+                attributes: ['id' => $id],
+                selected: $this->columns ?: [],
+            );
+            $body .= $form->label(
+                text: $label,
+                for: $id,
+            );
+            $body .= '</span>';
+            
+            if ($value === 'actions' || !$this->sortable) {
+                $body .= '';
+            } else {
+                $body .= '<span class="crud-drag link pr-xxs">'.$view->icon('grip-vertical')->parentAttr('class', 'display-flex').'</span>';
+            }
+            
+            $body .= '</span>';
+        }
         
         $body .= $form->input(
             name: $form->nameToArray('filter.'.$this->name()).'[]',
@@ -181,6 +285,8 @@ class Columns extends AbstractFilter
             value: '_none',
             attributes: ['id' => null],
         );
+        
+        $body .= '</div>';
         
         if (is_null($this->description)) {
             $this->description = $view->trans('The columns to display.');
@@ -191,12 +297,42 @@ class Columns extends AbstractFilter
             data: [
                 'name' => $this->name(),
                 'label' => $this->label,
-                'labelFor' => $this->label ? $idAttribute : '',
+                'labelFor' => '',
                 'body' => $body, // must be escaped!
                 'description' => $this->description,
                 'open' => $this->isOpen(),
                 'filter' => $this,
             ],
         );
+    }
+    
+    /**
+     * Reorders fields.
+     *
+     * @param FieldsInterface $fields
+     * @return FieldsInterface
+     */
+    protected function reorderFields(FieldsInterface $fields): FieldsInterface
+    {
+        if (empty($this->reorderColumns)) {
+            return $fields;
+        }
+        
+        $fields = $fields->all();
+        $columns = $this->reorderColumns;
+        $ordered = [];
+        
+        foreach($columns as $column) {
+            if (isset($fields[$column])) {
+                $ordered[] = $fields[$column];
+                unset($fields[$column]);
+            }
+        }
+        
+        foreach($fields as $field) {
+            $ordered[] = $field;
+        }
+
+        return new Fields(...$ordered);
     }
 }

@@ -31,6 +31,11 @@ class Radios extends AbstractFilter
     protected null|string $selected = null;
     
     /**
+     * @var null|string
+     */
+    protected null|string $defaultSelected = null;
+    
+    /**
      * @var array
      */
     protected array $options = [];
@@ -111,7 +116,10 @@ class Radios extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
+        $this->selected = null;
+        
         if (!$input->has($this->name())) {
+            $this->selected = $this->defaultSelected;
             return;
         }
 
@@ -251,7 +259,7 @@ class Radios extends AbstractFilter
      */
     public function selected(string $value): static
     {
-        $this->selected = $value;
+        $this->defaultSelected = $value;
         
         return $this;
     }

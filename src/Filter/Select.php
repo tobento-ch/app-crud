@@ -31,6 +31,11 @@ class Select extends AbstractFilter
     protected string|array $selected = [];
     
     /**
+     * @var string|array
+     */
+    protected string|array $defaultSelected = [];
+    
+    /**
      * @var array
      */
     protected array $options = [];
@@ -111,7 +116,10 @@ class Select extends AbstractFilter
      */
     public function apply(InputInterface $input, FiltersInterface $filters, ActionInterface $action): void
     {
+        $this->selected = [];
+        
         if (!$input->has($this->name())) {
+            $this->selected = $this->defaultSelected;
             return;
         }
 
@@ -280,7 +288,7 @@ class Select extends AbstractFilter
      */
     public function selected(string|array $value): static
     {
-        $this->selected = $value;
+        $this->defaultSelected = $value;
         
         return $this;
     }
