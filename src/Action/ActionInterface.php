@@ -20,6 +20,7 @@ use Tobento\App\Crud\Button\ButtonInterface;
 use Tobento\App\Crud\Button\ButtonsInterface;
 use Tobento\App\Crud\Entity\EntitiesInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Translation\TranslatorInterface;
 use Closure;
@@ -72,15 +73,6 @@ interface ActionInterface extends Linkable
      * @return string
      */
     public function getUrl(): string;
-    
-    /**
-     * Sets the route for the action.
-     *
-     * @param string $name
-     * @param array|Closure $parameters
-     * @return static $this
-     */
-    //public function route(string $name, array|Closure $parameters = []): static;
     
     /**
      * Returns the route.
@@ -185,6 +177,21 @@ interface ActionInterface extends Linkable
      * @return array<string, callable>
      */
     public function getFieldsActions(): array;
+    
+    /**
+     * Sets the filters.
+     *
+     * @param FiltersInterface $filters
+     * @return static $this
+     */
+    public function setFilters(FiltersInterface $filters): static;
+    
+    /**
+     * Returns the filters.
+     *
+     * @return FiltersInterface
+     */
+    public function filters(): FiltersInterface;
     
     /**
      * Sets the entities.
