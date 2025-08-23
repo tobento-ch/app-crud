@@ -91,28 +91,28 @@ const button = (function(window, document) {
                 
                 // scroll to error if there is one:
                 const formErrorEl = document.querySelector('.form-message.error');
-                const messageErrorEl = doc.querySelector('.message.error');
                 
                 if (formErrorEl) {
                     button.unhideElement(formErrorEl);
                     formErrorEl.scrollIntoView({behavior: 'smooth'});
                 }
                 
-                // notify;
-                if (messageErrorEl) {
-                    notifier.send({
-                        status: 'error',
-                        text: messageErrorEl.textContent
-                    });
-                    return;
-                }
-                
-                if (el.getAttribute('data-button-ajax') !== '' && !formErrorEl) {
+                if (el.getAttribute('data-button-ajax') !== '') {
                     notifier.send({
                         status: 'success',
                         text: el.getAttribute('data-button-ajax')
                     });
+                    return;
                 }
+                
+                const messages = doc.querySelectorAll('[data-message]');
+                
+                messages.forEach(el => {
+                    notifier.send({
+                        status: el.getAttribute('data-message'),
+                        text: el.textContent
+                    });
+                });
             });
         },
         unhideElement: function(el) {
