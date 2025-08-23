@@ -79,4 +79,44 @@ class TextareaTest extends AbstractField
             $field->render()
         );
     }
+    
+    public function testProcessIndex()
+    {
+        $field = Field\Textarea::new(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
+        
+        $field->processIndexAction(action: Action\Index::new(), field: $field, view: Factory::createView());
+        
+        $this->assertStringContainsString('Foo', $field->render());
+    }
+    
+    public function testFormatValueIndexAction()
+    {
+        $field = Field\Textarea::new(name: 'name')
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+        
+        $field->processIndexAction(action: Action\Index::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
+    
+    public function testFormatValueShowAction()
+    {
+        $field = Field\Textarea::new(name: 'name')
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
+    
+    public function testFormatValueShowActionTranslatable()
+    {
+        $field = Field\Textarea::new(name: 'name')
+            ->translatable()
+            ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
 }

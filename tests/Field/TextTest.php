@@ -131,4 +131,40 @@ class TextTest extends AbstractField
         $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<input name="name[en]" id="name_en" type="text" value="EN">', $field->render());
     }
+    
+    public function testFormatValueShowAction()
+    {
+        $field = Field\Text::new(name: 'name')
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShowText(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+        
+        $field = Field\Text::new(name: 'name')
+            ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
+            ->translatable()
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShowText(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
+    
+    public function testFormatValueIndexAction()
+    {
+        $field = Field\Text::new(name: 'name')
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+        
+        $field->processIndexAction(action: Action\Index::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+        
+        $field = Field\Text::new(name: 'name')
+            ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
+            ->translatable()
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+        
+        $field->processIndexAction(action: Action\Index::new(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
 }

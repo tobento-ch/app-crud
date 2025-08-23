@@ -79,7 +79,7 @@ class SelectTest extends AbstractField
         
         $field->processIndex(field: $field);
         
-        $this->assertStringContainsString('red, blue', $field->render());
+        $this->assertStringContainsString('Red, Blue', $field->render());
     }
     
     public function testProcessCreateEditUsingArrayOptions()
@@ -313,6 +313,27 @@ class SelectTest extends AbstractField
         $this->assertSame(['color' => ['blue']], $input->all());
     }
     
+    public function testProcessShowAction()
+    {
+        $field = Field\Select::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->setEntity(new Entity(['color' => 'red']));
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('Red', $field->render());
+    }
+    
+    public function testProcessShowActionMuliple()
+    {
+        $field = Field\Select::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->attributes(['multiple', 'size' => '10'])
+            ->setEntity(new Entity(['color' => ['blue', 'red']]));
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('Blue, Red', $field->render());
+    }
+    
     public function testValidatePasses()
     {
         $field = Field\Select::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
@@ -473,6 +494,28 @@ class SelectTest extends AbstractField
             '<select id="color" name="color"><optgroup data-foo="value" label="Frontend"><option value="guest">Guest</option></optgroup><optgroup data-foo="value" label="Backend"><option value="editor">Editor</option></optgroup></select>',
             $field->render()
         );
+    }
+    
+    public function testFormatValueIndexAction()
+    {
+        $field = Field\Select::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->setEntity(new Entity(['color' => 'red']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+        
+        $field->processIndex(field: $field);
+        $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
+    }
+    
+    public function testFormatValueShowAction()
+    {
+        $field = Field\Select::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->setEntity(new Entity(['color' => 'red']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
     }
 }
 

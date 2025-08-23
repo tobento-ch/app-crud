@@ -17,6 +17,7 @@ use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\Input;
+use Tobento\App\Crud\Test\Factory;
 
 class ValueTest extends AbstractField
 {
@@ -81,5 +82,43 @@ class ValueTest extends AbstractField
         $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => ['foo', 'bar']]));
         $field->processIndexAction(field: $field);
         $this->assertSame('[&quot;foo&quot;,&quot;bar&quot;]', $field->render());
+    }
+    
+    public function testProcessShowActionWithString()
+    {
+        $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => 'foo']));
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('foo', $field->render());
+    }
+    
+    public function testFormatValueIndexAction()
+    {
+        $field = Field\Value::new(name: 'name')
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+        
+        $field->processIndexAction(field: $field);
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
+    
+    public function testFormatValueShowAction()
+    {
+        $field = Field\Value::new(name: 'name')
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
+    }
+    
+    public function testFormatValueShowActionTranslatable()
+    {
+        $field = Field\Value::new(name: 'name')
+            ->translatable()
+            ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
     }
 }

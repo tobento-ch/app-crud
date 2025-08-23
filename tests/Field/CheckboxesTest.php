@@ -66,7 +66,7 @@ class CheckboxesTest extends AbstractField
         
         $field->processIndex(field: $field);
         
-        $this->assertStringContainsString('red, blue', $field->render());
+        $this->assertStringContainsString('Red, Blue', $field->render());
     }
     
     public function testProcessCreateEditUsingArrayOptions()
@@ -221,6 +221,16 @@ class CheckboxesTest extends AbstractField
         $this->assertSame(['color' => []], $input->all());
     }
     
+    public function testProcessShowAction()
+    {
+        $field = Field\Checkboxes::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->setEntity(new Entity(['color' => ['red']]));
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('Red', $field->render());
+    }
+    
     public function testValidatePasses()
     {
         $field = Field\Checkboxes::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
@@ -282,6 +292,28 @@ class CheckboxesTest extends AbstractField
         
         $this->assertSame('required|minItems:2|maxItems:10', $rules['color'][0] ?? null);
         $this->assertInstanceof(Rule\Passes::class, $rules['color'][1] ?? null);
+    }
+    
+    public function testFormatValueIndexAction()
+    {
+        $field = Field\Checkboxes::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->setEntity(new Entity(['color' => ['red']]))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+        
+        $field->processIndex(field: $field);
+        $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
+    }
+    
+    public function testFormatValueShowAction()
+    {
+        $field = Field\Checkboxes::new(name: 'color')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->setEntity(new Entity(['color' => ['red']]))
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+        
+        $field->processShow(field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
     }
 }
 

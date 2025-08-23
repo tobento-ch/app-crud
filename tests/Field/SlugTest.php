@@ -341,5 +341,5 @@ class SlugTest extends AbstractField
         $field = $action->fields()->get(name: $field->name());
         
         $this->assertSame($slugifier, $field->getSlugifier());
-    }    
+    }
 }
