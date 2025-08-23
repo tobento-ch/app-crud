@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field;
 
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\View\ViewInterface;
 use Tobento\Service\Iterable\Iter;
@@ -27,8 +28,10 @@ use InvalidArgumentException;
 /**
  * Checkboxes
  */
-class Checkboxes extends AbstractField
+class Checkboxes extends AbstractField implements OptionsAwareInterface
 {
+    use Traits\HasValueFormatter;
+    
     /**
      * @var iterable
      */
@@ -238,10 +241,12 @@ class Checkboxes extends AbstractField
      */
     public function processIndex(FieldInterface $field): void
     {
-        $options = $field->entity()->get($field->name(), []);
-        $options = implode(', ', $options);
-        $options = mb_strimwidth($options, 0, 100, '...');
-        $field->html(Str::esc($options));
+        if (! $this->hasValueFormatter(action: 'index')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(trimWidth: 100), action: 'index');
+        }
+        
+        $value = $this->formattingValue(action: 'index', value: $field->entity()->get($field->name()), field: $field);
+        $field->html(Str::esc($value));
     }
     
     /**
@@ -253,8 +258,11 @@ class Checkboxes extends AbstractField
      */
     public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        $options = $field->entity()->get($field->name(), []);
-        $options = implode(', ', $options);
+        if (! $this->hasValueFormatter(action: 'show')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(), action: 'show');
+        }
+        
+        $value = $this->formattingValue(action: 'show', value: $field->entity()->get($field->name()), field: $field);
 
         $field->html($view->render(
             view: 'crud/field/show/field',
@@ -262,7 +270,7 @@ class Checkboxes extends AbstractField
                 'field' => $field,
                 'entity' => $field->entity(),
                 'renderLabel' => true,
-                'text' => $options,
+                'text' => $value,
             ],
         ));
     }

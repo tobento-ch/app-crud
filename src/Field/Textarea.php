@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field;
 
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Support\Str;
 use Tobento\Service\View\ViewInterface;
@@ -24,6 +25,8 @@ use Tobento\Service\View\ViewInterface;
  */
 class Textarea extends AbstractField
 {
+    use Traits\HasValueFormatter;
+    
     /**
      * Create a new Textarea.
      *
@@ -104,11 +107,16 @@ class Textarea extends AbstractField
             $this->processIndexTable($action, $field, $view);
             return;
         }
+
+        if (! $this->hasValueFormatter(action: 'index')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(trimWidth: 100), action: 'index');
+        }
         
-        $text = (string)$field->entity()->get($field->name(), '', $field->locale());
-        $text = mb_strimwidth($text, 0, 100, '...');
+        $value = $field->entity()->get($field->name(), '', $field->locale());
         
-        $field->html(nl2br(Str::esc($text)));
+        $value = $this->formattingValue(action: 'index', value: $value, field: $field);
+        
+        $field->html(nl2br(Str::esc($value)));
     }
     
     /**
@@ -173,15 +181,18 @@ class Textarea extends AbstractField
      */
     public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        $text = (string)$field->entity()->get($field->name(), '', $field->locale());
+        $value = $field->entity()->get($field->name(), '', $field->locale());
         
+        $value = $this->formattingValue(action: 'show', value: $value, field: $field);
+
         $field->html($view->render(
             view: 'crud/field/show/field',
             data: [
                 'field' => $field,
                 'entity' => $field->entity(),
+                'formatter' => fn (mixed $value) => $this->formattingValue(action: 'show', value: $value, field: $field),
                 'renderLabel' => true,
-                'text' => $text,
+                'text' => $value,
             ],
         ));
     }

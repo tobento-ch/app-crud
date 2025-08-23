@@ -16,6 +16,7 @@ namespace Tobento\App\Crud\Field;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\InputInterface;
+use Tobento\App\Crud\Field;
 use Tobento\App\Slugging\SlugRepositoryInterface;
 use Tobento\Service\Support\Str;
 use Tobento\Service\View\ViewInterface;
@@ -29,6 +30,8 @@ use Tobento\Service\Slugifier\SlugifiersInterface;
  */
 class Slug extends AbstractField
 {
+    use Traits\HasValueFormatter;
+    
     /**
      * @var null|string
      */
@@ -51,7 +54,7 @@ class Slug extends AbstractField
     ) {
         $this->name = $name;
         $this->label = $label;
-        $this->process('index', [$this, 'processIndex']);
+        $this->process('index', [$this, 'processIndexAction']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store:before|update:before', [$this, 'processBeforeSave']);
         $this->process('store', [$this, 'processStore']);
@@ -426,5 +429,49 @@ class Slug extends AbstractField
                 resourceId: $entity->id(),
             ));
         }
+    }
+    
+    /**
+     * Processes the index action.
+     *
+     * @param FieldInterface $field
+     * @return void
+     */
+    public function processIndexAction(FieldInterface $field): void
+    {
+        if (! $this->hasValueFormatter(action: 'index')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(trimWidth: 100), action: 'index');
+        }
+        
+        $value = $field->entity()->get(name: $field->name(), locale: $field->locale());
+        
+        $value = $this->formattingValue(action: 'index', value: $value, field: $field);
+        
+        $field->html(Str::esc($value));
+    }
+    
+    /**
+     * Processes the show action.
+     *
+     * @param FieldInterface $field
+     * @param ViewInterface $view
+     * @return void
+     */
+    public function processShow(FieldInterface $field, ViewInterface $view): void
+    {
+        $value = $field->entity()->get($field->name(), '', $field->locale());
+        
+        $value = $this->formattingValue(action: 'show', value: $value, field: $field);
+
+        $field->html($view->render(
+            view: 'crud/field/show/field',
+            data: [
+                'field' => $field,
+                'entity' => $field->entity(),
+                'formatter' => fn (mixed $value) => $this->formattingValue(action: 'show', value: $value, field: $field),
+                'renderLabel' => true,
+                'text' => $value,
+            ],
+        ));
     }
 }

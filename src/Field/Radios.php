@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field;
 
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\View\ViewInterface;
 use Tobento\Service\Iterable\Iter;
@@ -27,8 +28,10 @@ use InvalidArgumentException;
 /**
  * Radios
  */
-class Radios extends AbstractField
+class Radios extends AbstractField implements OptionsAwareInterface
 {
+    use Traits\HasValueFormatter;
+    
     /**
      * @var iterable
      */
@@ -237,19 +240,11 @@ class Radios extends AbstractField
      */
     public function processIndex(FieldInterface $field): void
     {
-        $value = $field->entity()->get($field->name());
-        
-        if (is_bool($value)) {
-            $value = $value === false ? '0' : '1';
+        if (! $this->hasValueFormatter(action: 'index')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(trimWidth: 100), action: 'index');
         }
         
-        if (!is_scalar($value)) {
-            $value = '';
-        }
-        
-        $value = (string)$value;
-        $value = $this->getOptions()[$value] ?? $value;
-        
+        $value = $this->formattingValue(action: 'index', value: $field->entity()->get($field->name()), field: $field);
         $field->html(Str::esc($value));
     }
     
@@ -262,19 +257,12 @@ class Radios extends AbstractField
      */
     public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        $value = $field->entity()->get($field->name());
-        
-        if (is_bool($value)) {
-            $value = $value === false ? '0' : '1';
+        if (! $this->hasValueFormatter(action: 'show')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(), action: 'show');
         }
         
-        if (!is_scalar($value)) {
-            $value = '';
-        }
-        
-        $value = (string)$value;
-        $value = $this->getOptions()[$value] ?? $value;
-        
+        $value = $this->formattingValue(action: 'show', value: $field->entity()->get($field->name()), field: $field);
+
         $field->html($view->render(
             view: 'crud/field/show/field',
             data: [
@@ -418,5 +406,26 @@ class Radios extends AbstractField
             },
             errorMessage: 'The :attribute items are invalid.',
         );
+    }
+    
+    /**
+     * Formatting value.
+     *
+     * @param string $action
+     * @param mixed $value
+     * @param FieldInterface $field
+     * @return mixed
+     */
+    protected function formattingValue(string $action, mixed $value, FieldInterface $field): mixed
+    {
+        if (is_bool($value)) {
+            $value = $value === false ? '0' : '1';
+        }
+        
+        if (!isset($this->valueFormatters[$action])) {
+            return $value;
+        }
+        
+        return ($this->valueFormatters[$action])($value, $field);
     }
 }

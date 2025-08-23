@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field;
 
+use Stringable;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\InputInterface;
@@ -24,6 +25,8 @@ use Tobento\Service\View\ViewInterface;
  */
 class Text extends AbstractField
 {
+    use Traits\HasValueFormatter;
+    
     /**
      * @var string
      */
@@ -88,24 +91,22 @@ class Text extends AbstractField
      *
      * @param Text $field
      * @param null|string $locale
+     * @param null|string $action
      * @return string
      */
-    public function getValue(Text $field, null|string $locale = null): string
+    public function getValue(Text $field, null|string $locale = null, null|string $action = null): string|Stringable
     {
-        if (!is_null($this->value)) {
-            if (!is_null($locale)) {
-                $value = $this->value[$locale] ?? $this->value;
-                return is_string($value) ? $value : '';
-            }
-
-            return is_string($this->value) ? $this->value : '';            
+        $value = match (true) {
+            !is_null($this->value) => !is_null($locale) ? $this->value[$locale] ?? $this->value : $this->value,
+            !is_null($locale) => $field->entity()->get($field->name(), $field->getDefaultValue($locale), $locale),
+            default => $field->entity()->get($field->name(), $field->getDefaultValue()),
+        };
+        
+        if ($action && $this->hasValueFormatter(action: $action)) {
+            return $this->formattingValue(action: $action, value: $value, field: $field);
         }
         
-        if (!is_null($locale)) {
-            return $field->entity()->get($field->name(), $field->getDefaultValue($locale), $locale);
-        }
-        
-        return $field->entity()->get($field->name(), $field->getDefaultValue());
+        return is_scalar($value) ? (string)$value : '';
     }
     
     /**
@@ -241,7 +242,7 @@ class Text extends AbstractField
             return;
         }
         
-        $field->html(Str::esc($field->getValue($field, $field->locale())));
+        $field->html(Str::esc($field->getValue(field: $field, locale: $field->locale(), action: 'index')));
     }
     
     /**

@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field;
 
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\View\ViewInterface;
 use Tobento\Service\Iterable\Iter;
@@ -27,8 +28,10 @@ use InvalidArgumentException;
 /**
  * Select
  */
-class Select extends AbstractField
+class Select extends AbstractField implements OptionsAwareInterface
 {
+    use Traits\HasValueFormatter;
+    
     /**
      * @var iterable
      */
@@ -293,39 +296,19 @@ class Select extends AbstractField
      */
     public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        if ($this->isMultipleSelection()) {
-            $options = $field->entity()->get($field->name(), []);
-            $options = implode(', ', $options);
-            
-            $field->html($view->render(
-                view: 'crud/field/show/field',
-                data: [
-                    'field' => $field,
-                    'entity' => $field->entity(),
-                    'renderLabel' => true,
-                    'text' => $options,
-                ],
-            ));
-            
-            return;
+        if (! $this->hasValueFormatter(action: 'show')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(), action: 'show');
         }
         
-        $option = $field->entity()->get($field->name());
-        
-        if (!is_scalar($option)) {
-            $option = '';
-        }
-        
-        $option = (string)$option;
-        $option = $this->getOptions()[$option] ?? $option;
-        
+        $value = $this->formattingValue(action: 'show', value: $field->entity()->get($field->name()), field: $field);
+
         $field->html($view->render(
             view: 'crud/field/show/field',
             data: [
                 'field' => $field,
                 'entity' => $field->entity(),
                 'renderLabel' => true,
-                'text' => $option,
+                'text' => $value,
             ],
         ));
     }
@@ -453,24 +436,12 @@ class Select extends AbstractField
      */
     public function processIndex(FieldInterface $field): void
     {
-        if ($this->isMultipleSelection()) {
-            $options = $field->entity()->get($field->name(), []);
-            $options = implode(', ', $options);
-            $options = mb_strimwidth($options, 0, 100, '...');
-            $field->html(Str::esc($options));
-            return;
+        if (! $this->hasValueFormatter(action: 'index')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(trimWidth: 100), action: 'index');
         }
         
-        $option = $field->entity()->get($field->name());
-        
-        if (! is_scalar($option)) {
-            $option = '';
-        }
-        
-        $option = (string)$option;
-        $option = $this->getOptions()[$option] ?? $option;
-        
-        $field->html(Str::esc($option));
+        $value = $this->formattingValue(action: 'index', value: $field->entity()->get($field->name()), field: $field);
+        $field->html(Str::esc($value));
     }
     
     /**
