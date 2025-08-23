@@ -8,7 +8,15 @@
                 <div class="field">
                     <div class="field-label text-xxs"><?= $view->esc($name) ?></div>
                     <div class="field-body text-body">
-                        <?= nl2br($view->esc($entity->get($field->name(), '', $locale))) ?>
+                        <?php
+                        $value = $entity->get($field->name(), '', $locale);
+                                                                  
+                        if (isset($formatter)) {
+                            $value = $formatter($value);
+                        }
+                        
+                        echo nl2br($view->esc($value));
+                        ?>
                     </div>
                 </div>
             <?php } ?>
