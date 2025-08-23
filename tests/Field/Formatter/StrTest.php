@@ -1,0 +1,142 @@
+<?php
+
+/**
+ * TOBENTO
+ *
+ * @copyright   Tobias Strub, TOBENTO
+ * @license     MIT License, see LICENSE file distributed with this source code.
+ * @author      Tobias Strub
+ * @link        https://www.tobento.ch
+ */
+
+declare(strict_types=1);
+
+namespace Tobento\App\Crud\Test\Field\Formatter;
+
+use PHPUnit\Framework\TestCase;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\Formatter\Str;
+use Tobento\App\Crud\Field;
+
+class StrTest extends TestCase
+{
+    public function testStringStr()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            'foo',
+            $str(value: 'foo', field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testArrayStr()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            'foo, bar',
+            $str(value: ['foo', 'bar'], field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testIntegerStr()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            '555',
+            $str(value: 555, field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testSkipsInvalidStr()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            '',
+            $str(value: Field\Text::new(name: 'name'), field: Field\Text::new(name: 'name'))
+        );
+    }
+
+    public function testEmptyValue()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            '',
+            $str(value: '', field: Field\Text::new(name: 'name'))
+        );
+        
+        $this->assertSame(
+            '',
+            $str(value: [], field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testFieldWithOptions()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            'Blue',
+            $str(value: 'blue', field: Field\Select::new(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
+        );
+        
+        $this->assertSame(
+            'Blue, Red',
+            $str(value: ['blue', 'red'], field: Field\Select::new(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
+        );
+    }
+    
+    public function testDelimiter()
+    {
+        $str = new Str(delimiter: ':');
+        
+        $this->assertSame(
+            'foo:bar',
+            $str(value: ['foo', 'bar'], field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testTrimWidth()
+    {
+        $str = new Str(trimWidth: 10);
+        
+        $this->assertSame(
+            'Lorem i...',
+            $str(value: 'Lorem ipsum dolor sit amet', field: Field\Text::new(name: 'name'))
+        );
+        
+        $this->assertSame(
+            'foo, ba...',
+            $str(value: ['foo', 'bar', 'baz'], field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testTrimMarker()
+    {
+        $str = new Str(trimWidth: 10, trimMarker: '..');
+        
+        $this->assertSame(
+            'Lorem ip..',
+            $str(value: 'Lorem ipsum dolor sit amet', field: Field\Text::new(name: 'name'))
+        );
+        
+        $this->assertSame(
+            'foo, bar..',
+            $str(value: ['foo', 'bar', 'baz'], field: Field\Text::new(name: 'name'))
+        );
+    }
+    
+    public function testArrayToJson()
+    {
+        $str = new Str(arrayToJson: true);
+        
+        $this->assertSame(
+            '{"foo":"bar"}',
+            $str(value: ['foo' => 'bar'], field: Field\Text::new(name: 'name'))
+        );
+    }
+}
