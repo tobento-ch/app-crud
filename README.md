@@ -41,6 +41,7 @@ A simple app CRUD.
         - [Translatable Field](#translatable-field)
         - [Unstorable Field](#unstorable-field)
         - [Readonly And Disabled Field](#readonly-and-disabled-field)
+        - [Formatting Field Value](#formatting-field-value)
         - [Field Grouping](#field-grouping)
         - [Field Texts](#field-texts)
         - [Field Resolving](#field-resolving)
@@ -2082,6 +2083,136 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
             )
     ];
 }
+```
+
+### Formatting Field Value
+
+Use the ```formatValue``` method to format the field value before rendering it in the ```index``` and ```show``` action.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+use Tobento\Service\Support\HtmlString;
+use Tobento\Service\Support\Str;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    return [
+        Field\Text::new(name: 'foo')
+            // format value using a closure as formatter:
+            ->formatValue(
+                formatter: fn (mixed $value, Field\Text $field): string => strtoupper((string)$value),
+                // you may set only for the show action:
+                action: 'show', // 'index|show' is default
+            )
+            
+            // or format value using a formatter:
+            ->formatValue(
+                formatter: new Field\Formatter\CssClass('float-right text-700')
+                // you may set only for the index action:
+                action: 'index', // 'index|show' is default
+            )
+            
+            // you may use the HtmlString class to allow HTML and escape manually:
+            ->formatValue(fn (string $value, Field\Text $field): HtmlString => new HtmlString('<p>'.Str::esc($value).'</p>')),
+    ];
+}
+```
+
+#### Supported Fields
+
+* [Checkboxes Field](#checkboxes-field)
+* [Radios Field](#radios-field)
+* [Select Field](#select-field)
+* [Text Field](#text-field)
+* [Textarea Field](#textarea-field)
+* [Slug Field](#slug-field)
+* [Value Field](#value-field)
+
+#### Available Formatters
+
+**Badge Formatter**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Select::new('status')
+    ->options(['active' => 'Active', 'inactive' => 'Inactive'])
+    
+    ->formatValue(
+        formatter: new Field\Formatter\Badge(
+            classes: ['inactive' => 'text-error', 'active' => 'text-success'],
+            
+            // you may change the fallback class:
+            fallbackClass: 'text-black', // default
+            
+            // you may limit the badges:
+            limit: 10,
+        )
+    );
+```
+
+**CssClass Formatter**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Text::new(name: 'foo')
+    ->formatValue(
+        formatter: new Field\Formatter\CssClass('float-right text-700')
+    );
+```
+
+**Date Formatter**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Text::new(name: 'foo')
+    ->formatValue(
+        formatter: new Field\Formatter\Date(
+            format: 'EE, dd. MMMM yyyy, HH:mm',
+        )
+    );
+```
+
+**Formatters**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Text::new(name: 'foo')
+    ->formatValue(
+        formatter: new Field\Formatter\Formatters(
+            new Field\Formatter\Date(),
+            new Field\Formatter\CssClass('float-right text-700'),
+        )
+    );
+```
+
+**Str**
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Text::new(name: 'foo')
+    ->formatValue(
+        formatter: new Field\Formatter\Str(
+            // you may trim the width:
+            trimWidth: 100, // default (null)
+            
+            // you may change the trim marker:
+            trimMarker: '...', // default
+            
+            // you may change the delimiter for array value:
+            delimiter: ', ', // default
+            
+            // you may convert array value to json:
+            arrayToJson: true, // false default
+        )
+    );
 ```
 
 ### Field Grouping
