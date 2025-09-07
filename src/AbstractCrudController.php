@@ -368,16 +368,7 @@ abstract class AbstractCrudController
         );
         
         // Handle next action:
-        $nextActionName = $action->getInput()->get('next_action');
-        
-        if (
-            in_array($nextActionName, ['create', 'edit', 'copy'])
-            && !is_null($nextAction = $actions->get(name: $nextActionName))
-        ) {
-            $nextAction->setEntity($entity);
-            $actionProcessor->resolveActionUrls(action: $nextAction);
-            $action->setLinkUrl($nextAction->getUrl());
-        }
+        $this->handleNextAction($action, $actions, $entity, $actionProcessor);
         
         // Return the response:
         return $responser->redirect(uri: $action->getLinkUrl());
@@ -530,16 +521,7 @@ abstract class AbstractCrudController
         }
         
         // Handle next action:
-        $nextActionName = $action->getInput()->get('next_action');
-        
-        if (
-            in_array($nextActionName, ['create', 'edit', 'copy'])
-            && !is_null($nextAction = $actions->get(name: $nextActionName))
-        ) {
-            $nextAction->setEntity($entity);
-            $actionProcessor->resolveActionUrls(action: $nextAction);
-            $action->setLinkUrl($nextAction->getUrl());
-        }
+        $this->handleNextAction($action, $actions, $entity, $actionProcessor);
         
         return $responser->redirect(uri: $action->getLinkUrl());
     }
@@ -825,5 +807,40 @@ abstract class AbstractCrudController
     public function deleteEntity(int|string $id, EntityInterface $entity): void
     {
         $this->repository()->deleteById(id: $id);
+    }
+    
+    /**
+     * Handles the next action.
+     *
+     * @param ActionInterface $action
+     * @param ActionsInterface $actions
+     * @param EntityInterface $entity
+     * @param ActionProcessorInterface $actionProcessor
+     * @return void
+     */
+    protected function handleNextAction(
+        ActionInterface $action,
+        ActionsInterface $actions,
+        EntityInterface $entity,
+        ActionProcessorInterface $actionProcessor,
+    ): void {
+        $nextActionName = $action->getInput()->get('next_action');
+        
+        if (!is_string($nextActionName)) {
+            return;
+        }
+        
+        [$actionName, $buttonName] = array_pad(explode('|', $nextActionName), 2, null);
+        
+        if (!is_null($nextAction = $actions->get(name: $actionName))) {
+            $nextAction->setEntity($entity);
+            $actionProcessor->resolveActionUrls(action: $nextAction);
+            $action->setLinkUrl($nextAction->getUrl());
+            
+            if ($buttonName && !is_null($button = $nextAction->buttons()->get($buttonName))) {
+                $url = $actionProcessor->urlResolver()->resolveButtonUrl($button, $nextAction, $entity);
+                $action->setLinkUrl($url);
+            }
+        }
     }
 }
