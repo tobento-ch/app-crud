@@ -7,7 +7,7 @@
     <div class="field-body">
         <?= $body ?>
         <?php if ($description) { ?>
-            <p><?= $view->esc($description) ?></p>
+            <p class="mt-xs"><?= $view->esc($description) ?></p>
         <?php } ?>
     </div>
 </div>
