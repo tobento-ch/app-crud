@@ -160,7 +160,7 @@ body.crud {max-width: 100%;}
 
 /* Misc */
 [data-filter="columns"] .wrap-v {justify-content: space-between;}
-.crud-badges, .crud-values {display: flex; gap: .5rem;}
+.crud-badges, .crud-values {display: flex; flex-wrap: wrap; gap: .5rem;}
 .crud-badge {font-size: .8rem; padding: .1rem .3rem;}
 .crud-badge {border: 1px solid color(from currentColor srgb r g b / 0.5); border-radius: .3rem;}
 
