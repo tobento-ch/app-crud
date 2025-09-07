@@ -284,6 +284,35 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('files.0.storage'));
     }
     
+    public function testUpdateActionUploadsFilesMergesExistingFiles()
+    {
+        $fileStorage = $this->fakeFileStorage();
+        $http = $this->fakeHttp();
+        $http->request(method: 'PATCH', uri: $this->generateUpdateUri(id: 1))->body([
+            'files' => [
+                ['order' => 0],
+                ['src' => $http->getFileFactory()->createImage('fs-profile.jpg', 50, 50)],
+                ['src' => $http->getFileFactory()->createImage('fs-profile1.jpg', 50, 50)],
+            ],
+        ]);
+        
+        $this->getSeedFactory([
+            'files' => [['src' => 'fs-profile5.jpg']]
+        ])->times(1)->create();
+        $fileStorage->storage(name: 'uploads')->write(path: 'fs-profile5.jpg', content: 'content');
+        $this->assertTrue($fileStorage->storage(name: 'uploads')->exists(path: 'fs-profile5.jpg'));
+        
+        $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
+        
+        $fileStorage->storage(name: 'uploads')->assertCreated('fs-profile.jpg');
+        $fileStorage->storage(name: 'uploads')->assertCreated('fs-profile1.jpg');
+        
+        $this->assertSame('fs-profile5.jpg', $this->getCrudRepository()->findById(1)->get('files.0.src'));
+        $this->assertSame('fs-profile.jpg', $this->getCrudRepository()->findById(1)->get('files.1.src'));
+        $this->assertSame('fs-profile1.jpg', $this->getCrudRepository()->findById(1)->get('files.2.src'));
+        $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('files.0.storage'));
+    }
+    
     public function testDeleteActionDeletesFile()
     {
         $fileStorage = $this->fakeFileStorage();
