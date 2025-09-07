@@ -8,7 +8,7 @@ $name = $form->nameToArray($field->name().'.');
     <div class="field-label">
         <?= $form->label(
             text: $field->label(),
-            for: null,
+            for: 'search.'.$field->name(),
             requiredText: $field->getRequiredText(action: $actionName),
             optionalText: $field->getOptionalText(action: $actionName),
         ) ?>
@@ -38,7 +38,7 @@ $name = $form->nameToArray($field->name().'.');
             ) ?>
         </div>
         <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
+            <p class="text-xxs mt-xs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
         <?php } ?>
         <div class="crud-options" data-unselected="<?= $view->esc($field->name()) ?>">
             <?= $form->getMessage($form->nameToArray($field->name())) ?>
