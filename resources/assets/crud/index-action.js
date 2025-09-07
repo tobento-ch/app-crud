@@ -1,4 +1,5 @@
 import modals from './../modal/modals.js';
+import notifier from './../js-notifier/notifier.js';
 
 const indexAction = (function(window, document) {
     'use strict';
@@ -61,6 +62,15 @@ const indexAction = (function(window, document) {
 
                 targetEl.classList.remove('loading');
                 targetEl.removeAttribute('disabled');
+                
+                const messages = doc.querySelectorAll('[data-message]');
+                
+                messages.forEach(el => {
+                    notifier.send({
+                        status: el.getAttribute('data-message'),
+                        text: el.textContent
+                    });
+                });
                 
                 const formErrorEl = document.querySelector('.form-message.error');
 
