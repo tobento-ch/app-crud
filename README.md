@@ -862,6 +862,21 @@ Field\Files::new(name: 'files')
     });
 ```
 
+If you want translatable files, makes sure to set it on both the files and file field.
+
+```php
+use Tobento\App\Crud\Field;
+
+Field\Files::new(name: 'files')
+    ->translatable()
+    ->file(function(Field\File $file): void {
+        $file->translatable();
+        $file->fileSource(function(Field\FileSource $fs): void {
+            $fs->allowedExtensions('png');
+        });
+    });
+```
+
 **Number Of Files**
 
 Use the ```numberOfFiles``` method to set the ```min``` and/or ```max``` allowed files.
