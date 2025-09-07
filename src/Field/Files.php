@@ -155,6 +155,10 @@ class Files extends AbstractField implements FieldsAwareInterface
      */
     protected function createFields(ActionInterface $action, bool $withSubfields = false): FieldsInterface
     {
+        if (empty($this->fields)) {
+            $this->fields();
+        }
+        
         $input = $action->getInput();
         $inputSrc = $input->get($this->name().'.src', []);
         $input->delete($this->name().'.src');
@@ -171,8 +175,13 @@ class Files extends AbstractField implements FieldsAwareInterface
         // merge new files to input:
         if (count($inputSrc) > 0) {
             $i = count($action->getInput()->get($this->name(), []));
+            
             foreach($inputSrc as $newFile) {
-                $input->set($this->name().'.'.$i++.'.src', $newFile);
+                if ($this->isTranslatable()) {
+                    $input->set($this->name().'.'.$i++.'.src.'.$action->getLocale(), $newFile);
+                } else {
+                    $input->set($this->name().'.'.$i++.'.src', $newFile);
+                }
             }
         }
         
@@ -346,6 +355,10 @@ class Files extends AbstractField implements FieldsAwareInterface
         
         // filter out empty src so as not to display:
         $files = $files->filter(function (FieldInterface $file): bool {
+            if ($file->isTranslatable()) {
+                return true;
+            }
+            
             if ($file->entity()->get($file->name().'.src', '') === '') {
                 return false;
             }
@@ -498,16 +511,5 @@ class Files extends AbstractField implements FieldsAwareInterface
     public function disabled(bool|callable $disabled = true, null|string $action = null): static
     {
         throw new InvalidArgumentException('Field does not support disabled');
-    }
-    
-    /**
-     * Set if the attribute is translatable.
-     *
-     * @param bool $translatable
-     * @return static $this
-     */
-    public function translatable(bool $translatable = true): static
-    {
-        throw new InvalidArgumentException('Field does not support translatable. Configure it on the file field.');
     }
 }
