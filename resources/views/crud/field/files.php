@@ -25,7 +25,7 @@ $form = $view->form();
             attributes: ['multiple', 'accept' => $field->acceptAttribute()],
         ) ?>
         <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
+            <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
         <?php } ?>
     </div>
 </div>
