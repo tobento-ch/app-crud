@@ -54,6 +54,16 @@ class ActionProcessor implements ActionProcessorInterface
     }
     
     /**
+     * Returns the url resolver.
+     *
+     * @return UrlResolverInterface
+     */
+    public function urlResolver(): UrlResolverInterface
+    {
+        return $this->urlResolver;
+    }
+    
+    /**
      * Preprocess action.
      *
      * @param ActionInterface $action

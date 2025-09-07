@@ -16,12 +16,20 @@ namespace Tobento\App\Crud;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Exception\ActionProcessException;
+use Tobento\App\Crud\Url\UrlResolverInterface;
 
 /**
  * ActionProcessorInterface
  */
 interface ActionProcessorInterface
 {
+    /**
+     * Returns the url resolver.
+     *
+     * @return UrlResolverInterface
+     */
+    public function urlResolver(): UrlResolverInterface;
+    
     /**
      * Preprocess action.
      *
