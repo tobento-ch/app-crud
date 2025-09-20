@@ -32,9 +32,6 @@ class AbstractCrudTestCaseTest extends AbstractCrudTestCase
     public function createApp(): AppInterface
     {
         $app = $this->createTmpApp(rootDir: __DIR__.'/../../..');
-$app->boot(\Tobento\App\Boot\ErrorHandling::class);
-$app->booting();
-$app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true);
         $app->boot(Crud::class);
         $app->boot(\Tobento\App\User\Boot\User::class);
         $app->boot(App\UserCrudBoot::class);
