@@ -173,7 +173,7 @@ abstract class AbstractCrudController
             $action->setFilters($this->getConfiguredFilters($action));
         }
 
-        $filterProcessor->processFilters(filters: $action->filters(), action: $action);
+        $action->setFilters($filterProcessor->processFilters(filters: $action->filters(), action: $action));
         
         // Handle Entities:
         $entities = new Entities($this->findEntities($action->filters()));
