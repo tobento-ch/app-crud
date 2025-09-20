@@ -15,11 +15,9 @@ namespace Tobento\App\Crud\Entity;
 
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Button\ButtonsInterface;
+use Tobento\Service\Support\Arrayable;
 
-/**
- * EntityInterface
- */
-interface EntityInterface
+interface EntityInterface extends Arrayable
 {
     /**
      * Returns the id.
@@ -53,13 +51,6 @@ interface EntityInterface
      * @return static $this
      */
     public function delete(string|int $name): static;
-    
-    /**
-     * Object to array.
-     *
-     * @return array
-     */
-    public function toArray(): array;
     
     /**
      * Sets the fields.
