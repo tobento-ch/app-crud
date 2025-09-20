@@ -68,6 +68,11 @@ abstract class AbstractFilter implements FilterInterface
     protected null|array $whereParameters = null;
     
     /**
+     * @var bool|callable
+     */
+    protected $displayIf = true;
+    
+    /**
      * Returns the name.
      *
      * @return string
@@ -292,5 +297,27 @@ abstract class AbstractFilter implements FilterInterface
     {
         $this->afterCallables[] = $callable;
         return $this;
+    }
+    
+    /**
+     * Display the filter if the rule set validates to true.
+     *
+     * @param bool|callable $rule
+     * @return static $this
+     */
+    public function displayIf(bool|callable $rule): static
+    {
+        $this->displayIf = $rule;
+        return $this;
+    }
+    
+    /**
+     * Returns whether the filter is displayable.
+     *
+     * @return bool|callable
+     */
+    public function getDisplayIf(): bool|callable
+    {
+        return $this->displayIf;
     }
 }

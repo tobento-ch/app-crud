@@ -156,4 +156,19 @@ interface FilterInterface
      * @return string
      */
     public function render(ViewInterface $view): string;
+    
+    /**
+     * Display the filter if the rule set validates to true.
+     *
+     * @param bool|callable $rule
+     * @return static $this
+     */
+    public function displayIf(bool|callable $rule): static;
+    
+    /**
+     * Returns whether the filter is displayable.
+     *
+     * @return bool|callable
+     */
+    public function getDisplayIf(): bool|callable;
 }
