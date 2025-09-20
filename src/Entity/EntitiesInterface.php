@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Entity;
 
-use IteratorAggregate;
 use Countable;
+use IteratorAggregate;
+use Tobento\Service\Support\Arrayable;
 
 /**
  * EntitiesInterface
  */
-interface EntitiesInterface extends Countable, IteratorAggregate
+interface EntitiesInterface extends Countable, IteratorAggregate, Arrayable
 {
     /**
      * Returns a new instance with the entities filtered.
