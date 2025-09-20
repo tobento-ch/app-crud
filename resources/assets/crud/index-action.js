@@ -219,6 +219,15 @@ const indexAction = (function(window, document) {
                         oldEl.parentNode.replaceChild(newEl, oldEl);
                     }
                 });
+
+                // remove not found filters which:
+                document.querySelectorAll('[data-filter]').forEach(el => {
+                    const newEl = doc.querySelector('[data-filter="'+el.getAttribute('data-filter')+'"]');
+                    
+                    if (!newEl && !el.closest('[data-table-group]')) {
+                        el.remove();
+                    }
+                });
                 
                 doc.querySelectorAll('[data-filter]').forEach(el => {
                     const value = el.getAttribute('data-filter');
@@ -227,6 +236,13 @@ const indexAction = (function(window, document) {
                         const oldEl = document.querySelector('[data-filter="'+value+'"]');
                         if (oldEl) {
                             oldEl.parentNode.replaceChild(el, oldEl);
+                        } else {
+                            // add new filter element:
+                            if (el.previousElementSibling) {
+                                document.querySelector('[data-filter="'+el.previousElementSibling.getAttribute('data-filter')+'"]').after(el);
+                            } else if (el.nextElementSibling) {
+                                document.querySelector('[data-filter="'+el.nextElementSibling.getAttribute('data-filter')+'"]').before(el);
+                            }
                         }
                     }
                 });
