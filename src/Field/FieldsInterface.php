@@ -55,6 +55,14 @@ interface FieldsInterface extends IteratorAggregate, Countable
     public function withParentFields(ActionInterface $action): static;
     
     /**
+     * Returns a new instance with the included child fields.
+     *
+     * @param ActionInterface $action
+     * @return static
+     */
+    public function withChildFields(ActionInterface $action): static;
+    
+    /**
      * Returns a new instance with (un)translatable fields only.
      *
      * @param bool $translatable
