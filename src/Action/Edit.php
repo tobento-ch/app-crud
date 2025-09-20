@@ -82,7 +82,7 @@ final class Edit extends AbstractAction
                 ->attr(name: 'name', value: 'next_action')
                 ->attr(name: 'value', value: 'edit')
                 ->attr(name: 'data-loading', value: 'true')
-                ->ajaxAction('Record saved successfully.')
+                ->ajaxAction($this->trans('Record saved successfully.'))
                 ->primary(),
             Button\Button::new(label: $this->trans('Save & Close'), group: 'entity')
                 ->name('close')
