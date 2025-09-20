@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field;
 
+use Stringable;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\InputInterface;
@@ -132,7 +133,7 @@ abstract class AbstractField implements FieldInterface
     protected array $optionalTexts = [];
     
     /**
-     * @var array<string, string>
+     * @var array<string, string|Stringable>
      */
     protected array $infoTexts = [];
     
@@ -890,11 +891,11 @@ abstract class AbstractField implements FieldInterface
     /**
      * Set the info text for the given action.
      *
-     * @param string $text
+     * @param string|Stringable $text
      * @param string $action
      * @return static $this
      */
-    public function infoText(string $text, string $action = 'create|edit'): static
+    public function infoText(string|Stringable $text, string $action = 'create|edit'): static
     {
         foreach(explode('|', $action) as $actionName) {
             $this->infoTexts[$actionName] = $text;
@@ -907,9 +908,9 @@ abstract class AbstractField implements FieldInterface
      * Returns the info text.
      *
      * @param string $action
-     * @return string
+     * @return string|Stringable
      */
-    public function getInfoText(string $action): string
+    public function getInfoText(string $action): string|Stringable
     {
         return $this->infoTexts[$action] ?? '';
     }
