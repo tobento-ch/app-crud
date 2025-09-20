@@ -89,7 +89,7 @@ foreach($action->fields() as $field) {
         continue;
     }
 
-    $headingHtml .= '<div class="crud-tree-item-col title">'.$view->esc($field->name()).'</div>';
+    $headingHtml .= '<div class="crud-tree-item-col title">'.$view->esc($field->label()).'</div>';
 }
 
 if (
