@@ -71,7 +71,7 @@ class Fields implements FieldsInterface
      * @return static
      */
     public function group(string $name): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->groupName() === $name
         );
@@ -84,7 +84,7 @@ class Fields implements FieldsInterface
      * @return static
      */
     public function parent(null|string $field): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->parentField() === $field
         );
@@ -116,13 +116,26 @@ class Fields implements FieldsInterface
     }
     
     /**
+     * Returns a new instance with the included child fields.
+     *
+     * @param ActionInterface $action
+     * @return static
+     */
+    public function withChildFields(ActionInterface $action): static
+    {
+        $new = clone $this;
+        $new->fields = $this->collectChildFields($new, $action);
+        return $new;
+    }
+    
+    /**
      * Returns a new instance with (un)translatable fields only.
      *
      * @param bool $translatable
      * @return static
      */
     public function translatable(bool $translatable = true): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->isTranslatable() === $translatable
         );
@@ -135,7 +148,7 @@ class Fields implements FieldsInterface
      * @return static
      */
     public function creatable(bool $creatable = true): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->isCreatable() === $creatable
         );
@@ -148,7 +161,7 @@ class Fields implements FieldsInterface
      * @return static
      */
     public function editable(bool $editable = true): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->isEditable() === $editable
         );
@@ -161,7 +174,7 @@ class Fields implements FieldsInterface
      * @return static
      */
     public function showable(bool $showable = true): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->isShowable() === $showable
         );
@@ -174,7 +187,7 @@ class Fields implements FieldsInterface
      * @return static
      */
     public function storable(bool $storable = true): static
-    {        
+    {
         return $this->filter(
             fn(FieldInterface $a): bool => $a->isStorable() === $storable
         );
@@ -279,5 +292,25 @@ class Fields implements FieldsInterface
         foreach($this->all() as $field) {
             $this->fields[$field->name()] = clone $field;
         }
+    }
+    
+    /**
+     * Collects child fields.
+     *
+     * @param FieldsInterface $fields
+     * @param ActionInterface $action
+     * @param array<array-key, FieldInterface> $items The previous collected fields
+     * @return array<array-key, FieldInterface>
+     */
+    protected function collectChildFields(FieldsInterface $fields, ActionInterface $action, $items = []): array
+    {
+        foreach($fields as $field) {
+            if ($field instanceof FieldsAwareInterface) {
+                $items = $this->collectChildFields($field->getFields($action), $action, $items);
+            }
+            $items[] = $field;
+        }
+        
+        return $items;
     }
 }
