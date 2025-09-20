@@ -41,6 +41,11 @@ class Select extends AbstractFilter
     protected array $options = [];
     
     /**
+     * @var null|array
+     */
+    protected null|array $emptyOption = null;
+    
+    /**
      * @var string
      */
     protected string $comparison = '=';
@@ -72,6 +77,8 @@ class Select extends AbstractFilter
                 sprintf('The name %s must only contain [a-z-_.] characters', $name)
             );
         }
+        
+        $this->emptyOption(value: 'none', label: '---');
     }
 
     /**
@@ -226,7 +233,7 @@ class Select extends AbstractFilter
             selectAttributes: $attributes,
             optionAttributes: [],
             optgroupAttributes: [],
-            emptyOption: ['none', '---'],
+            emptyOption: $this->emptyOption,
             withInput: true,
         );
         
@@ -358,5 +365,23 @@ class Select extends AbstractFilter
     public function getOptions(): array
     {
         return $this->options;
+    }
+    
+    /**
+     * Sets the empty option.
+     *
+     * @param string $value
+     * @param string $label
+     * @return static $this
+     */
+    public function emptyOption(null|string $value, string $label = '---'): static
+    {
+        if (is_null($value)) {
+            $this->emptyOption = null;
+            return $this;
+        }
+        
+        $this->emptyOption = [$value, $label];
+        return $this;
     }
 }
