@@ -18,6 +18,7 @@ A simple app CRUD.
         - [Configure Filters](#configure-filters)
         - [Route Controller](#route-controller)
         - [Route Permissions](#route-permissions)
+    - [Crud Write Repository](#crud-write-repository)
     - [Fields](#fields)
         - [Build in Fields](#build-in-fields)
             - [Checkboxes Field](#checkboxes-field)
@@ -92,6 +93,7 @@ A simple app CRUD.
             - [Select Filter](#select-filter)
             - [Views Filter](#views-filter)
         - [Filter Groups](#filter-groups)
+        - [Display Filters Conditionally](#display-filters-conditionally)
         - [Filter Processor](#filter-processor)
         - [Filter Limitations](#filter-limitations)
     - [Resource Types](#resource-types)
@@ -666,6 +668,70 @@ class RoutesBoot extends Boot
 }
 ```
 
+## Crud Write Repository
+
+You may create a crud write-only repository for importing data or testing puposes for instance.
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\ActionProcessorInterface;
+use Tobento\App\Crud\CrudWriteRepository;
+use Tobento\Service\Repository\WriteRepositoryInterface;
+
+$repository = new CrudWriteRepository(
+    controller: $controller, // AbstractCrudController
+    actionProcessor: $actionProcessor, // ActionProcessorInterface
+);
+
+var_dump($repository instanceof WriteRepositoryInterface);
+// bool(true)
+```
+
+Check out the [Write Repository Interface](https://github.com/tobento-ch/service-repository#write-repository-interface) for more info.
+
+Only the ```create```, ```updateById``` and ```deleteById``` methods are supported.
+
+**Example**
+
+```php
+use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Exception\ValidationException;
+use Tobento\Service\Repository\RepositoryCreateException;
+
+try {
+    $entity = $repository->create([
+        'title' => 'Lorem ipsum',
+    ]);
+    
+    var_dump($entity instanceof EntityInterface);
+    // bool(true)
+} catch (RepositoryCreateException $e) {
+    // do something ...
+    if ($e->getPrevious() instanceof ValidationException) {
+        $errorsArray = $e->getPrevious()->validation()->errors()->toArray();
+    }
+}
+```
+
+**Additional Methods**
+
+All methods will return a new instance.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+
+$repository = $repository->onlyFields('id', 'title');
+
+$repository = $repository->exceptFields('sku');
+
+$repository = $repository->withFields(function(FieldsInterface $fields, ActionInterface $action): FieldsInterface {
+    return $fields;
+});
+
+$repository = $repository->onlyActions('store', 'update');
+```
+
 ## Fields
 
 ### Build in Fields
@@ -1002,6 +1068,26 @@ Field\FileSource::new('image')
 ```
 
 Check out the [Media File Writer](https://github.com/tobento-ch/app-media#file-writer) section to learn more about the file writer.
+
+**Modify Input Value**
+
+Use the ```modifyInputValue``` method if you want support other files to be uploaded for instance.
+
+```php
+use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
+
+Field\FileSource::new('image')
+    ->modifyInputValue(
+        modifier: function(mixed $value, Field\FileSource $field, UploadedFileFactoryInterface $uploadedFileFactory): mixed {
+            if (is_string($value)) {
+                return $uploadedFileFactory->createFromRemoteUrl($value);
+            }
+
+            return $value;
+        },
+        action: 'store|update', // default
+    );
+```
 
 **Images**
 
@@ -2306,6 +2392,7 @@ You may specify an info text:
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field;
+use Tobento\Service\Support\HtmlString;
 
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
@@ -2316,7 +2403,10 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
             ->infoText(text: 'Some info ...', action: 'create|edit')
             
             // or using different text per action:
-            ->infoText(text: 'Some info ...', action: 'edit'),
+            ->infoText(text: 'Some info ...', action: 'edit')
+            
+            // you may pass HTML (make sure it is properly escaped):
+            ->infoText(new HtmlString('html')),
     ];
 }
 ```
@@ -4179,6 +4269,11 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->comparison('like') // = (default)
             // '=', '!=', '>', '<', '>=', '<=', '<>', '<=>', 'like', 'not like', 'contains'
             
+            // you may change the empty option:
+            ->emptyOption(value: 'none', label: '---')
+            // or you may disable empty option setting it null:
+            ->emptyOption(value: null)
+            
             // hide on default:
             ->open(false)
             
@@ -4356,6 +4451,29 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             
             // display in table at the field:
             ->group('field'),
+    ];
+}
+```
+
+### Display Filters Conditionally
+
+```php
+use Tobento\App\Crud\Filter\FilterInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter;
+use Tobento\App\Crud\Action\ActionInterface;
+
+protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+{
+    return [
+        Filter\Input::new(name: 'foo', field: 'title')
+            ->displayIf(function(FiltersInterface $filters, FilterInterface $filter, ActionInterface $action): bool {
+                // your condition
+                return true;
+            }),
+            
+            // or with bool:
+            ->displayIf(true),
     ];
 }
 ```
