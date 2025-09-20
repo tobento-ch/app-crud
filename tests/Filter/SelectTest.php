@@ -490,6 +490,22 @@ class SelectTest extends TestCase
         $this->assertStringContainsString('label for="filter_options_color"', $rendered);
     }
     
+    public function testRenderWithCustomEmptyOption()
+    {
+        $filter = Select::new(name: 'sku', field: 'sku')->emptyOption('_null', 'foo');
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringContainsString('<select id="filter_sku" aria-label="sku" name="filter[sku]"><option value="_null">foo</option></select>', $rendered);
+    }
+    
+    public function testRenderWithoutEmptyOption()
+    {
+        $filter = Select::new(name: 'sku', field: 'sku')->emptyOption(null);
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringContainsString('<select id="filter_sku" aria-label="sku" name="filter[sku]"></select>', $rendered);
+    }
+    
     public function testRenderWithAttributes()
     {
         $filter = Select::new(name: 'sku', field: 'sku')
