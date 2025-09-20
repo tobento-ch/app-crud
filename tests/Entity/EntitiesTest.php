@@ -134,4 +134,20 @@ class EntitiesTest extends TestCase
             $this->assertInstanceof(EntityInterface::class, $entity);
         }
     }
+    
+    public function testToArrayMethod()
+    {
+        $entities = new Entities([
+            new Entity(['id' => 'foo', 'title' => ['en' => 'Foo']]),
+            new Entity(['id' => 'bar', 'title' => ['en' => 'Bar']]),
+        ]);
+        
+        $this->assertSame(
+            [
+                ['id' => 'foo', 'title' => ['en' => 'Foo']],
+                ['id' => 'bar', 'title' => ['en' => 'Bar']],
+            ],
+            $entities->toArray()
+        );
+    }
 }
