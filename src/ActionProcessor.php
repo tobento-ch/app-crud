@@ -43,6 +43,9 @@ class ActionProcessor implements ActionProcessorInterface
      * Create a new ActionProcessor.
      *
      * @param ContainerInterface $container
+     * @param UrlResolverInterface $urlResolver
+     * @param null|TranslatorInterface $translator
+     * @param null|LanguagesInterface $languages
      */
     public function __construct(
         ContainerInterface $container,
@@ -159,7 +162,7 @@ class ActionProcessor implements ActionProcessorInterface
         // Fields:
         $entity = $entity ?: $action->entity();
         $fields = clone $action->fields();
-                
+        
         foreach($fields as $field) {
             // Set locales:
             $field->setLocale($action->getLocale());
