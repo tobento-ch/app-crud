@@ -20,7 +20,7 @@ $form = $view->form();
                         <span class="link" data-items-action="delete"><?= $view->etrans('delete') ?></span>
                     </div>
                 </div>
-                <div class="item-body<?= $asCard ? ' cards' : '' ?>">
+                <div class="item-body<?= $asCard ? ' cards crud-cards' : '' ?>">
                     <?php foreach($item as $f) { ?>
                         <div class="fields py-s"><?= $f->render() ?></div>
                     <?php } ?>
@@ -41,7 +41,7 @@ $form = $view->form();
                         <span class="link" data-items-action="delete"><?= $view->etrans('delete') ?></span>
                     </div>
                 </div>
-                <div class="item-body<?= $asCard ? ' cards' : '' ?>">
+                <div class="item-body<?= $asCard ? ' cards crud-cards' : '' ?>">
                     <?php foreach($templateFields as $tf) { ?>
                         <div class="fields py-s"><?= $tf->render() ?></div>
                     <?php } ?>

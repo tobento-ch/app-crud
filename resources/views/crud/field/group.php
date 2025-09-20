@@ -6,7 +6,7 @@
         <?php if ($field->getInfoText(action: $actionName)) { ?>
             <p class="text-xxs mb-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
         <?php } ?>
-        <div class="<?= $asCard ? 'cards' : '' ?>">
+        <div class="<?= $asCard ? 'cards crud-cards' : '' ?>">
             <?php foreach($fields as $f) { ?>
                 <div class="fields pb-s"><?= $f->render() ?></div>
             <?php } ?>
@@ -23,7 +23,7 @@
             <?php } ?>
         </div>
         <div class="field-body">
-            <div class="<?= $asCard ? 'cards' : '' ?>">
+            <div class="<?= $asCard ? 'cards crud-cards' : '' ?>">
                 <?php foreach($fields as $f) { ?>
                     <div class="fields pb-s"><?= $f->render() ?></div>
                 <?php } ?>
