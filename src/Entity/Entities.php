@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Entity;
 
-use Tobento\Service\Iterable\Iter;
-use Generator;
-use Traversable;
 use ArrayIterator;
+use Generator;
+use Tobento\Service\Collection\Collection;
+use Tobento\Service\Iterable\Iter;
+use Traversable;
 
 /**
  * Entities
@@ -150,5 +151,15 @@ final class Entities implements EntitiesInterface
     public function getIterator(): Traversable
     {
         return new ArrayIterator($this->all());
+    }
+    
+    /**
+     * Object to array.
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return (new Collection($this->all()))->toArray();
     }
 }
