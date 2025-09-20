@@ -23,6 +23,7 @@ use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\App\Media\FileStorage\FileWriter;
 use Tobento\App\Media\FileStorage\FileWriterInterface;
+use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
 use Tobento\App\Media\Upload\Validator;
 use Tobento\App\Media\Upload\ValidatorInterface;
 use Tobento\Service\FileStorage\StorageInterface as FileStorageInterface;
@@ -476,6 +477,34 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $fileStorage->storage(name: 'uploads')->assertCreated('testname.jpg');
 
         $this->assertSame('testname.jpg', $this->getCrudRepository()->findById(1)->get('filesrc'));
+    }
+    
+    public function testStoreActionUsesConfiguredInputModifier()
+    {
+        $this->withFileSource(function () {
+            return Field\FileSource::new('filesrc')
+                ->modifyInputValue(
+                    modifier: function(mixed $value, Field\FileSource $field, UploadedFileFactoryInterface $uploadedFileFactory): mixed {
+                        return 'modifiedValue';
+                    },
+                );
+        });
+        
+        $fileStorage = $this->fakeFileStorage();
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateCreateUri());
+        $http->request(method: 'POST', uri: $this->generateStoreUri())->body([
+            'filesrc' => $http->getFileFactory()->createImage('profile.jpg')->setSize(3000),
+        ]);
+        
+        $http->response()->assertStatus(302)->assertLocation($this->generateCreateUri());
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudFormFieldExists(field: 'filesrc');
+        
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(null, $this->getCrudRepository()->findById(1));
     }
 
     public function testEditActionDisplaysInputIfNoFile()
