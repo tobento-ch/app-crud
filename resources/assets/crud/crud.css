@@ -82,7 +82,7 @@ body.crud {max-width: 100%;}
 .crud .no-records {
   margin-top: 1rem;
 }
-.crud .cards{
+.crud-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 2rem;
