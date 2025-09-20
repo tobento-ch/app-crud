@@ -124,6 +124,11 @@ class FileSource extends AbstractField
     protected array $messageLevelsToDisplay = [];
     
     /**
+     * @var array<string, callable>
+     */
+    protected array $inputValueModifiers = [];
+    
+    /**
      * Create a new File.
      *
      * @param string $name
@@ -291,6 +296,32 @@ class FileSource extends AbstractField
     {
         $this->maxFileSizeInKb = $kb;
         return $this;
+    }
+    
+    /**
+     * Modify input value.
+     *
+     * @param callable $modifier
+     * @param string $action
+     * @return static $this
+     */
+    public function modifyInputValue(callable $modifier, string $action = 'store|update'): static
+    {
+        foreach(explode('|', $action) as $actionName) {
+            $this->inputValueModifiers[$actionName] = $modifier;
+        }
+
+        return $this;
+    }
+    
+    /**
+     * Returns the input value modifiers.
+     *
+     * @return array<string, callable>
+     */
+    public function getInputValueModifiers(): array
+    {
+        return $this->inputValueModifiers;
     }
     
     /**
@@ -527,6 +558,15 @@ class FileSource extends AbstractField
             return;
         }
 
+        $modifiers = $field->getInputValueModifiers();
+        
+        if (isset($modifiers[$action->name()])) {
+            $input->set(
+                $field->name(),
+                ($modifiers[$action->name()])($input->get($field->name()), $field, $uploadedFileFactory),
+            );
+        }
+        
         $inputFile = $input->get($field->name());
         
         // Handle different input files:
