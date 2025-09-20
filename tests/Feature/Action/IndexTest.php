@@ -16,9 +16,12 @@ namespace Tobento\App\Crud\Test\Feature\Action;
 use Tobento\App\AppInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Filter;
+use Tobento\App\Crud\Filter\FilterInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
@@ -151,6 +154,33 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertCrudIndexFiltersExists(filters: ['colors'], group: 'footer')
             ->assertCrudIndexFiltersExists(filters: ['roles'], group: 'aside')
             ->assertCrudIndexFiltersExists(filters: ['cars'], group: 'modal');
+    }
+    
+    public function testOnlyDisplayableFiltersAreRendered()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [],
+                actions: [Action\Index::new('Users')],
+                filters: [
+                    Filter\Select::new('colors')->options(['blue' => 'Blue']),
+                    Filter\Select::new('roles')->options(['admin' => 'Admin'])->displayIf(false),
+                    Filter\Select::new('cars')->options(['bmw' => 'Bmw'])
+                        ->displayIf(fn (FiltersInterface $filters, FilterInterface $filter, ActionInterface $action): bool => false),
+                ],
+            );
+        });
+        
+        $http = $this->fakeHttp();
+        $http->request(method: 'GET', uri: $this->generateIndexUri());
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertCrudIndexFiltersExists(filters: ['colors'], group: 'header')
+            ->assertCrudIndexFiltersMissing(filters: ['roles'], group: 'header')
+            ->assertCrudIndexFiltersMissing(filters: ['cars'], group: 'header');
     }
     
     public function testEntitiesAreFiltered()
