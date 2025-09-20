@@ -91,6 +91,20 @@ class FieldsTest extends TestCase
         $this->assertSame(3, $fieldsNew->count());
     }
     
+    public function testWithChildFieldsMethod()
+    {
+        $fields = new Fields(
+            Field\Text::new('foo'),
+            Field\File::new('bar'),
+        );
+        
+        $fieldsNew = $fields->withChildFields(Action\Index::new());
+        
+        $this->assertFalse($fields === $fieldsNew);
+        $this->assertSame(2, $fields->count());
+        $this->assertSame(4, $fieldsNew->count());
+    }
+    
     public function testTranslatableMethod()
     {
         $fields = new Fields(
