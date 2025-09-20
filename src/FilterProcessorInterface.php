@@ -26,7 +26,7 @@ interface FilterProcessorInterface
      *
      * @param FiltersInterface $filters
      * @param ActionInterface $action
-     * @return void
+     * @return FiltersInterface
      */
-    public function processFilters(FiltersInterface $filters, ActionInterface $action): void;
+    public function processFilters(FiltersInterface $filters, ActionInterface $action): FiltersInterface;
 }

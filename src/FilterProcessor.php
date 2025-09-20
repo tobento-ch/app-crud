@@ -55,9 +55,9 @@ class FilterProcessor implements FilterProcessorInterface
      *
      * @param FiltersInterface $filters
      * @param ActionInterface $action
-     * @return void
+     * @return FiltersInterface
      */
-    public function processFilters(FiltersInterface $filters, ActionInterface $action): void
+    public function processFilters(FiltersInterface $filters, ActionInterface $action): FiltersInterface
     {
         $input = $this->requester->input();
         
@@ -107,10 +107,25 @@ class FilterProcessor implements FilterProcessorInterface
             );
         }
         
+        // filter displayable only:
+        $filters = $filters->filter(function(FilterInterface $filter) use ($filters, $action, $data): bool {
+            
+            if (is_bool($filter->getDisplayIf())) {
+                return (bool)$filter->getDisplayIf();
+            }
+            
+            return $this->autowire->call(
+                $filter->getDisplayIf(),
+                ['filter' => $filter, 'input' => new Input($data), 'action' => $action, 'filters' => $filters],
+            );
+        });
+        
         if ($input->has('filter') || $input->has('clear-filter')) {
             $data = $filters->getAppliedParameters();
             $this->storeData(action: $action, data: $data);
         }
+        
+        return $filters;
     }
     
     /**
