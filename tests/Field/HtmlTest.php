@@ -21,21 +21,21 @@ class HtmlTest extends AbstractField
 {
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Html::new(name: 'name');
+        $field = new Field\Html(name: 'name');
         $this->assertInstanceof(Field\Html::class, $field);
         $this->assertInstanceof(Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Html::new(name: 'name'));
-        $this->renderTests(Field\Html::new(name: 'name'));
+        $this->processTests(new Field\Html(name: 'name'));
+        $this->renderTests(new Field\Html(name: 'name'));
         $this->nameTests(Field\Html::class);
         $this->groupTests(Field\Html::class);
-        $this->translatableTests(Field\Html::new(name: 'name'));
-        $this->localeTests(Field\Html::new(name: 'name'));
-        $this->assertFalse(Field\Html::new(name: 'name')->isStorable());
-        $this->assertFalse(Field\Html::new(name: 'name')->isIndexable());
-        $this->creatableTests(Field\Html::new(name: 'name'));
-        $this->editableTests(Field\Html::new(name: 'name'));
-        $this->entityTests(Field\Html::new(name: 'name'));
+        $this->translatableTests(new Field\Html(name: 'name'));
+        $this->localeTests(new Field\Html(name: 'name'));
+        $this->assertFalse(new Field\Html(name: 'name')->isStorable());
+        $this->assertFalse(new Field\Html(name: 'name')->isIndexable());
+        $this->creatableTests(new Field\Html(name: 'name'));
+        $this->editableTests(new Field\Html(name: 'name'));
+        $this->entityTests(new Field\Html(name: 'name'));
         $this->validateTests(Field\Html::class);
         $this->requiredTextTests(Field\Html::class);
         $this->optionalTextTests(Field\Html::class);
@@ -52,17 +52,17 @@ class HtmlTest extends AbstractField
     
     public function testProcessRenderMethod()
     {
-        $field = Field\Html::new(name: 'name')->content(html: '<p>foo</p>');
-        $field->processRender(field: $field, app: (new AppFactory())->createApp());
+        $field = new Field\Html(name: 'name')->content(html: '<p>foo</p>');
+        $field->processRender(field: $field, app: new AppFactory()->createApp());
         $this->assertSame('<p>foo</p>', $field->render());
     }
     
     public function testProcessRenderMethodUsingCallable()
     {
-        $field = Field\Html::new(name: 'name')->content(function(Field\Html $field): string {
+        $field = new Field\Html(name: 'name')->content(function(Field\Html $field): string {
             return '<p>foo</p>';
         });
-        $field->processRender(field: $field, app: (new AppFactory())->createApp());
+        $field->processRender(field: $field, app: new AppFactory()->createApp());
         $this->assertSame('<p>foo</p>', $field->render());
     }
 }

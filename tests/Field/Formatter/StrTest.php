@@ -26,7 +26,7 @@ class StrTest extends TestCase
         
         $this->assertSame(
             'foo',
-            $str(value: 'foo', field: Field\Text::new(name: 'name'))
+            $str(value: 'foo', field: new Field\Text(name: 'name'))
         );
     }
     
@@ -36,7 +36,7 @@ class StrTest extends TestCase
         
         $this->assertSame(
             'foo, bar',
-            $str(value: ['foo', 'bar'], field: Field\Text::new(name: 'name'))
+            $str(value: ['foo', 'bar'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -46,7 +46,7 @@ class StrTest extends TestCase
         
         $this->assertSame(
             '555',
-            $str(value: 555, field: Field\Text::new(name: 'name'))
+            $str(value: 555, field: new Field\Text(name: 'name'))
         );
     }
     
@@ -56,7 +56,7 @@ class StrTest extends TestCase
         
         $this->assertSame(
             '',
-            $str(value: Field\Text::new(name: 'name'), field: Field\Text::new(name: 'name'))
+            $str(value: new Field\Text(name: 'name'), field: new Field\Text(name: 'name'))
         );
     }
 
@@ -66,12 +66,12 @@ class StrTest extends TestCase
         
         $this->assertSame(
             '',
-            $str(value: '', field: Field\Text::new(name: 'name'))
+            $str(value: '', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             '',
-            $str(value: [], field: Field\Text::new(name: 'name'))
+            $str(value: [], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -81,12 +81,12 @@ class StrTest extends TestCase
         
         $this->assertSame(
             'Blue',
-            $str(value: 'blue', field: Field\Select::new(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
+            $str(value: 'blue', field: new Field\Select(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
         );
         
         $this->assertSame(
             'Blue, Red',
-            $str(value: ['blue', 'red'], field: Field\Select::new(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
+            $str(value: ['blue', 'red'], field: new Field\Select(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
         );
     }
     
@@ -96,7 +96,7 @@ class StrTest extends TestCase
         
         $this->assertSame(
             'foo:bar',
-            $str(value: ['foo', 'bar'], field: Field\Text::new(name: 'name'))
+            $str(value: ['foo', 'bar'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -106,12 +106,12 @@ class StrTest extends TestCase
         
         $this->assertSame(
             'Lorem i...',
-            $str(value: 'Lorem ipsum dolor sit amet', field: Field\Text::new(name: 'name'))
+            $str(value: 'Lorem ipsum dolor sit amet', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             'foo, ba...',
-            $str(value: ['foo', 'bar', 'baz'], field: Field\Text::new(name: 'name'))
+            $str(value: ['foo', 'bar', 'baz'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -121,12 +121,12 @@ class StrTest extends TestCase
         
         $this->assertSame(
             'Lorem ip..',
-            $str(value: 'Lorem ipsum dolor sit amet', field: Field\Text::new(name: 'name'))
+            $str(value: 'Lorem ipsum dolor sit amet', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             'foo, bar..',
-            $str(value: ['foo', 'bar', 'baz'], field: Field\Text::new(name: 'name'))
+            $str(value: ['foo', 'bar', 'baz'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -136,7 +136,7 @@ class StrTest extends TestCase
         
         $this->assertSame(
             '{"foo":"bar"}',
-            $str(value: ['foo' => 'bar'], field: Field\Text::new(name: 'name'))
+            $str(value: ['foo' => 'bar'], field: new Field\Text(name: 'name'))
         );
     }
 }

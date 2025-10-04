@@ -26,7 +26,7 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span class="text-700 float-right">foo</span>',
-            (string)$class(value: 'foo', field: Field\Text::new(name: 'name'))
+            (string)$class(value: 'foo', field: new Field\Text(name: 'name'))
         );
     }
     
@@ -36,7 +36,7 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span class="crud-values"><span class="text-700">foo</span><span class="text-700">bar</span></span>',
-            (string)$class(value: ['foo', 'bar'], field: Field\Text::new(name: 'name'))
+            (string)$class(value: ['foo', 'bar'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -46,7 +46,7 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span class="text-700">555</span>',
-            (string)$class(value: 555, field: Field\Text::new(name: 'name'))
+            (string)$class(value: 555, field: new Field\Text(name: 'name'))
         );
     }
     
@@ -56,7 +56,7 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span class="crud-values"></span>',
-            (string)$class(value: [[]], field: Field\Text::new(name: 'name'))
+            (string)$class(value: [[]], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -66,12 +66,12 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span>foo</span>',
-            (string)$class(value: 'foo', field: Field\Text::new(name: 'name'))
+            (string)$class(value: 'foo', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             '<span class="crud-values"><span>foo</span><span>bar</span></span>',
-            (string)$class(value: ['foo', 'bar'], field: Field\Text::new(name: 'name'))
+            (string)$class(value: ['foo', 'bar'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -81,12 +81,12 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '',
-            (string)$class(value: '', field: Field\Text::new(name: 'name'))
+            (string)$class(value: '', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             '',
-            (string)$class(value: [], field: Field\Text::new(name: 'name'))
+            (string)$class(value: [], field: new Field\Text(name: 'name'))
         );
     }    
     
@@ -96,12 +96,12 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span class="text-700">&lt;p&gt;foo&lt;/p&gt;</span>',
-            (string)$class(value: '<p>foo</p>', field: Field\Text::new(name: 'name'))
+            (string)$class(value: '<p>foo</p>', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             '<span class="crud-values"><span class="text-700">&lt;p&gt;foo&lt;/p&gt;</span></span>',
-            (string)$class(value: ['<p>foo</p>'], field: Field\Text::new(name: 'name'))
+            (string)$class(value: ['<p>foo</p>'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -111,12 +111,12 @@ class CssClassTest extends TestCase
         
         $this->assertSame(
             '<span class="text-700">Blue</span>',
-            (string)$class(value: 'blue', field: Field\Select::new(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
+            (string)$class(value: 'blue', field: new Field\Select(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
         );
         
         $this->assertSame(
             '<span class="crud-values"><span class="text-700">Blue</span></span>',
-            (string)$class(value: ['blue'], field: Field\Select::new(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
+            (string)$class(value: ['blue'], field: new Field\Select(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
         );
     }
 }

@@ -28,15 +28,15 @@ class FieldsTest extends TestCase
         $this->assertSame(0, $fields->count());
         $this->assertInstanceof(FieldsInterface::class, $fields);
         
-        $fields = new Fields(Field\Text::new('name'));
+        $fields = new Fields(new Field\Text('name'));
         $this->assertSame(1, $fields->count());
     }
     
     public function testFilterMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo'),
-            Field\Text::new('bar'),
+            new Field\Text('foo'),
+            new Field\Text('bar'),
         );
         
         $fieldsNew = $fields->filter(fn(FieldInterface $f): bool => $f->name() === 'foo');
@@ -49,8 +49,8 @@ class FieldsTest extends TestCase
     public function testGroupMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->group('a'),
-            Field\Text::new('bar')->group('b'),
+            new Field\Text('foo')->group('a'),
+            new Field\Text('bar')->group('b'),
         );
         
         $fieldsNew = $fields->group('a');
@@ -64,9 +64,9 @@ class FieldsTest extends TestCase
     public function testParentMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo'),
-            Field\Text::new('bar')->parent('foo'),
-            Field\Text::new('baz'),
+            new Field\Text('foo'),
+            new Field\Text('bar')->parent('foo'),
+            new Field\Text('baz'),
         );
         
         $fieldsNew = $fields->parent('foo');
@@ -80,11 +80,11 @@ class FieldsTest extends TestCase
     public function testWithParentFieldsMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo'),
-            Field\Group::new('bar')->fields(Field\Text::new('baz')),
+            new Field\Text('foo'),
+            new Field\Group('bar')->fields(new Field\Text('baz')),
         );
         
-        $fieldsNew = $fields->withParentFields(Action\Index::new());
+        $fieldsNew = $fields->withParentFields(new Action\Index());
         
         $this->assertFalse($fields === $fieldsNew);
         $this->assertSame(2, $fields->count());
@@ -94,11 +94,11 @@ class FieldsTest extends TestCase
     public function testWithChildFieldsMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo'),
-            Field\File::new('bar'),
+            new Field\Text('foo'),
+            new Field\File('bar'),
         );
         
-        $fieldsNew = $fields->withChildFields(Action\Index::new());
+        $fieldsNew = $fields->withChildFields(new Action\Index());
         
         $this->assertFalse($fields === $fieldsNew);
         $this->assertSame(2, $fields->count());
@@ -108,9 +108,9 @@ class FieldsTest extends TestCase
     public function testTranslatableMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->translatable(),
-            Field\Text::new('bar')->translatable(),
-            Field\Text::new('baz')->translatable(false),
+            new Field\Text('foo')->translatable(),
+            new Field\Text('bar')->translatable(),
+            new Field\Text('baz')->translatable(false),
         );
         
         $fieldsNew = $fields->translatable();
@@ -124,9 +124,9 @@ class FieldsTest extends TestCase
     public function testCreatableMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->creatable(),
-            Field\Text::new('bar')->creatable(),
-            Field\Text::new('baz')->creatable(false),
+            new Field\Text('foo')->creatable(),
+            new Field\Text('bar')->creatable(),
+            new Field\Text('baz')->creatable(false),
         );
         
         $fieldsNew = $fields->creatable();
@@ -140,9 +140,9 @@ class FieldsTest extends TestCase
     public function testEditableMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->editable(),
-            Field\Text::new('bar')->editable(),
-            Field\Text::new('baz')->editable(false),
+            new Field\Text('foo')->editable(),
+            new Field\Text('bar')->editable(),
+            new Field\Text('baz')->editable(false),
         );
         
         $fieldsNew = $fields->editable();
@@ -156,9 +156,9 @@ class FieldsTest extends TestCase
     public function testShowableMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->showable(),
-            Field\Text::new('bar')->showable(),
-            Field\Text::new('baz')->showable(false),
+            new Field\Text('foo')->showable(),
+            new Field\Text('bar')->showable(),
+            new Field\Text('baz')->showable(false),
         );
         
         $fieldsNew = $fields->showable();
@@ -172,9 +172,9 @@ class FieldsTest extends TestCase
     public function testStorableMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->storable(),
-            Field\Text::new('bar')->storable(),
-            Field\Text::new('baz')->storable(false),
+            new Field\Text('foo')->storable(),
+            new Field\Text('bar')->storable(),
+            new Field\Text('baz')->storable(false),
         );
         
         $fieldsNew = $fields->storable();
@@ -188,8 +188,8 @@ class FieldsTest extends TestCase
     public function testColumnMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo', 'Foo'),
-            Field\Text::new('bar', 'Bar'),
+            new Field\Text('foo', 'Foo'),
+            new Field\Text('bar', 'Bar'),
         );
         
         $this->assertSame(['foo', 'bar'], $fields->column('name'));
@@ -200,8 +200,8 @@ class FieldsTest extends TestCase
     public function testGetNamesMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo'),
-            Field\Text::new('bar'),
+            new Field\Text('foo'),
+            new Field\Text('bar'),
         );
         
         $this->assertSame(['foo', 'bar'], $fields->getNames());
@@ -209,7 +209,7 @@ class FieldsTest extends TestCase
     
     public function testGetMethod()
     {
-        $field = Field\Text::new('foo');
+        $field = new Field\Text('foo');
         $fields = new Fields($field);
         
         $this->assertSame($field, $fields->get('foo'));
@@ -218,15 +218,15 @@ class FieldsTest extends TestCase
     
     public function testEmptyMethod()
     {
-        $this->assertFalse((new Fields(Field\Text::new('foo')))->empty());
+        $this->assertFalse((new Fields(new Field\Text('foo')))->empty());
         $this->assertTrue((new Fields())->empty());
     }
     
     public function testGetValidationRulesForActionMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo')->validate('string'),
-            Field\Text::new('bar'),
+            new Field\Text('foo')->validate('string'),
+            new Field\Text('bar'),
         );
         
         $this->assertSame(['foo' => 'string'], $fields->getValidationRulesForAction('create'));
@@ -235,8 +235,8 @@ class FieldsTest extends TestCase
     public function testGetIteraterMethod()
     {
         $fields = new Fields(
-            Field\Text::new('foo'),
-            Field\Text::new('bar'),
+            new Field\Text('foo'),
+            new Field\Text('bar'),
         );
         
         foreach($fields as $field) {
@@ -246,13 +246,13 @@ class FieldsTest extends TestCase
     
     public function testCountMethod()
     {
-        $this->assertSame(1, (new Fields(Field\Text::new('foo')))->count());
+        $this->assertSame(1, (new Fields(new Field\Text('foo')))->count());
         $this->assertSame(0, (new Fields())->count());
     }
     
     public function testThatFieldsGetCloned()
     {
-        $fields = new Fields(Field\Text::new('foo'));
+        $fields = new Fields(new Field\Text('foo'));
         $fieldsNew = clone $fields;
         
         $this->assertFalse($fields->get('foo') === $fieldsNew->get('foo'));

@@ -15,7 +15,7 @@ namespace Tobento\App\Crud\Test\Field;
 
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
-use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\new Field\FieldInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\Input;
@@ -30,53 +30,53 @@ class SlugTest extends AbstractField
 {
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Slug::new(name: 'name');
-        $this->assertInstanceof(Field\Slug::class, $field);
-        $this->assertInstanceof(Field\FieldInterface::class, $field);
+        $field = new Field\Slug(name: 'name');
+        $this->assertInstanceof(new Field\Slug::class, $field);
+        $this->assertInstanceof(new Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Slug::new(name: 'name'));
-        $this->renderTests(Field\Slug::new(name: 'name'));
-        $this->nameTests(Field\Slug::class);
-        $this->labelTests(Field\Slug::class);
-        $this->groupTests(Field\Slug::class);
-        $this->translatableTests(Field\Slug::new(name: 'name'));
-        $this->localeTests(Field\Slug::new(name: 'name'));
-        $this->storableTests(Field\Slug::new(name: 'name'));
-        $this->indexableTests(Field\Slug::new(name: 'name'));
-        $this->creatableTests(Field\Slug::new(name: 'name'));
-        $this->editableTests(Field\Slug::new(name: 'name'));
-        $this->readonlyTests(Field\Slug::new(name: 'name'));
-        $this->disabledTests(Field\Slug::new(name: 'name'));
-        $this->entityTests(Field\Slug::new(name: 'name'));
-        $this->validateTests(Field\Slug::class, defaultValidate: 'string');
-        $this->requiredTextTests(Field\Slug::class);
-        $this->optionalTextTests(Field\Slug::class);
-        $this->infoTextTests(Field\Slug::class);
+        $this->processTests(new Field\Slug(name: 'name'));
+        $this->renderTests(new Field\Slug(name: 'name'));
+        $this->nameTests(new Field\Slug::class);
+        $this->labelTests(new Field\Slug::class);
+        $this->groupTests(new Field\Slug::class);
+        $this->translatableTests(new Field\Slug(name: 'name'));
+        $this->localeTests(new Field\Slug(name: 'name'));
+        $this->storableTests(new Field\Slug(name: 'name'));
+        $this->indexableTests(new Field\Slug(name: 'name'));
+        $this->creatableTests(new Field\Slug(name: 'name'));
+        $this->editableTests(new Field\Slug(name: 'name'));
+        $this->readonlyTests(new Field\Slug(name: 'name'));
+        $this->disabledTests(new Field\Slug(name: 'name'));
+        $this->entityTests(new Field\Slug(name: 'name'));
+        $this->validateTests(new Field\Slug::class, defaultValidate: 'string');
+        $this->requiredTextTests(new Field\Slug::class);
+        $this->optionalTextTests(new Field\Slug::class);
+        $this->infoTextTests(new Field\Slug::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processIndexTests(Field\Slug::class);
-        $this->processStoreTests(Field\Slug::class);
-        $this->processUpdateTests(Field\Slug::class);
-        $this->processShowTests(Field\Slug::class);
+        $this->processIndexTests(new Field\Slug::class);
+        $this->processStoreTests(new Field\Slug::class);
+        $this->processUpdateTests(new Field\Slug::class);
+        $this->processShowTests(new Field\Slug::class);
     }
     
     public function testProcessCreateEdit()
     {
-        $field = Field\Slug::new(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
-        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $field = new Field\Slug(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
+        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<input name="name" id="name" type="text" value="Foo">', $field->render());
         
-        $field = Field\Slug::new(name: 'name')->setEntity(new Entity(['name' => ['en' => 'Foo']]))->translatable();
-        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $field = new Field\Slug(name: 'name')->setEntity(new Entity(['name' => ['en' => 'Foo']]))->translatable();
+        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<input name="name[en]" id="name_en" type="text" value="Foo">', $field->render());
     }
     
     public function testProcessBeforeSaveWithoutSlugInputDoesNothing()
     {
-        $action = Action\Store::new();
-        $field = Field\Slug::new(name: 'slug');
+        $action = Action\Store();
+        $field = new Field\Slug(name: 'slug');
         $input = new Input([]);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         
@@ -85,8 +85,8 @@ class SlugTest extends AbstractField
 
     public function testProcessBeforeSaveUsesSlugInput()
     {
-        $action = Action\Store::new();
-        $field = Field\Slug::new(name: 'slug');
+        $action = Action\Store();
+        $field = new Field\Slug(name: 'slug');
         $input = new Input(['slug' => 'Lorem Ipsum']);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         
@@ -95,8 +95,8 @@ class SlugTest extends AbstractField
 
     public function testProcessBeforeSaveUsesSlugInputTranslatable()
     {
-        $action = Action\Store::new();
-        $field = Field\Slug::new(name: 'slug')->translatable();
+        $action = Action\Store();
+        $field = new Field\Slug(name: 'slug')->translatable();
         $input = new Input(['slug' => ['en' => 'Lorem Ipsum']]);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         
@@ -105,8 +105,8 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveTranslatableAssignesPreviousStoredSlugs()
     {
-        $action = Action\Update::new();
-        $field = Field\Slug::new(name: 'slug')
+        $action = Action\Update();
+        $field = new Field\Slug(name: 'slug')
             ->setEntity(new Entity(['slug' => ['de' => 'de-slug']]))
             ->setLocales(['en' => 'EN', 'de' => 'DE'])
             ->translatable();
@@ -118,8 +118,8 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveUsesSlugInputTranslatableWithNoneTranslatedInput()
     {
-        $action = Action\Store::new();
-        $field = Field\Slug::new(name: 'slug')->translatable();
+        $action = Action\Store();
+        $field = new Field\Slug(name: 'slug')->translatable();
         $input = new Input(['slug' => 'Lorem Ipsum']);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         
@@ -128,12 +128,12 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveFromFieldIsIgnoredWhenHasSlugInput()
     {
-        $action = Action\Store::new()
-            ->setFields(new Field\Fields(
-                new Field\Text('title')
+        $action = Action\Store()
+            ->setFields(new new Field\Fields(
+                new new Field\Text('title')
             ));
         
-        $field = Field\Slug::new(name: 'slug')->fromField('title');
+        $field = new Field\Slug(name: 'slug')->fromField('title');
         $input = new Input(['slug' => 'Lorem Ipsum', 'title' => 'A Title']);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         
@@ -142,12 +142,12 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveFromFieldIsUsedIfEmptySlugInput()
     {
-        $action = Action\Store::new()
-            ->setFields(new Field\Fields(
-                new Field\Text('title')
+        $action = Action\Store()
+            ->setFields(new new Field\Fields(
+                new new Field\Text('title')
             ));
         
-        $field = Field\Slug::new(name: 'slug')->fromField('title');
+        $field = new Field\Slug(name: 'slug')->fromField('title');
         $input = new Input(['slug' => '', 'title' => 'A Title']);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         
@@ -156,12 +156,12 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveFromFieldTranslatableAndNoneTranslatedFromField()
     {
-        $action = Action\Store::new()
-            ->setFields(new Field\Fields(
-                new Field\Text('title')
+        $action = Action\Store()
+            ->setFields(new new Field\Fields(
+                new new Field\Text('title')
             ));
         
-        $field = Field\Slug::new(name: 'slug')
+        $field = new Field\Slug(name: 'slug')
             ->setLocales(['en' => 'EN', 'de' => 'DE', 'fr' => 'FR'])
             ->fromField('title')
             ->translatable();
@@ -177,12 +177,12 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveFromFieldTranslatable()
     {
-        $action = Action\Store::new()
-            ->setFields(new Field\Fields(
-                Field\Text::new('title')->translatable()
+        $action = Action\Store()
+            ->setFields(new new Field\Fields(
+                new Field\Text('title')->translatable()
             ));
         
-        $field = Field\Slug::new(name: 'slug')
+        $field = new Field\Slug(name: 'slug')
             ->setLocales(['en' => 'EN', 'de' => 'DE', 'fr' => 'FR'])
             ->fromField('title')
             ->translatable();
@@ -204,12 +204,12 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveFromFieldTranslatableButNotTranslatedInputFromField()
     {
-        $action = Action\Store::new()
-            ->setFields(new Field\Fields(
-                Field\Text::new('title')->translatable()
+        $action = Action\Store()
+            ->setFields(new new Field\Fields(
+                new Field\Text('title')->translatable()
             ));
         
-        $field = Field\Slug::new(name: 'slug')
+        $field = new Field\Slug(name: 'slug')
             ->setLocales(['en' => 'EN', 'de' => 'DE', 'fr' => 'FR'])
             ->fromField('title')
             ->translatable();
@@ -225,14 +225,14 @@ class SlugTest extends AbstractField
     
     public function testProcessBeforeSaveFromFieldTranslatableUsesFromFieldStoredIfNoInput()
     {
-        $action = Action\Update::new()
-            ->setFields(new Field\Fields(
-                Field\Text::new('title')
+        $action = Action\Update()
+            ->setFields(new new Field\Fields(
+                new Field\Text('title')
                     ->setEntity(new Entity(['title' => ['de' => 'De Title Stored']]))
                     ->translatable()
             ));
         
-        $field = Field\Slug::new(name: 'slug')
+        $field = new Field\Slug(name: 'slug')
             ->setLocales(['en' => 'EN', 'de' => 'DE', 'fr' => 'FR'])
             ->fromField('title')
             ->translatable();
@@ -254,8 +254,8 @@ class SlugTest extends AbstractField
     
     public function testProcessStore()
     {
-        $action = Action\Store::new();
-        $field = Field\Slug::new(name: 'slug');
+        $action = Action\Store();
+        $field = new Field\Slug(name: 'slug');
         $input = new Input(['slug' => 'Lorem Ipsum']);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         $field->processStore(field: $field, input: $input);
@@ -265,8 +265,8 @@ class SlugTest extends AbstractField
     
     public function testProcessUpdate()
     {
-        $action = Action\Update::new();
-        $field = Field\Slug::new(name: 'slug');
+        $action = Action\Update();
+        $field = new Field\Slug(name: 'slug');
         $input = new Input(['slug' => 'Lorem Ipsum']);
         $field->processBeforeSave(action: $action, field: $field, input: $input);
         $field->processStore(field: $field, input: $input);
@@ -276,11 +276,11 @@ class SlugTest extends AbstractField
     
     public function testCustomAttributesAreRendered()
     {
-        $field = Field\Slug::new(name: 'name')
+        $field = new Field\Slug(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
             ->attributes(['data-foo' => ['foo'], 'required']);
         
-        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString(
             '<input data-foo=\'[&quot;foo&quot;]\' required name="name" id="name" type="text" value="Foo">',
             $field->render()
@@ -289,7 +289,7 @@ class SlugTest extends AbstractField
     
     public function testCustomSlugifierUsingString()
     {
-        $field = Field\Slug::new(name: 'name')->slugifier('foo');
+        $field = new Field\Slug(name: 'name')->slugifier('foo');
         
         $slugifier = (new SlugifierFactory())->createSlugifier();
         $slugifiers = new Slugifiers([
@@ -297,7 +297,7 @@ class SlugTest extends AbstractField
         ]);
         $container = new Container();
         $container->set(SlugifiersInterface::class, $slugifiers);
-        $action = Action\Update::new()->setFields(new Field\Fields($field));
+        $action = Action\Update()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor(container: $container);
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -309,12 +309,12 @@ class SlugTest extends AbstractField
     {
         $slugifier = (new SlugifierFactory())->createSlugifier();
         
-        $field = Field\Slug::new(name: 'name')->slugifier($slugifier);
+        $field = new Field\Slug(name: 'name')->slugifier($slugifier);
         
         $slugifiers = new Slugifiers([]);
         $container = new Container();
         $container->set(SlugifiersInterface::class, $slugifiers);
-        $action = Action\Update::new()->setFields(new Field\Fields($field));
+        $action = Action\Update()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor(container: $container);
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -324,7 +324,7 @@ class SlugTest extends AbstractField
     
     public function testCustomSlugifierUsingClosure()
     {
-        $field = Field\Slug::new(name: 'name')
+        $field = new Field\Slug(name: 'name')
             ->slugifier(function (SlugifiersInterface $slugifiers): SlugifierInterface {
                 return $slugifiers->get('foo');
             });
@@ -335,7 +335,7 @@ class SlugTest extends AbstractField
         ]);
         $container = new Container();
         $container->set(SlugifiersInterface::class, $slugifiers);
-        $action = Action\Update::new()->setFields(new Field\Fields($field));
+        $action = Action\Update()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor(container: $container);
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());

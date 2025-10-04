@@ -36,20 +36,20 @@ class FileSourceTest extends AbstractField
     
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\FileSource::new(name: 'name');
+        $field = new Field\FileSource(name: 'name');
         $this->assertInstanceof(Field\FileSource::class, $field);
         $this->assertInstanceof(Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\FileSource::new(name: 'name'));
-        $this->renderTests(Field\FileSource::new(name: 'name'));
+        $this->processTests(new Field\FileSource(name: 'name'));
+        $this->renderTests(new Field\FileSource(name: 'name'));
         $this->nameTests(Field\FileSource::class);
         $this->groupTests(Field\FileSource::class);
-        $this->localeTests(Field\FileSource::new(name: 'name'));
-        $this->storableTests(Field\FileSource::new(name: 'name'));
-        $this->indexableTests(Field\FileSource::new(name: 'name'));
-        $this->creatableTests(Field\FileSource::new(name: 'name'));
-        $this->editableTests(Field\FileSource::new(name: 'name'));
-        $this->entityTests(Field\FileSource::new(name: 'name'));
+        $this->localeTests(new Field\FileSource(name: 'name'));
+        $this->storableTests(new Field\FileSource(name: 'name'));
+        $this->indexableTests(new Field\FileSource(name: 'name'));
+        $this->creatableTests(new Field\FileSource(name: 'name'));
+        $this->editableTests(new Field\FileSource(name: 'name'));
+        $this->entityTests(new Field\FileSource(name: 'name'));
         $this->requiredTextTests(Field\FileSource::class, withTranslatable: false);
         $this->optionalTextTests(Field\FileSource::class, withTranslatable: false);
         $this->infoTextTests(Field\FileSource::class);
@@ -57,21 +57,21 @@ class FileSourceTest extends AbstractField
     
     public function labelTests(string $field)
     {
-        $this->assertSame('Name', $field::new(name: '')->label());
-        $this->assertSame('NAME', $field::new(name: 'name', label: 'NAME')->label());
+        $this->assertSame('Name', $field(name: '')->label());
+        $this->assertSame('NAME', $field(name: 'name', label: 'NAME')->label());
     }
     
     public function testThrowsSettingReadonlyAsUnsupported()
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        Field\FileSource::new(name: 'name')->readonly();
+        new Field\FileSource(name: 'name')->readonly();
     }
     
     public function testThrowsSettingDisabledAsUnsupported()
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        Field\FileSource::new(name: 'name')->disabled();
+        new Field\FileSource(name: 'name')->disabled();
     }
 }

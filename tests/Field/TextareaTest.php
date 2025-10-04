@@ -15,7 +15,7 @@ namespace Tobento\App\Crud\Test\Field;
 
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
-use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\new Field\FieldInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Test\Factory;
@@ -24,56 +24,56 @@ class TextareaTest extends AbstractField
 {
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Textarea::new(name: 'name');
-        $this->assertInstanceof(Field\Textarea::class, $field);
-        $this->assertInstanceof(Field\FieldInterface::class, $field);
+        $field = new Field\Textarea(name: 'name');
+        $this->assertInstanceof(new Field\Textarea::class, $field);
+        $this->assertInstanceof(new Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Textarea::new(name: 'name'));
-        $this->renderTests(Field\Textarea::new(name: 'name'));
-        $this->nameTests(Field\Textarea::class);
-        $this->labelTests(Field\Textarea::class);
-        $this->groupTests(Field\Textarea::class);
-        $this->translatableTests(Field\Textarea::new(name: 'name'));
-        $this->localeTests(Field\Textarea::new(name: 'name'));
-        $this->storableTests(Field\Textarea::new(name: 'name'));
-        $this->indexableTests(Field\Textarea::new(name: 'name'));
-        $this->creatableTests(Field\Textarea::new(name: 'name'));
-        $this->editableTests(Field\Textarea::new(name: 'name'));
-        $this->readonlyTests(Field\Textarea::new(name: 'name'));
-        $this->disabledTests(Field\Textarea::new(name: 'name'));
-        $this->entityTests(Field\Textarea::new(name: 'name'));
-        $this->validateTests(Field\Textarea::class);
-        $this->requiredTextTests(Field\Textarea::class);
-        $this->optionalTextTests(Field\Textarea::class);
-        $this->infoTextTests(Field\Textarea::class);
+        $this->processTests(new Field\Textarea(name: 'name'));
+        $this->renderTests(new Field\Textarea(name: 'name'));
+        $this->nameTests(new Field\Textarea::class);
+        $this->labelTests(new Field\Textarea::class);
+        $this->groupTests(new Field\Textarea::class);
+        $this->translatableTests(new Field\Textarea(name: 'name'));
+        $this->localeTests(new Field\Textarea(name: 'name'));
+        $this->storableTests(new Field\Textarea(name: 'name'));
+        $this->indexableTests(new Field\Textarea(name: 'name'));
+        $this->creatableTests(new Field\Textarea(name: 'name'));
+        $this->editableTests(new Field\Textarea(name: 'name'));
+        $this->readonlyTests(new Field\Textarea(name: 'name'));
+        $this->disabledTests(new Field\Textarea(name: 'name'));
+        $this->entityTests(new Field\Textarea(name: 'name'));
+        $this->validateTests(new Field\Textarea::class);
+        $this->requiredTextTests(new Field\Textarea::class);
+        $this->optionalTextTests(new Field\Textarea::class);
+        $this->infoTextTests(new Field\Textarea::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processIndexTests(Field\Textarea::class);
-        $this->processStoreTests(Field\Textarea::class);
-        $this->processUpdateTests(Field\Textarea::class);
-        $this->processShowTests(Field\Textarea::class);
+        $this->processIndexTests(new Field\Textarea::class);
+        $this->processStoreTests(new Field\Textarea::class);
+        $this->processUpdateTests(new Field\Textarea::class);
+        $this->processShowTests(new Field\Textarea::class);
     }
     
     public function testProcessCreateEdit()
     {
-        $field = Field\Textarea::new(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
-        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $field = new Field\Textarea(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
+        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<textarea name="name" id="name">Foo</textarea>', $field->render());
         
-        $field = Field\Textarea::new(name: 'name')->setEntity(new Entity(['name' => ['en' => 'Foo']]))->translatable();
-        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $field = new Field\Textarea(name: 'name')->setEntity(new Entity(['name' => ['en' => 'Foo']]))->translatable();
+        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<textarea name="name[en]" id="name_en">Foo</textarea>', $field->render());
     }
     
     public function testCustomAttributesAreRendered()
     {
-        $field = Field\Textarea::new(name: 'name')
+        $field = new Field\Textarea(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
             ->attributes(['data-foo' => ['foo'], 'required']);
         
-        $field->processCreateEdit(action: Action\Edit::new(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString(
             '<textarea data-foo=\'[&quot;foo&quot;]\' required name="name" id="name">Foo</textarea>',
             $field->render()
@@ -82,28 +82,28 @@ class TextareaTest extends AbstractField
     
     public function testProcessIndex()
     {
-        $field = Field\Textarea::new(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
+        $field = new Field\Textarea(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
         
-        $field->processIndexAction(action: Action\Index::new(), field: $field, view: Factory::createView());
+        $field->processIndexAction(action: Action\Index(), field: $field, view: Factory::createView());
         
         $this->assertStringContainsString('Foo', $field->render());
     }
     
     public function testFormatValueIndexAction()
     {
-        $field = Field\Textarea::new(name: 'name')
+        $field = new Field\Textarea(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'index');
         
-        $field->processIndexAction(action: Action\Index::new(), field: $field, view: Factory::createView());
+        $field->processIndexAction(action: Action\Index(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
     }
     
     public function testFormatValueShowAction()
     {
-        $field = Field\Textarea::new(name: 'name')
+        $field = new Field\Textarea(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
@@ -111,10 +111,10 @@ class TextareaTest extends AbstractField
     
     public function testFormatValueShowActionTranslatable()
     {
-        $field = Field\Textarea::new(name: 'name')
+        $field = new Field\Textarea(name: 'name')
             ->translatable()
             ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());

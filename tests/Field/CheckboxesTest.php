@@ -28,23 +28,23 @@ class CheckboxesTest extends AbstractField
 {
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Checkboxes::new(name: 'name');
+        $field = new Field\Checkboxes(name: 'name');
         $this->assertInstanceof(Field\Checkboxes::class, $field);
         $this->assertInstanceof(Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Checkboxes::new(name: 'name'));
-        $this->renderTests(Field\Checkboxes::new(name: 'name'));
+        $this->processTests(new Field\Checkboxes(name: 'name'));
+        $this->renderTests(new Field\Checkboxes(name: 'name'));
         $this->nameTests(Field\Checkboxes::class);
         $this->labelTests(Field\Checkboxes::class);
         $this->groupTests(Field\Checkboxes::class);
-        $this->localeTests(Field\Checkboxes::new(name: 'name'));
-        $this->storableTests(Field\Checkboxes::new(name: 'name'));
-        $this->indexableTests(Field\Checkboxes::new(name: 'name'));
-        $this->creatableTests(Field\Checkboxes::new(name: 'name'));
-        $this->editableTests(Field\Checkboxes::new(name: 'name'));
-        $this->readonlyTests(Field\Text::new(name: 'name'));
-        $this->disabledTests(Field\Text::new(name: 'name'));
-        $this->entityTests(Field\Checkboxes::new(name: 'name'));
+        $this->localeTests(new Field\Checkboxes(name: 'name'));
+        $this->storableTests(new Field\Checkboxes(name: 'name'));
+        $this->indexableTests(new Field\Checkboxes(name: 'name'));
+        $this->creatableTests(new Field\Checkboxes(name: 'name'));
+        $this->editableTests(new Field\Checkboxes(name: 'name'));
+        $this->readonlyTests(new Field\Text(name: 'name'));
+        $this->disabledTests(new Field\Text(name: 'name'));
+        $this->entityTests(new Field\Checkboxes(name: 'name'));
         //$this->validateTests(Field\Checkboxes::class);
         $this->requiredTextTests(Field\Checkboxes::class, withTranslatable: false);
         $this->optionalTextTests(Field\Checkboxes::class, withTranslatable: false);
@@ -60,7 +60,7 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessIndex()
     {
-        $field = Field\Checkboxes::new(name: 'color')
+        $field = new Field\Checkboxes(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => ['red', 'blue']]));
         
@@ -71,11 +71,11 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEditUsingArrayOptions()
     {
-        $field = Field\Checkboxes::new(name: 'name')
+        $field = new Field\Checkboxes(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -88,10 +88,10 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEditUsingClosureOptions()
     {
-        $field = Field\Checkboxes::new(name: 'name')
+        $field = new Field\Checkboxes(name: 'name')
             ->options(fn(CheckboxesColorRepo $repo): array => $repo->findColors());
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -104,12 +104,12 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromEntity()
     {
-        $field = Field\Checkboxes::new(name: 'name')
+        $field = new Field\Checkboxes(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['name' => ['red']]));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -122,11 +122,11 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromSelected()
     {
-        $field = Field\Checkboxes::new(name: 'name')
+        $field = new Field\Checkboxes(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(value: ['red'], action: 'edit');
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -139,7 +139,7 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromSelectedUsingClosureReturningArray()
     {
-        $field = Field\Checkboxes::new(name: 'name')
+        $field = new Field\Checkboxes(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(
                 value: function (ActionInterface $action, FieldInterface $field): null|array {
@@ -148,7 +148,7 @@ class CheckboxesTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -161,7 +161,7 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromSelectedUsingClosureReturningNull()
     {
-        $field = Field\Checkboxes::new(name: 'name')
+        $field = new Field\Checkboxes(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(
                 value: function (ActionInterface $action, FieldInterface $field): null|array {
@@ -171,7 +171,7 @@ class CheckboxesTest extends AbstractField
             );
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -184,13 +184,13 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessCreateEdit()
     {
-        $field = Field\Checkboxes::new(name: 'option.color')
+        $field = new Field\Checkboxes(name: 'option.color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->emptyOption(value: 'none')
             ->setEntity(new Entity(['option' => ['color' => ['red', 'blue']]]));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -203,7 +203,7 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessSave()
     {
-        $field = Field\Checkboxes::new(name: 'color');
+        $field = new Field\Checkboxes(name: 'color');
         $input = new Input(['color' => ['red']]);
         $field->processBeforeSave(field: $field, input: $input);
         $field->processSave(field: $field, input: $input);
@@ -213,7 +213,7 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessSaveEmptyOptionIsRemoved()
     {
-        $field = Field\Checkboxes::new(name: 'color')->emptyOption(value: 'none');
+        $field = new Field\Checkboxes(name: 'color')->emptyOption(value: 'none');
         $input = new Input(['color' => ['none']]);
         $field->processBeforeSave(field: $field, input: $input);
         $field->processSave(field: $field, input: $input);
@@ -223,7 +223,7 @@ class CheckboxesTest extends AbstractField
     
     public function testProcessShowAction()
     {
-        $field = Field\Checkboxes::new(name: 'color')
+        $field = new Field\Checkboxes(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => ['red']]));
         
@@ -233,7 +233,7 @@ class CheckboxesTest extends AbstractField
     
     public function testValidatePasses()
     {
-        $field = Field\Checkboxes::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $field = new Field\Checkboxes(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $validation = Factory::createValidator()->validate(
             data: ['color' => ['blue']],
@@ -245,7 +245,7 @@ class CheckboxesTest extends AbstractField
     
     public function testValidateFailsIfInvalidOption()
     {
-        $field = Field\Checkboxes::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $field = new Field\Checkboxes(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
         $rules = $field->getValidationRulesForAction('create');
         
         $validation = Factory::createValidator()->validate(
@@ -265,11 +265,11 @@ class CheckboxesTest extends AbstractField
     
     public function testValidateResolvesOptionFromClosure()
     {
-        $field = Field\Checkboxes::new(name: 'color')
+        $field = new Field\Checkboxes(name: 'color')
             ->options(fn(CheckboxesColorRepo $repo): array => $repo->findColors());
         
         $input = new Input(['color' => ['blue']]);
-        $action = Action\Update::new()
+        $action = new Action\Update()
             ->setFields(new Field\Fields($field))
             ->setInput($input);
         
@@ -287,7 +287,7 @@ class CheckboxesTest extends AbstractField
     
     public function testValidateRulesAreMerged()
     {
-        $field = Field\Checkboxes::new(name: 'color')->validate('required|minItems:2|maxItems:10');
+        $field = new Field\Checkboxes(name: 'color')->validate('required|minItems:2|maxItems:10');
         $rules = $field->getValidationRulesForAction('create');
         
         $this->assertSame('required|minItems:2|maxItems:10', $rules['color'][0] ?? null);
@@ -296,7 +296,7 @@ class CheckboxesTest extends AbstractField
     
     public function testFormatValueIndexAction()
     {
-        $field = Field\Checkboxes::new(name: 'color')
+        $field = new Field\Checkboxes(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => ['red']]))
             ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
@@ -307,7 +307,7 @@ class CheckboxesTest extends AbstractField
     
     public function testFormatValueShowAction()
     {
-        $field = Field\Checkboxes::new(name: 'color')
+        $field = new Field\Checkboxes(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => ['red']]))
             ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');

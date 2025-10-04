@@ -27,7 +27,7 @@ class DateTest extends TestCase
         
         $this->assertSame(
             'Wed, 16. April 2025',
-            (string)$date(value: '2025-04-16', field: Field\Text::new(name: 'name'))
+            (string)$date(value: '2025-04-16', field: new Field\Text(name: 'name'))
         );
     }
     
@@ -37,7 +37,7 @@ class DateTest extends TestCase
         
         $this->assertSame(
             'Wed, 16. April 2025',
-            (string)$date(value: '2025-04-16', field: Field\Text::new(name: 'name')->type('date'))
+            (string)$date(value: '2025-04-16', field: new Field\Text(name: 'name')->type('date'))
         );
     }
     
@@ -47,7 +47,7 @@ class DateTest extends TestCase
         
         $this->assertSame(
             'So., 16. März 2025, 00:00',
-            (string)$date(value: '2025-03-16', field: Field\Text::new(name: 'name'))
+            (string)$date(value: '2025-03-16', field: new Field\Text(name: 'name'))
         );
     }
     
@@ -57,7 +57,7 @@ class DateTest extends TestCase
         
         $this->assertSame(
             'Wed, 16. April 2025, 00:00',
-            (string)$date(value: '2025-04-16', field: Field\Text::new(name: 'name'))
+            (string)$date(value: '2025-04-16', field: new Field\Text(name: 'name'))
         );
     }
     
@@ -67,7 +67,7 @@ class DateTest extends TestCase
         
         $this->assertSame(
             '<span class="crud-values"><span>Wed, 16. April 2025, 00:00</span><span>Thu, 17. April 2025, 00:00</span></span>',
-            (string)$date(value: ['2025-04-16', '2025-04-17'], field: Field\Text::new(name: 'name'))
+            (string)$date(value: ['2025-04-16', '2025-04-17'], field: new Field\Text(name: 'name'))
         );
     }
     
@@ -77,7 +77,7 @@ class DateTest extends TestCase
         
         $this->assertSame(
             '<span class="crud-values"></span>',
-            (string)$date(value: [[]], field: Field\Text::new(name: 'name'))
+            (string)$date(value: [[]], field: new Field\Text(name: 'name'))
         );
     }
 
@@ -87,12 +87,12 @@ class DateTest extends TestCase
         
         $this->assertSame(
             '',
-            (string)$date(value: '', field: Field\Text::new(name: 'name'))
+            (string)$date(value: '', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             '',
-            (string)$date(value: [], field: Field\Text::new(name: 'name'))
+            (string)$date(value: [], field: new Field\Text(name: 'name'))
         );
     }
 }

@@ -36,21 +36,21 @@ class ItemsTest extends AbstractField
     
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Items::new(name: 'name');
+        $field = new Field\Items(name: 'name');
         $this->assertInstanceof(Field\Items::class, $field);
         $this->assertInstanceof(Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Items::new(name: 'name'));
-        $this->renderTests(Field\Items::new(name: 'name'));
+        $this->processTests(new Field\Items(name: 'name'));
+        $this->renderTests(new Field\Items(name: 'name'));
         $this->nameTests(Field\Items::class);
         $this->labelTests(Field\Items::class);
         $this->groupTests(Field\Items::class);
-        $this->localeTests(Field\Items::new(name: 'name'));
-        $this->storableTests(Field\Items::new(name: 'name'));
-        $this->indexableTests(Field\Items::new(name: 'name'));
-        $this->creatableTests(Field\Items::new(name: 'name'));
-        $this->editableTests(Field\Items::new(name: 'name'));
-        $this->entityTests(Field\Items::new(name: 'name'));
+        $this->localeTests(new Field\Items(name: 'name'));
+        $this->storableTests(new Field\Items(name: 'name'));
+        $this->indexableTests(new Field\Items(name: 'name'));
+        $this->creatableTests(new Field\Items(name: 'name'));
+        $this->editableTests(new Field\Items(name: 'name'));
+        $this->entityTests(new Field\Items(name: 'name'));
         $this->validateTests(Field\Items::class, withTranslatable: false);
         $this->requiredTextTests(Field\Items::class, withTranslatable: false);
         $this->optionalTextTests(Field\Items::class, withTranslatable: false);
@@ -75,15 +75,15 @@ class ItemsTest extends AbstractField
     
     public function testProcessIndex()
     {
-        $field = Field\Items::new(name: 'name')
+        $field = new Field\Items(name: 'name')
             ->fields(
-                Field\Text::new('price_net', 'Price Net')
+                new Field\Text('price_net', 'Price Net')
                     ->type('number')
                     ->attributes(['step' => 'any'])
                     ->validate('decimal'),
             );
         
-        $action = Action\Index::new()
+        $action = new Action\Index()
             ->setFields(new Field\Fields($field))
             ->setEntity(new Entity(['name' => [1 => ['price_net' => '5.00'], 2 => ['price_net' => '7.00']]]));
         
@@ -99,15 +99,15 @@ class ItemsTest extends AbstractField
 
     public function testProcessCreate()
     {
-        $field = Field\Items::new(name: 'name')
+        $field = new Field\Items(name: 'name')
             ->fields(
-                Field\Text::new('price_net', 'Price Net')
+                new Field\Text('price_net', 'Price Net')
                     ->type('number')
                     ->attributes(['step' => 'any'])
                     ->validate('decimal'),
             );
         
-        $action = Action\Create::new()->setFields(new Field\Fields($field));
+        $action = new Action\Create()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $rendered = $action->fields()->get(name: $field->name())->render();
@@ -118,16 +118,16 @@ class ItemsTest extends AbstractField
     
     public function testProcessCreateWithDefaultItems()
     {
-        $field = Field\Items::new(name: 'name')
+        $field = new Field\Items(name: 'name')
             ->fields(
-                Field\Text::new('price_net', 'Price Net')
+                new Field\Text('price_net', 'Price Net')
                     ->type('number')
                     ->attributes(['step' => 'any'])
                     ->validate('decimal'),
             )
             ->defaultItems(num: 1);
         
-        $action = Action\Create::new()->setFields(new Field\Fields($field));
+        $action = new Action\Create()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $rendered = $action->fields()->get(name: $field->name())->render();
@@ -140,16 +140,16 @@ class ItemsTest extends AbstractField
     
     public function testProcessEdit()
     {
-        $field = Field\Items::new(name: 'name')
+        $field = new Field\Items(name: 'name')
             ->fields(
-                Field\Text::new('price_net', 'Price Net')
+                new Field\Text('price_net', 'Price Net')
                     ->type('number')
                     ->attributes(['step' => 'any'])
                     ->validate('decimal'),
             )
             ->defaultItems(num: 1);
         
-        $action = Action\Create::new()
+        $action = new Action\Create()
             ->setFields(new Field\Fields($field))
             ->setEntity(new Entity(['name' => [1 => ['price_net' => '5.00'], 2 => ['price_net' => '7.00']]]));
         
@@ -169,16 +169,16 @@ class ItemsTest extends AbstractField
     
     public function testProcessStore()
     {
-        $field = Field\Items::new(name: 'name')
+        $field = new Field\Items(name: 'name')
             ->fields(
-                Field\Text::new('price_net', 'Price Net')
+                new Field\Text('price_net', 'Price Net')
                     ->type('number')
                     ->attributes(['step' => 'any'])
                     ->validate('decimal'),
             )
             ->defaultItems(num: 1);
         
-        $action = Action\Create::new()
+        $action = new Action\Create()
             ->setFields(new Field\Fields($field))
             ->setEntity(new Entity(['name' => [1 => ['price_net' => '5.00'], 2 => ['price_net' => '7.00']]]));
         

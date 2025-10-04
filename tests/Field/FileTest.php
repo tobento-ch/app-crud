@@ -36,20 +36,20 @@ class FileTest extends AbstractField
     
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\File::new(name: 'name');
+        $field = new Field\File(name: 'name');
         $this->assertInstanceof(Field\File::class, $field);
         $this->assertInstanceof(Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\File::new(name: 'name'));
-        $this->renderTests(Field\File::new(name: 'name'));
+        $this->processTests(new Field\File(name: 'name'));
+        $this->renderTests(new Field\File(name: 'name'));
         $this->nameTests(Field\File::class);
         $this->groupTests(Field\File::class);
-        $this->localeTests(Field\File::new(name: 'name'));
-        $this->storableTests(Field\File::new(name: 'name'));
-        $this->indexableTests(Field\File::new(name: 'name'));
-        $this->creatableTests(Field\File::new(name: 'name'));
-        $this->editableTests(Field\File::new(name: 'name'));
-        $this->entityTests(Field\File::new(name: 'name'));
+        $this->localeTests(new Field\File(name: 'name'));
+        $this->storableTests(new Field\File(name: 'name'));
+        $this->indexableTests(new Field\File(name: 'name'));
+        $this->creatableTests(new Field\File(name: 'name'));
+        $this->editableTests(new Field\File(name: 'name'));
+        $this->entityTests(new Field\File(name: 'name'));
         $this->requiredTextTests(Field\File::class, withTranslatable: false);
         $this->optionalTextTests(Field\File::class, withTranslatable: false);
         $this->infoTextTests(Field\File::class);
@@ -65,21 +65,21 @@ class FileTest extends AbstractField
     
     public function labelTests(string $field)
     {
-        $this->assertSame('Name', $field::new(name: '')->label());
-        $this->assertSame('NAME', $field::new(name: 'name', label: 'NAME')->label());
+        $this->assertSame('Name', $field(name: '')->label());
+        $this->assertSame('NAME', $field(name: 'name', label: 'NAME')->label());
     }
     
     public function testThrowsSettingReadonlyAsUnsupported()
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        Field\File::new(name: 'name')->readonly();
+        new Field\File(name: 'name')->readonly();
     }
     
     public function testThrowsSettingDisabledAsUnsupported()
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        Field\File::new(name: 'name')->disabled();
+        new Field\File(name: 'name')->disabled();
     }
 }

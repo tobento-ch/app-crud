@@ -36,20 +36,20 @@ class FilesTest extends AbstractField
     
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Files::new(name: 'name');
+        $field = new Field\Files(name: 'name');
         $this->assertInstanceof(Field\Files::class, $field);
         $this->assertInstanceof(Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Files::new(name: 'name'));
-        $this->renderTests(Field\Files::new(name: 'name'));
+        $this->processTests(new Field\Files(name: 'name'));
+        $this->renderTests(new Field\Files(name: 'name'));
         $this->nameTests(Field\Files::class);
         $this->groupTests(Field\Files::class);
-        $this->localeTests(Field\Files::new(name: 'name'));
-        $this->storableTests(Field\Files::new(name: 'name'));
-        $this->indexableTests(Field\Files::new(name: 'name'));
-        $this->creatableTests(Field\Files::new(name: 'name'));
-        $this->editableTests(Field\Files::new(name: 'name'));
-        $this->entityTests(Field\Files::new(name: 'name'));
+        $this->localeTests(new Field\Files(name: 'name'));
+        $this->storableTests(new Field\Files(name: 'name'));
+        $this->indexableTests(new Field\Files(name: 'name'));
+        $this->creatableTests(new Field\Files(name: 'name'));
+        $this->editableTests(new Field\Files(name: 'name'));
+        $this->entityTests(new Field\Files(name: 'name'));
         $this->requiredTextTests(Field\Files::class, withTranslatable: false);
         $this->optionalTextTests(Field\Files::class, withTranslatable: false);
         $this->infoTextTests(Field\Files::class);
@@ -67,13 +67,13 @@ class FilesTest extends AbstractField
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        Field\Files::new(name: 'name')->readonly();
+        new Field\Files(name: 'name')->readonly();
     }
     
     public function testThrowsSettingDisabledAsUnsupported()
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        Field\Files::new(name: 'name')->disabled();
+        new Field\Files(name: 'name')->disabled();
     }
 }

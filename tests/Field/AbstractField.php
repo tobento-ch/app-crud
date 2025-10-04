@@ -44,37 +44,37 @@ abstract class AbstractField extends TestCase
 
     public function renameTests(string $field)
     {
-        $this->assertSame('new', $field::new(name: 'name')->rename('new')->name());
+        $this->assertSame('new', new $field(name: 'name')->rename('new')->name());
     }
     
     public function nameTests(string $field)
     {
-        $this->assertSame('name', $field::new(name: 'name')->name());
+        $this->assertSame('name', new $field(name: 'name')->name());
     }
     
     public function labelTests(string $field)
     {
-        $this->assertSame('Name', $field::new(name: 'name')->label());
-        $this->assertSame('NAME', $field::new(name: 'name', label: 'NAME')->label());
+        $this->assertSame('Name', new $field(name: 'name')->label());
+        $this->assertSame('NAME', new $field(name: 'name', label: 'NAME')->label());
     }
     
     public function groupTests(string $field)
     {
-        $field = $field::new(name: 'name')->group('Group');
+        $field = new $field(name: 'name')->group('Group');
         $this->assertSame('Group', $field->groupName());
         $this->assertSame('group', $field->groupId());
         
-        $field = $field::new(name: 'name')->group('Group Name');
+        $field = new $field(name: 'name')->group('Group Name');
         $this->assertSame('Group Name', $field->groupName());
         $this->assertSame('group-name', $field->groupId());
     }
     
     public function parentTests(string $field)
     {
-        $field = $field::new(name: 'name');
+        $field = new $field(name: 'name');
         $this->assertSame(null, $field->parentField());
         
-        $field = $field::new(name: 'name')->parent('field');
+        $field = new $field(name: 'name')->parent('field');
         $this->assertSame('field', $field->parentField());
     }
     
@@ -146,7 +146,7 @@ abstract class AbstractField extends TestCase
         $field->readonly(function(ActionInterface $action, FieldInterface $field) {
             return true;
         });
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -173,7 +173,7 @@ abstract class AbstractField extends TestCase
         $field->disabled(function(ActionInterface $action, FieldInterface $field) {
             return true;
         });
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -191,7 +191,7 @@ abstract class AbstractField extends TestCase
     
     public function validateTests(string $fieldName, mixed $defaultValidate = null, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         if (!is_null($defaultValidate)) {
             $this->assertSame([$defaultValidate], $field->getValidate());
         } else {
@@ -201,7 +201,7 @@ abstract class AbstractField extends TestCase
         $this->assertSame(['store' => 'required|string'], $field->validate(store: 'required|string')->getValidate());
         
         // action rules:
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         if (!is_null($defaultValidate)) {
             $this->assertSame(['name' => $defaultValidate], $field->getValidationRulesForAction(action: 'undefined'));
         } else {
@@ -228,14 +228,14 @@ abstract class AbstractField extends TestCase
         }
         
         // translatable:
-        $field = $fieldName::new('name')->translatable();
+        $field = new $fieldName('name')->translatable();
         
         $this->assertSame(
             ['name' => 'array', 'name.en' => 'required|string'],
             $field->validate(update: 'required|string')->getValidationRulesForAction(action: 'update')
         );
         
-        $field = $fieldName::new('name')->translatable()->setLocales(['en' => 'EN', 'de' => 'DE']);
+        $field = new $fieldName('name')->translatable()->setLocales(['en' => 'EN', 'de' => 'DE']);
         
         $this->assertSame(
             ['name' => 'array', 'name.en' => 'required|string', 'name.de' => 'required|string'],
@@ -245,20 +245,20 @@ abstract class AbstractField extends TestCase
     
     public function requiredTextTests(string $fieldName, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $this->assertSame('', $field->getRequiredText(action: 'edit'));
         
-        $field = $fieldName::new('name')->requiredText('required');
+        $field = new $fieldName('name')->requiredText('required');
         $this->assertSame('required', $field->getRequiredText(action: 'create'));
         $this->assertSame('required', $field->getRequiredText(action: 'edit'));
         $this->assertSame('', $field->getRequiredText(action: 'foo'));
         
         // Test automatically adds required if rule as required.
-        $field = $fieldName::new('name')->validate('required|string');
+        $field = new $fieldName('name')->validate('required|string');
         $this->assertSame('required', $field->getRequiredText(action: 'create'));
         $this->assertSame('required', $field->getRequiredText(action: 'edit'));
         
-        $field = $fieldName::new('name')->validate(store: 'required|string');
+        $field = new $fieldName('name')->validate(store: 'required|string');
         $this->assertSame('required', $field->getRequiredText(action: 'create'));
         $this->assertSame('', $field->getRequiredText(action: 'edit'));
         
@@ -267,25 +267,25 @@ abstract class AbstractField extends TestCase
         }
         
         // when translatable:
-        $field = $fieldName::new('name')->translatable()->validate('required|string');
+        $field = new $fieldName('name')->translatable()->validate('required|string');
         $this->assertSame('required', $field->getRequiredText(action: 'create'));
     }
     
     public function optionalTextTests(string $fieldName, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $this->assertSame('optional', $field->getOptionalText(action: 'edit'));
         
-        $field = $fieldName::new('name')->optionalText('optional');
+        $field = new $fieldName('name')->optionalText('optional');
         $this->assertSame('optional', $field->getOptionalText(action: 'create'));
         $this->assertSame('optional', $field->getOptionalText(action: 'edit'));
         
         // Test should not automaically add optional if rule has required.
-        $field = $fieldName::new('name')->validate('required|string');
+        $field = new $fieldName('name')->validate('required|string');
         $this->assertSame('', $field->getOptionalText(action: 'create'));
         $this->assertSame('', $field->getOptionalText(action: 'edit'));
         
-        $field = $fieldName::new('name')->validate(store: 'required|string');
+        $field = new $fieldName('name')->validate(store: 'required|string');
         $this->assertSame('', $field->getOptionalText(action: 'create'));
         $this->assertSame('optional', $field->getOptionalText(action: 'edit'));
         
@@ -294,31 +294,31 @@ abstract class AbstractField extends TestCase
         }
         
         // when translatable:
-        $field = $fieldName::new('name')->translatable()->validate('required|string');
+        $field = new $fieldName('name')->translatable()->validate('required|string');
         $this->assertSame('', $field->getOptionalText(action: 'create'));
     }
     
     public function infoTextTests(string $fieldName)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $this->assertSame('', $field->getInfoText(action: 'edit'));
         
-        $field = $fieldName::new('name')->infoText('lorem');
+        $field = new $fieldName('name')->infoText('lorem');
         $this->assertSame('lorem', $field->getInfoText(action: 'create'));
         $this->assertSame('lorem', $field->getInfoText(action: 'edit'));
     }
 
     public function processIndexTests(string $fieldName, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $field->processIndex(field: $field);
         $this->assertSame('', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => 'foo']));
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => 'foo']));
         $field->processIndex(field: $field);
         $this->assertSame('foo', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => '<p>foo</p>']));
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => '<p>foo</p>']));
         $field->processIndex(field: $field);
         $this->assertSame('&lt;p&gt;foo&lt;/p&gt;', $field->render());
         
@@ -327,27 +327,27 @@ abstract class AbstractField extends TestCase
         }
         
         // translatable:
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable();
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable();
         $field->processIndex(field: $field);
         $this->assertSame('foo', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable()->setLocale('de');
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable()->setLocale('de');
         $field->processIndex(field: $field);
         $this->assertSame('', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => ['de' => 'foo']]))->translatable()->setLocale('de');
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => ['de' => 'foo']]))->translatable()->setLocale('de');
         $field->processIndex(field: $field);
         $this->assertSame('foo', $field->render());
     }
     
     public function processStoreTests(string $fieldName, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $input = new Input();
         $field->processStore(field: $field, input: $input);
         $this->assertSame(null, $input->get('name'));
         
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $input = new Input(['name' => 'foo']);
         $field->processStore(field: $field, input: $input);
         $this->assertSame('foo', $input->get('name'));
@@ -357,18 +357,18 @@ abstract class AbstractField extends TestCase
         }
         
         // translatable:
-        $field = $fieldName::new('name')->translatable();
+        $field = new $fieldName('name')->translatable();
         $input = new Input(['name' => ['en' => 'foo', 'de' => 'bar']]);
         $field->processStore(field: $field, input: $input);
         $this->assertSame(['en' => 'foo'], $input->get('name'));
         
-        $field = $fieldName::new('name')->translatable()->setLocales(['en' => 'EN', 'de' => 'DE']);
+        $field = new $fieldName('name')->translatable()->setLocales(['en' => 'EN', 'de' => 'DE']);
         $input = new Input(['name' => ['en' => 'foo', 'de' => 'bar']]);
         $field->processStore(field: $field, input: $input);
         $this->assertSame(['en' => 'foo', 'de' => 'bar'], $input->get('name'));
         
         // maps to default locales if not array input:
-        $field = $fieldName::new('name')->translatable();
+        $field = new $fieldName('name')->translatable();
         $input = new Input(['name' => 'foo']);
         $field->processStore(field: $field, input: $input);
         $this->assertSame(['en' => 'foo'], $input->get('name'));
@@ -376,12 +376,12 @@ abstract class AbstractField extends TestCase
     
     public function processUpdateTests(string $fieldName, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $input = new Input();
         $field->processUpdate(field: $field, input: $input);
         $this->assertSame(null, $input->get('name'));
         
-        $field = $fieldName::new('name');
+        $field = new $fieldName('name');
         $input = new Input(['name' => 'foo']);
         $field->processUpdate(field: $field, input: $input);
         $this->assertSame('foo', $input->get('name'));
@@ -391,18 +391,18 @@ abstract class AbstractField extends TestCase
         }
         
         // translatable:
-        $field = $fieldName::new('name')->translatable();
+        $field = new $fieldName('name')->translatable();
         $input = new Input(['name' => ['en' => 'foo', 'de' => 'bar']]);
         $field->processUpdate(field: $field, input: $input);
         $this->assertSame(['en' => 'foo'], $input->get('name'));
         
-        $field = $fieldName::new('name')->translatable()->setLocales(['en' => 'EN', 'de' => 'DE']);
+        $field = new $fieldName('name')->translatable()->setLocales(['en' => 'EN', 'de' => 'DE']);
         $input = new Input(['name' => ['en' => 'foo', 'de' => 'bar']]);
         $field->processUpdate(field: $field, input: $input);
         $this->assertSame(['en' => 'foo', 'de' => 'bar'], $input->get('name'));
         
         // maps to default locales if not array input:
-        $field = $fieldName::new('name')->translatable();
+        $field = new $fieldName('name')->translatable();
         $input = new Input(['name' => 'foo']);
         $field->processUpdate(field: $field, input: $input);
         $this->assertSame(['en' => 'foo'], $input->get('name'));
@@ -410,15 +410,15 @@ abstract class AbstractField extends TestCase
     
     public function processShowTests(string $fieldName, bool $withTranslatable = true)
     {
-        $field = $fieldName::new('name')->setEntity(new Entity([]));
+        $field = new $fieldName('name')->setEntity(new Entity([]));
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => 'foo']));
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => 'foo']));
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('foo', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => '<p>foo</p>']));
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => '<p>foo</p>']));
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('&lt;p&gt;foo&lt;/p&gt;', $field->render());
         
@@ -427,15 +427,15 @@ abstract class AbstractField extends TestCase
         }
         
         // translatable:
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable();
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable();
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('foo', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable();
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => ['en' => 'foo']]))->translatable();
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('foo', $field->render());
         
-        $field = $fieldName::new('name')->setEntity(new Entity(['name' => ['de' => 'foo']]))->translatable();
+        $field = new $fieldName('name')->setEntity(new Entity(['name' => ['de' => 'foo']]))->translatable();
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('', $field->render());
     }

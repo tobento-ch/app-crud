@@ -47,10 +47,10 @@ class CrudWriteRepositoryTest extends \Tobento\App\Crud\Testing\AbstractCrudTest
                 storage: $storage->new(),
                 table: 'articles',
                 columns: [
-                    Column\Id::new(),
-                    Column\Text::new('name'),
-                    Column\Translatable::new('title'),
-                    Column\Text::new('desc'),
+                    new Column\Id(),
+                    new Column\Text('name'),
+                    new Column\Translatable('title'),
+                    new Column\Text('desc'),
                 ],
             );
         });
@@ -94,8 +94,8 @@ class CrudWriteRepositoryTest extends \Tobento\App\Crud\Testing\AbstractCrudTest
         $repoNew = $repo->onlyFields('id', 'title', 'unknown');
         
         $this->assertFalse($repo === $repoNew);
-        $this->assertSame(4, $repo->getConfiguredFields(Action\Create::new())->count());
-        $this->assertSame(2, $repoNew->getConfiguredFields(Action\Create::new())->count());
+        $this->assertSame(4, $repo->getConfiguredFields(new Action\Create())->count());
+        $this->assertSame(2, $repoNew->getConfiguredFields(new Action\Create())->count());
     }
     
     public function testExceptFieldsMethod()
@@ -105,8 +105,8 @@ class CrudWriteRepositoryTest extends \Tobento\App\Crud\Testing\AbstractCrudTest
         $repoNew = $repo->exceptFields('title', 'unknown');
         
         $this->assertFalse($repo === $repoNew);
-        $this->assertSame(4, $repo->getConfiguredFields(Action\Create::new())->count());
-        $this->assertSame(3, $repoNew->getConfiguredFields(Action\Create::new())->count());
+        $this->assertSame(4, $repo->getConfiguredFields(new Action\Create())->count());
+        $this->assertSame(3, $repoNew->getConfiguredFields(new Action\Create())->count());
     }
     
     public function testWithFieldsMethod()
@@ -116,8 +116,8 @@ class CrudWriteRepositoryTest extends \Tobento\App\Crud\Testing\AbstractCrudTest
         $repoNew = $repo->withFields(new Fields());
         
         $this->assertFalse($repo === $repoNew);
-        $this->assertSame(4, $repo->getConfiguredFields(Action\Create::new())->count());
-        $this->assertSame(0, $repoNew->getConfiguredFields(Action\Create::new())->count());
+        $this->assertSame(4, $repo->getConfiguredFields(new Action\Create())->count());
+        $this->assertSame(0, $repoNew->getConfiguredFields(new Action\Create())->count());
     }
     
     public function testWithFieldsMethodUsingClosure()
@@ -129,8 +129,8 @@ class CrudWriteRepositoryTest extends \Tobento\App\Crud\Testing\AbstractCrudTest
         });
         
         $this->assertFalse($repo === $repoNew);
-        $this->assertSame(4, $repo->getConfiguredFields(Action\Create::new())->count());
-        $this->assertSame(2, $repoNew->getConfiguredFields(Action\Create::new())->count());
+        $this->assertSame(4, $repo->getConfiguredFields(new Action\Create())->count());
+        $this->assertSame(2, $repoNew->getConfiguredFields(new Action\Create())->count());
     }
     
     public function testOnlyActionsMethod()

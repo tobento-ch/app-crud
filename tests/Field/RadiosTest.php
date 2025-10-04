@@ -16,7 +16,7 @@ namespace Tobento\App\Crud\Test\Field;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
-use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\new Field\FieldInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\Input;
@@ -28,39 +28,39 @@ class RadiosTest extends AbstractField
 {
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Radios::new(name: 'name');
-        $this->assertInstanceof(Field\Radios::class, $field);
-        $this->assertInstanceof(Field\FieldInterface::class, $field);
+        $field = new Field\Radios(name: 'name');
+        $this->assertInstanceof(new Field\Radios::class, $field);
+        $this->assertInstanceof(new Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Radios::new(name: 'name'));
-        $this->renderTests(Field\Radios::new(name: 'name'));
-        $this->nameTests(Field\Radios::class);
-        $this->labelTests(Field\Radios::class);
-        $this->groupTests(Field\Radios::class);
-        $this->localeTests(Field\Radios::new(name: 'name'));
-        $this->storableTests(Field\Radios::new(name: 'name'));
-        $this->indexableTests(Field\Radios::new(name: 'name'));
-        $this->creatableTests(Field\Radios::new(name: 'name'));
-        $this->editableTests(Field\Radios::new(name: 'name'));
-        $this->readonlyTests(Field\Text::new(name: 'name'));
-        $this->disabledTests(Field\Text::new(name: 'name'));
-        $this->entityTests(Field\Radios::new(name: 'name'));
-        //$this->validateTests(Field\Radios::class);
-        $this->requiredTextTests(Field\Radios::class, withTranslatable: false);
-        $this->optionalTextTests(Field\Radios::class, withTranslatable: false);
-        $this->infoTextTests(Field\Radios::class);
+        $this->processTests(new Field\Radios(name: 'name'));
+        $this->renderTests(new Field\Radios(name: 'name'));
+        $this->nameTests(new Field\Radios::class);
+        $this->labelTests(new Field\Radios::class);
+        $this->groupTests(new Field\Radios::class);
+        $this->localeTests(new Field\Radios(name: 'name'));
+        $this->storableTests(new Field\Radios(name: 'name'));
+        $this->indexableTests(new Field\Radios(name: 'name'));
+        $this->creatableTests(new Field\Radios(name: 'name'));
+        $this->editableTests(new Field\Radios(name: 'name'));
+        $this->readonlyTests(new Field\Text(name: 'name'));
+        $this->disabledTests(new Field\Text(name: 'name'));
+        $this->entityTests(new Field\Radios(name: 'name'));
+        //$this->validateTests(new Field\Radios::class);
+        $this->requiredTextTests(new Field\Radios::class, withTranslatable: false);
+        $this->optionalTextTests(new Field\Radios::class, withTranslatable: false);
+        $this->infoTextTests(new Field\Radios::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processStoreTests(Field\Radios::class, withTranslatable: false);
-        $this->processUpdateTests(Field\Radios::class, withTranslatable: false);
-        $this->processShowTests(Field\Radios::class, withTranslatable: false);
+        $this->processStoreTests(new Field\Radios::class, withTranslatable: false);
+        $this->processUpdateTests(new Field\Radios::class, withTranslatable: false);
+        $this->processShowTests(new Field\Radios::class, withTranslatable: false);
     }
     
     public function testProcessIndex()
     {
-        $field = Field\Radios::new(name: 'color')
+        $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']));
         
@@ -71,11 +71,11 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditUsingArrayOptions()
     {
-        $field = Field\Radios::new(name: 'name')
+        $field = new Field\Radios(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -88,10 +88,10 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditUsingClosureOptions()
     {
-        $field = Field\Radios::new(name: 'name')
+        $field = new Field\Radios(name: 'name')
             ->options(fn(RadiosColorRepo $repo): array => $repo->findColors());
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = Action\Edit()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -104,12 +104,12 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromEntity()
     {
-        $field = Field\Radios::new(name: 'name')
+        $field = new Field\Radios(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['name' => 'red']));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -122,11 +122,11 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromSelected()
     {
-        $field = Field\Radios::new(name: 'name')
+        $field = new Field\Radios(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(value: 'red', action: 'edit');
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = Action\Edit()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -139,7 +139,7 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromSelectedUsingClosureReturningString()
     {
-        $field = Field\Radios::new(name: 'name')
+        $field = new Field\Radios(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(
                 value: function (ActionInterface $action, FieldInterface $field): null|string {
@@ -148,7 +148,7 @@ class RadiosTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = Action\Edit()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -161,7 +161,7 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditSetsSelectedFromSelectedUsingClosureReturningNull()
     {
-        $field = Field\Radios::new(name: 'name')
+        $field = new Field\Radios(name: 'name')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(
                 value: function (ActionInterface $action, FieldInterface $field): null|string {
@@ -170,7 +170,7 @@ class RadiosTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = Action\Edit()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -183,12 +183,12 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEdit()
     {
-        $field = Field\Radios::new(name: 'option.color')
+        $field = new Field\Radios(name: 'option.color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['option' => ['color' => 'red']]));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -201,13 +201,13 @@ class RadiosTest extends AbstractField
     
     public function testProcessCreateEditDisplayInline()
     {
-        $field = Field\Radios::new(name: 'color')
+        $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->displayInline()
             ->setEntity(new Entity(['color' => 'red']));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -220,7 +220,7 @@ class RadiosTest extends AbstractField
     
     public function testProcessSave()
     {
-        $field = Field\Radios::new(name: 'color');
+        $field = new Field\Radios(name: 'color');
         $input = new Input(['color' => 'red']);
         $field->processSave(field: $field, input: $input);
         
@@ -229,7 +229,7 @@ class RadiosTest extends AbstractField
     
     public function testProcessShowAction()
     {
-        $field = Field\Radios::new(name: 'color')
+        $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']));
         
@@ -239,7 +239,7 @@ class RadiosTest extends AbstractField
     
     public function testValidatePasses()
     {
-        $field = Field\Radios::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $field = new Field\Radios(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $validation = Factory::createValidator()->validate(
             data: ['color' => 'blue'],
@@ -251,7 +251,7 @@ class RadiosTest extends AbstractField
     
     public function testValidateFailsIfInvalidOption()
     {
-        $field = Field\Radios::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $field = new Field\Radios(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']);
         $rules = $field->getValidationRulesForAction('create');
         
         $validation = Factory::createValidator()->validate(
@@ -271,12 +271,12 @@ class RadiosTest extends AbstractField
     
     public function testValidateResolvesOptionFromClosure()
     {
-        $field = Field\Radios::new(name: 'color')
+        $field = new Field\Radios(name: 'color')
             ->options(fn(RadiosColorRepo $repo): array => $repo->findColors());
         
         $input = new Input(['color' => 'blue']);
-        $action = Action\Update::new()
-            ->setFields(new Field\Fields($field))
+        $action = Action\Update()
+            ->setFields(new new Field\Fields($field))
             ->setInput($input);
         
         $actionProcessor = Factory::createActionProcessor();
@@ -301,7 +301,7 @@ class RadiosTest extends AbstractField
     
     public function testValidateRulesAreMerged()
     {
-        $field = Field\Radios::new(name: 'color')->validate('required');
+        $field = new Field\Radios(name: 'color')->validate('required');
         $rules = $field->getValidationRulesForAction('create');
         
         $this->assertSame('required', $rules['color'][0] ?? null);
@@ -310,10 +310,10 @@ class RadiosTest extends AbstractField
     
     public function testFormatValueIndexAction()
     {
-        $field = Field\Radios::new(name: 'color')
+        $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'index');
         
         $field->processIndex(field: $field);
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
@@ -321,10 +321,10 @@ class RadiosTest extends AbstractField
     
     public function testFormatValueShowAction()
     {
-        $field = Field\Radios::new(name: 'color')
+        $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());

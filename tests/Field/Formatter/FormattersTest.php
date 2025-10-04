@@ -31,7 +31,7 @@ class FormattersTest extends TestCase
         
         $this->assertSame(
             '<span class="text-700">Wed, 16. April 2025, 00:00</span>',
-            (string)$formatters(value: '2025-04-16', field: Field\Text::new(name: 'name'))
+            (string)$formatters(value: '2025-04-16', field: new Field\Text(name: 'name'))
         );
     }
     
@@ -41,12 +41,12 @@ class FormattersTest extends TestCase
         
         $this->assertSame(
             'foo',
-            $formatters(value: 'foo', field: Field\Text::new(name: 'name'))
+            $formatters(value: 'foo', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
             ['foo'],
-            $formatters(value: ['foo'], field: Field\Text::new(name: 'name'))
+            $formatters(value: ['foo'], field: new Field\Text(name: 'name'))
         );
     }
 }

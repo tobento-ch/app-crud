@@ -16,7 +16,7 @@ namespace Tobento\App\Crud\Test\Field;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
-use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\new Field\FieldInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\Input;
@@ -33,47 +33,47 @@ class OptionsTest extends AbstractField
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('name'),
-                Column\Text::new('type'),
+                Column\Id(),
+                Column\Text('name'),
+                Column\Text('type'),
             ],
         );
     }
     
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Options::new(name: 'name');
-        $this->assertInstanceof(Field\Options::class, $field);
-        $this->assertInstanceof(Field\FieldInterface::class, $field);
+        $field = new Field\Options(name: 'name');
+        $this->assertInstanceof(new Field\Options::class, $field);
+        $this->assertInstanceof(new Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Options::new(name: 'name'));
-        $this->renderTests(Field\Options::new(name: 'name'));
-        $this->nameTests(Field\Options::class);
-        $this->labelTests(Field\Options::class);
-        $this->groupTests(Field\Options::class);
-        $this->localeTests(Field\Options::new(name: 'name'));
-        $this->storableTests(Field\Options::new(name: 'name'));
-        $this->indexableTests(Field\Options::new(name: 'name'));
-        $this->creatableTests(Field\Options::new(name: 'name'));
-        $this->editableTests(Field\Options::new(name: 'name'));
-        $this->readonlyTests(Field\Text::new(name: 'name'));
-        $this->disabledTests(Field\Text::new(name: 'name'));
-        $this->entityTests(Field\Options::new(name: 'name'));
-        $this->requiredTextTests(Field\Options::class, withTranslatable: false);
-        $this->optionalTextTests(Field\Options::class, withTranslatable: false);
-        $this->infoTextTests(Field\Options::class);
+        $this->processTests(new Field\Options(name: 'name'));
+        $this->renderTests(new Field\Options(name: 'name'));
+        $this->nameTests(new Field\Options::class);
+        $this->labelTests(new Field\Options::class);
+        $this->groupTests(new Field\Options::class);
+        $this->localeTests(new Field\Options(name: 'name'));
+        $this->storableTests(new Field\Options(name: 'name'));
+        $this->indexableTests(new Field\Options(name: 'name'));
+        $this->creatableTests(new Field\Options(name: 'name'));
+        $this->editableTests(new Field\Options(name: 'name'));
+        $this->readonlyTests(new Field\Text(name: 'name'));
+        $this->disabledTests(new Field\Text(name: 'name'));
+        $this->entityTests(new Field\Options(name: 'name'));
+        $this->requiredTextTests(new Field\Options::class, withTranslatable: false);
+        $this->optionalTextTests(new Field\Options::class, withTranslatable: false);
+        $this->infoTextTests(new Field\Options::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processStoreTests(Field\Options::class, withTranslatable: false);
-        $this->processUpdateTests(Field\Options::class, withTranslatable: false);
-        //$this->processShowTests(Field\Options::class, withTranslatable: false);
+        $this->processStoreTests(new Field\Options::class, withTranslatable: false);
+        $this->processUpdateTests(new Field\Options::class, withTranslatable: false);
+        //$this->processShowTests(new Field\Options::class, withTranslatable: false);
     }
     
     public function testProcessIndex()
     {
-        $field = Field\Options::new(name: 'color')
+        $field = new Field\Options(name: 'color')
             ->setEntity(new Entity(['color' => ['red', 'blue']]));
         
         $field->processIndex(field: $field);
@@ -87,10 +87,10 @@ class OptionsTest extends AbstractField
         $repo->create(['name' => 'red']);
         $repo->create(['name' => 'blue']);
         
-        $field = Field\Options::new(name: 'color')
+        $field = new Field\Options(name: 'color')
             ->repository($repo)
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
@@ -103,11 +103,11 @@ class OptionsTest extends AbstractField
     
     public function testProcessCreateEditRendersSearchInput()
     {
-        $field = Field\Options::new(name: 'foo.bar')
+        $field = new Field\Options(name: 'foo.bar')
             ->repository($this->createRepository());
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -120,11 +120,11 @@ class OptionsTest extends AbstractField
     
     public function testProcessCreateEditRendersEmptyOption()
     {
-        $field = Field\Options::new(name: 'foo')
+        $field = new Field\Options(name: 'foo')
             ->repository($this->createRepository());
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -137,12 +137,12 @@ class OptionsTest extends AbstractField
     
     public function testProcessCreateEditRendersSearchInputWithPlaceholder()
     {
-        $field = Field\Options::new(name: 'foo.bar')
+        $field = new Field\Options(name: 'foo.bar')
             ->repository($this->createRepository())
             ->placeholder('text');
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -159,10 +159,10 @@ class OptionsTest extends AbstractField
         $repo->create(['name' => 'foo']);
         $repo->create(['name' => 'bar']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
@@ -170,7 +170,7 @@ class OptionsTest extends AbstractField
             ->setEntity(new Entity(['name' => ['1', '2']]));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -191,17 +191,17 @@ class OptionsTest extends AbstractField
         $repo = $this->createRepository();
         $repo->create(['name' => 'foo']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
             })
             ->selected(value: ['1'], action: 'edit');
         
-        $action = Action\Edit::new()->setFields(new Field\Fields($field));
+        $action = Action\Edit()->setFields(new new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -217,19 +217,19 @@ class OptionsTest extends AbstractField
         $repo = $this->createRepository();
         $repo->create(['name' => 'foo']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
             ->searchColumns('name')
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
             })
             ->setEntity(new Entity(['name' => ['1', '2']]));
         
-        $action = Action\Edit::new()
-            ->setFields(new Field\Fields($field))
+        $action = Action\Edit()
+            ->setFields(new new Field\Fields($field))
             ->setInput(new Input(['search' => ['name' => 'fo']]));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
@@ -247,11 +247,11 @@ class OptionsTest extends AbstractField
         $repo->create(['name' => 'foo', 'type' => 'tag']);
         $repo->create(['name' => 'bar', 'type' => 'color']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
             ->baseWhere(['type' => 'tag'])
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
@@ -259,7 +259,7 @@ class OptionsTest extends AbstractField
             ->setEntity(new Entity(['name' => ['1', '2']]));
         
         $field->processCreateEdit(
-            action: Action\Edit::new(),
+            action: Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -277,7 +277,7 @@ class OptionsTest extends AbstractField
     
     public function testProcessSave()
     {
-        $field = Field\Options::new(name: 'color');
+        $field = new Field\Options(name: 'color');
         $input = new Input(['color' => ['red']]);
         $field->processBeforeSave(field: $field, input: $input);
         $field->processSave(field: $field, input: $input);
@@ -287,7 +287,7 @@ class OptionsTest extends AbstractField
     
     public function testProcessSaveEmptyOptionIsRemoved()
     {
-        $field = Field\Options::new(name: 'color')->emptyOption(value: 'none');
+        $field = new Field\Options(name: 'color')->emptyOption(value: 'none');
         $input = new Input(['color' => ['none']]);
         $field->processBeforeSave(field: $field, input: $input);
         $field->processSave(field: $field, input: $input);
@@ -301,10 +301,10 @@ class OptionsTest extends AbstractField
         $repo->create(['name' => 'foo']);
         $repo->create(['name' => 'bar']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
@@ -325,11 +325,11 @@ class OptionsTest extends AbstractField
         $repo->create(['name' => 'foo', 'type' => 'tag']);
         $repo->create(['name' => 'bar', 'type' => 'color']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
             ->baseWhere(['type' => 'tag'])
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
@@ -352,10 +352,10 @@ class OptionsTest extends AbstractField
         $repo->create(['name' => 'foo']);
         $repo->create(['name' => 'bar']);
         
-        $field = Field\Options::new(name: 'name')
+        $field = new Field\Options(name: 'name')
             ->repository($repo)
-            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
-                return new Field\Option(
+            ->toOption(function(object $item, ViewInterface $view, new Field\Options $options): new Field\Option {        
+                return new new Field\Option(
                     value: (string)$item->get('id'),
                     text: (string)$item->get('name'),
                 );
@@ -381,7 +381,7 @@ class OptionsTest extends AbstractField
     
     public function testValidateRulesAreMerged()
     {
-        $field = Field\Options::new(name: 'color')->validate('required|minItems:2|maxItems:10');
+        $field = new Field\Options(name: 'color')->validate('required|minItems:2|maxItems:10');
         $rules = $field->getValidationRulesForAction('create');
         
         $this->assertSame('required|minItems:2|maxItems:10', $rules['color'][0] ?? null);

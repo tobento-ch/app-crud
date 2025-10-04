@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Test\Field;
 
-use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\new Field\FieldInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\Input;
@@ -23,41 +23,41 @@ class ValueTest extends AbstractField
 {
     public function testDefaultInterfaceMethods()
     {
-        $field = Field\Value::new(name: 'name');
-        $this->assertInstanceof(Field\Value::class, $field);
-        $this->assertInstanceof(Field\FieldInterface::class, $field);
+        $field = new Field\Value(name: 'name');
+        $this->assertInstanceof(new Field\Value::class, $field);
+        $this->assertInstanceof(new Field\FieldInterface::class, $field);
         
-        $this->processTests(Field\Value::new(name: 'name'));
-        $this->renderTests(Field\Value::new(name: 'name'));
-        $this->nameTests(Field\Value::class);
-        $this->groupTests(Field\Value::class);
-        $this->translatableTests(Field\Value::new(name: 'name'));
-        $this->localeTests(Field\Value::new(name: 'name'));
-        $this->storableTests(Field\Value::new(name: 'name'));
-        $this->assertFalse(Field\Value::new(name: 'name')->isIndexable());
-        $this->creatableTests(Field\Value::new(name: 'name'));
-        $this->editableTests(Field\Value::new(name: 'name'));
-        $this->readonlyTests(Field\Value::new(name: 'name'));
-        $this->disabledTests(Field\Value::new(name: 'name'));
-        $this->entityTests(Field\Value::new(name: 'name'));
-        $this->validateTests(Field\Value::class);
-        $this->requiredTextTests(Field\Value::class);
-        $this->optionalTextTests(Field\Value::class);
-        $this->infoTextTests(Field\Value::class);
+        $this->processTests(new Field\Value(name: 'name'));
+        $this->renderTests(new Field\Value(name: 'name'));
+        $this->nameTests(new Field\Value::class);
+        $this->groupTests(new Field\Value::class);
+        $this->translatableTests(new Field\Value(name: 'name'));
+        $this->localeTests(new Field\Value(name: 'name'));
+        $this->storableTests(new Field\Value(name: 'name'));
+        $this->assertFalse(new Field\Value(name: 'name')->isIndexable());
+        $this->creatableTests(new Field\Value(name: 'name'));
+        $this->editableTests(new Field\Value(name: 'name'));
+        $this->readonlyTests(new Field\Value(name: 'name'));
+        $this->disabledTests(new Field\Value(name: 'name'));
+        $this->entityTests(new Field\Value(name: 'name'));
+        $this->validateTests(new Field\Value::class);
+        $this->requiredTextTests(new Field\Value::class);
+        $this->optionalTextTests(new Field\Value::class);
+        $this->infoTextTests(new Field\Value::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processIndexTests(Field\Value::class);
-        $this->processStoreTests(Field\Value::class);
-        $this->processUpdateTests(Field\Value::class);
-        $this->processShowTests(Field\Value::class);
+        $this->processIndexTests(new Field\Value::class);
+        $this->processStoreTests(new Field\Value::class);
+        $this->processUpdateTests(new Field\Value::class);
+        $this->processShowTests(new Field\Value::class);
     }
     
     public function testProcessBeforeSaveMethodAddsValue()
     {
         $input = new Input([]);
-        $field = Field\Value::new(name: 'name')->value('foo');
+        $field = new Field\Value(name: 'name')->value('foo');
         $field->processBeforeSave(field: $field, input: $input);
         $this->assertSame(['name' => 'foo'], $input->all());
     }
@@ -65,37 +65,37 @@ class ValueTest extends AbstractField
     public function testProcessBeforeSaveMethodWihtoutValue()
     {
         $input = new Input([]);
-        $field = Field\Value::new(name: 'name');
+        $field = new Field\Value(name: 'name');
         $field->processBeforeSave(field: $field, input: $input);
         $this->assertSame(['name' => null], $input->all());
     }
     
     public function testProcessIndexActionWithString()
     {
-        $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => 'foo']));
+        $field = new Field\Value(name: 'name')->setEntity(new Entity(['name' => 'foo']));
         $field->processIndexAction(field: $field);
         $this->assertSame('foo', $field->render());
     }
     
     public function testProcessIndexActionWithArray()
     {
-        $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => ['foo', 'bar']]));
+        $field = new Field\Value(name: 'name')->setEntity(new Entity(['name' => ['foo', 'bar']]));
         $field->processIndexAction(field: $field);
         $this->assertSame('[&quot;foo&quot;,&quot;bar&quot;]', $field->render());
     }
     
     public function testProcessShowActionWithString()
     {
-        $field = Field\Value::new(name: 'name')->setEntity(new Entity(['name' => 'foo']));
+        $field = new Field\Value(name: 'name')->setEntity(new Entity(['name' => 'foo']));
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('foo', $field->render());
     }
     
     public function testFormatValueIndexAction()
     {
-        $field = Field\Value::new(name: 'name')
+        $field = new Field\Value(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'index');
         
         $field->processIndexAction(field: $field);
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
@@ -103,9 +103,9 @@ class ValueTest extends AbstractField
     
     public function testFormatValueShowAction()
     {
-        $field = Field\Value::new(name: 'name')
+        $field = new Field\Value(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
@@ -113,10 +113,10 @@ class ValueTest extends AbstractField
     
     public function testFormatValueShowActionTranslatable()
     {
-        $field = Field\Value::new(name: 'name')
+        $field = new Field\Value(name: 'name')
             ->translatable()
             ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
-            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());

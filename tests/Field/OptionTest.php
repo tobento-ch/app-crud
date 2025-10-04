@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Test\Field;
 
 use PHPUnit\Framework\TestCase;
-use Tobento\App\Crud\Field\Option;
+use Tobento\App\Crud\new Field\Option;
 
 class OptionTest extends TestCase
 {
