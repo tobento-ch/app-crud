@@ -138,7 +138,7 @@ class Fields
     public function toFilters(null|ActionInterface $action = null): array
     {
         if (is_null($action)) {
-            $action = Index::new();
+            $action = new Index();
         }
         
         $fields = $this->getFields()->withParentFields($action);
@@ -186,7 +186,7 @@ class Fields
             ($field instanceof Field\Select && !$field->isMultipleSelection())
             || $field instanceof Field\Radios
         ) {
-            return Select::new(name: 'field.'.$name, field: $name)
+            return new Select(name: 'field.'.$name, field: $name)
                 ->group($this->group)
                 ->options($field->getOptions())
                 ->comparison('=')
@@ -194,7 +194,7 @@ class Fields
                 ->open($this->open);
         }
         
-        return Input::new(name: 'field.'.$name, field: $name)
+        return new Input(name: 'field.'.$name, field: $name)
             ->group($this->group)
             ->type('search')
             ->comparison('like')
