@@ -255,8 +255,8 @@ class File extends AbstractField implements FieldsAwareInterface
     /**
      * Processes the show action.
      *
+     * @param ActionInterface $action
      * @param FieldInterface $field
-     * @param EntityInterface $entity
      * @return void
      */
     public function processIndexFile(ActionInterface $action, FieldInterface $field): void

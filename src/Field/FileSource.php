@@ -355,7 +355,6 @@ class FileSource extends AbstractField
     /**
      * Return the picture definition.
      *
-     * @param array|DefinitionInterface $definition
      * @return null|DefinitionInterface
      */
     public function getPictureDefinition(): null|DefinitionInterface
