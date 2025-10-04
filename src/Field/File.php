@@ -200,13 +200,13 @@ class File extends AbstractField implements FieldsAwareInterface
 
             if (empty($src) && in_array($action->name(), ['create', 'edit', 'copy', 'show'])) {
                 $fields = [
-                    $this->configureFileSource(Field\FileSource::new('src.'.$action->getLocale(), '')),
+                    $this->configureFileSource(new Field\FileSource('src.'.$action->getLocale(), '')),
                 ];
             } else {
                 $srcs = [];
                 
                 foreach($action->getLocales() as $locale => $localeName) {
-                    $srcs[] = $this->configureFileSource(Field\FileSource::new('src.'.$locale, $localeName));
+                    $srcs[] = $this->configureFileSource(new Field\FileSource('src.'.$locale, $localeName));
                 }
                 
                 $fields = [...$srcs, ...$this->fields];
@@ -216,17 +216,17 @@ class File extends AbstractField implements FieldsAwareInterface
 
             if (empty($src) && in_array($action->name(), ['create', 'edit', 'copy', 'show'])) {
                 $fields = [
-                    $this->configureFileSource(Field\FileSource::new('src', '')),
+                    $this->configureFileSource(new Field\FileSource('src', '')),
                 ];
             } else {
                 $fields = [
-                    $this->configureFileSource(Field\FileSource::new('src', 'Src')),
+                    $this->configureFileSource(new Field\FileSource('src', 'Src')),
                     ...$this->fields,
                 ];
             }
         }
         
-        $fields[] = Field\Value::new('storage')->showable(false)->value($this->getStorageName());
+        $fields[] = new Field\Value('storage')->showable(false)->value($this->getStorageName());
         
         foreach($fields as $field) {
             if ($field instanceof FieldsAwareInterface) {
@@ -248,7 +248,7 @@ class File extends AbstractField implements FieldsAwareInterface
      */
     public function acceptAttribute(): string
     {
-        $field = $this->configureFileSource(Field\FileSource::new('src', ''));
+        $field = $this->configureFileSource(new Field\FileSource('src', ''));
         return $field->acceptAttribute();
     }
     

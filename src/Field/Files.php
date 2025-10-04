@@ -115,7 +115,7 @@ class Files extends AbstractField implements FieldsAwareInterface
     public function fields(FieldInterface ...$fields): static
     {
         $this->fields = $fields;
-        $this->fields[] = Text::new('order')
+        $this->fields[] = new Text('order')
             ->type('hidden')
             ->attributes(['data-order' => ''])
             ->showable(false)
@@ -184,7 +184,7 @@ class Files extends AbstractField implements FieldsAwareInterface
         
         for ($i = 0; $i <= $filesCount-1; $i++) {
             
-            $field = $this->configureFile(File::new('file', ''))
+            $field = $this->configureFile(new File('file', ''))
                 ->fields(...array_map(fn (FieldInterface $f): FieldInterface => clone $f, $this->fields))
                 ->parent($this->name())
                 ->orderable($filesCount > 1);
@@ -224,7 +224,7 @@ class Files extends AbstractField implements FieldsAwareInterface
      */
     public function acceptAttribute(): string
     {
-        $field = $this->configureFile(File::new('file', ''));
+        $field = $this->configureFile(new File('file', ''));
         return $field->acceptAttribute();
     }
     
