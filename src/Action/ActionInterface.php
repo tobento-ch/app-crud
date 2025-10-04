@@ -271,7 +271,7 @@ interface ActionInterface extends Linkable
     /**
      * Sets the translator.
      *
-     * @param InputInterface $input
+     * @param TranslatorInterface $translator
      * @return static $this
      */
     public function setTranslator(TranslatorInterface $translator): static;

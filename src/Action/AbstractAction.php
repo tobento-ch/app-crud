@@ -541,7 +541,7 @@ abstract class AbstractAction implements ActionInterface
     /**
      * Sets the translator.
      *
-     * @param InputInterface $input
+     * @param TranslatorInterface $translator
      * @return static $this
      */
     public function setTranslator(TranslatorInterface $translator): static
