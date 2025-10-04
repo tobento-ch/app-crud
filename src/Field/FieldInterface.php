@@ -37,6 +37,13 @@ interface FieldInterface
      * @return null|callable
      */
     public function getProcessor(string $action): null|callable;
+    
+    /**
+     * Returns the resolvements.
+     *
+     * @return array<array-key, Resolve>
+     */
+    public function getResolve(): array;
 
     /**
      * Sets the html.
@@ -100,7 +107,7 @@ interface FieldInterface
     /**
      * Set the parent field name.
      *
-     * @param string $name
+     * @param string $field
      * @return static $this
      */
     public function parent(string $field): static;
@@ -246,6 +253,14 @@ interface FieldInterface
      * @return bool
      */
     public function isShowable(): bool;
+    
+    /**
+     * Sets the input attributes.
+     *
+     * @param array $attributes
+     * @return static $this
+     */
+    public function attributes(array $attributes): static;
     
     /**
      * Returns the attributes.
