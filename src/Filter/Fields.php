@@ -60,16 +60,6 @@ class Fields
     }
     
     /**
-     * Create a new instance.
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-    
-    /**
      * Sets the group.
      *
      * @param string $group

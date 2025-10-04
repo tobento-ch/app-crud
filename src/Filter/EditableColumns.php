@@ -46,17 +46,6 @@ class EditableColumns extends AbstractFilter
     {
         $this->editableColumns = $editableColumn;
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string ...$editableColumn
-     * @return static
-     */
-    public static function new(string ...$editableColumn): static
-    {
-        return new static(...$editableColumn);
-    }
     
     /**
      * Returns the name.

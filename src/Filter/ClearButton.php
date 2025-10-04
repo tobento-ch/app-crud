@@ -36,22 +36,10 @@ class ClearButton extends AbstractFilter
      * @param string $name
      */
     final public function __construct(
-        protected array $filters,
-        protected string $name,
+        protected array $filters = [],
+        protected string $name = 'clear',
     ) {
         $this->label('Clear Filters');
-    }
-    
-    /**
-     * Create a new instance.
-     *
-     * @param array<array-key, string> $filters The filter to clear. Empty all.
-     * @param string $name
-     * @return static
-     */
-    public static function new(array $filters = [], string $name = 'clear'): static
-    {
-        return new static($filters, $name);
     }
     
     /**

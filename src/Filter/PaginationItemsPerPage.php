@@ -38,17 +38,6 @@ class PaginationItemsPerPage extends AbstractFilter
     ) {}
     
     /**
-     * Create a new instance.
-     *
-     * @param int $show
-     * @return static
-     */
-    public static function new(int $show = 100): static
-    {
-        return new static($show);
-    }
-    
-    /**
      * Returns the name.
      *
      * @return string

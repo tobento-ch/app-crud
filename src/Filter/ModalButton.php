@@ -39,20 +39,9 @@ class ModalButton extends AbstractFilter
      * @param string $name
      */
     final public function __construct(
-        protected string $name,
+        protected string $name = 'modal-button',
     ) {
         $this->label('Filters');
-    }
-    
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @return static
-     */
-    public static function new(string $name = 'modal-button'): static
-    {
-        return new static($name);
     }
     
     /**

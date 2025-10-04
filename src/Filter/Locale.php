@@ -41,19 +41,8 @@ class Locale extends AbstractFilter
      * @param string $name
      */
     final public function __construct(
-        protected string $name,
+        protected string $name = 'locale',
     ) {}
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @return static
-     */
-    public static function new(string $name = 'locale'): static
-    {
-        return new static($name);
-    }
     
     /**
      * Returns the name.

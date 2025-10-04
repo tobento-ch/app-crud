@@ -64,17 +64,6 @@ class Columns extends AbstractFilter
     {
         $this->columns = $column;
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string ...$column
-     * @return static
-     */
-    public static function new(string ...$column): static
-    {
-        return new static(...$column);
-    }
     
     /**
      * Set the actions title.

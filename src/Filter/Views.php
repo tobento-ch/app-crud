@@ -45,24 +45,13 @@ class Views extends AbstractFilter
      * @param string $name
      */
     final public function __construct(
-        protected string $name,
+        protected string $name = 'views',
     ) {
         if ((bool) preg_match('/^[a-z-_.]+$/u', $name) === false) {
             throw new \InvalidArgumentException(
                 sprintf('The name %s must only contain [a-z-_.] characters', $name)
             );
         }
-    }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @return static
-     */
-    public static function new(string $name = 'views'): static
-    {
-        return new static($name);
     }
 
     /**

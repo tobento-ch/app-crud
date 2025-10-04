@@ -43,17 +43,6 @@ class Group extends AbstractFilter
     ) {}
     
     /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @return static
-     */
-    public static function new(string $name): static
-    {
-        return new static($name);
-    }
-    
-    /**
      * Returns the name.
      *
      * @return string

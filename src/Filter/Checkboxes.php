@@ -73,18 +73,6 @@ class Checkboxes extends AbstractFilter
             );
         }
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $field
-     * @return static
-     */
-    public static function new(string $name, null|string $field = null): static
-    {
-        return new static($name, $field);
-    }
     
     /**
      * Returns the name.
