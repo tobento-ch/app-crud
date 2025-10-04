@@ -40,8 +40,8 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Json::new('items'),
+                new Column\Id(),
+                new Column\Json('items'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -53,19 +53,19 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\Text::new('id'),
-                Field\Items::new('items')->fields(
-                    Field\Text::new('price')->type('number')->validate('decimal'),
-                    Field\FileSource::new('filesrc')->allowedExtensions('jpg', 'txt'),
+                new Field\Text('id'),
+                new Field\Items('items')->fields(
+                    new Field\Text('price')->type('number')->validate('decimal'),
+                    new Field\FileSource('filesrc')->allowedExtensions('jpg', 'txt'),
                 ),
             ],
             actions: [
-                Action\Index::new(),
-                Action\Create::new(),
-                Action\Store::new(),
-                Action\Edit::new(),
-                Action\Update::new(),
-                Action\Delete::new(),
+                new Action\Index(),
+                new Action\Create(),
+                new Action\Store(),
+                new Action\Edit(),
+                new Action\Update(),
+                new Action\Delete(),
             ],
         );
     }
@@ -188,14 +188,14 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [
-                    Field\Text::new('id'),
-                    Field\Items::new('items')->fields(
-                        Field\Text::new('price')->type('number')->validate('decimal'),
+                    new Field\Text('id'),
+                    new Field\Items('items')->fields(
+                        new Field\Text('price')->type('number')->validate('decimal'),
                     )->validate('required|minItems:2'),
                 ],
                 actions: [
-                    Action\Edit::new(),
-                    Action\Update::new(),
+                    new Action\Edit(),
+                    new Action\Update(),
                 ],
             );
         });

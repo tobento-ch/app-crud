@@ -36,10 +36,6 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function createApp(): AppInterface
     {
         $app = $this->createTmpApp(rootDir: __DIR__.'/../../..');
-        $app->boot(\Tobento\App\Boot\ErrorHandling::class);
-        $app->booting();
-        $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true);
-        
         $app->boot(Crud::class);
         
         $app->on(LanguagesInterface::class, function() {
@@ -58,9 +54,9 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new('id'),
-                Column\Text::new('title'),
-                Column\Json::new('files'),
+                new Column\Id('id'),
+                new Column\Text('title'),
+                new Column\Json('files'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -72,27 +68,27 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\Text::new('title'),
-                Field\Files::new('files')
+                new Field\Text('title'),
+                new Field\Files('files')
                     ->file(function(Field\File $file): void {
                         $file->fileSource(function(Field\FileSource $fs): void {
                             $fs->allowedExtensions('jpg', 'txt');
                         });
                     })
                     ->fields(
-                        Field\Text::new('desc', 'Desc'),
+                        new Field\Text('desc', 'Desc'),
                     ),
             ],
             actions: [
-                Action\Index::new(),
-                Action\Create::new(),
-                Action\Store::new(),
-                Action\Edit::new(),
-                Action\Update::new(),
-                Action\Delete::new(),
-                Action\Copy::new(),
-                Action\Show::new(),
-                Action\BulkDelete::new(),
+                new Action\Index(),
+                new Action\Create(),
+                new Action\Store(),
+                new Action\Edit(),
+                new Action\Update(),
+                new Action\Delete(),
+                new Action\Copy(),
+                new Action\Show(),
+                new Action\BulkDelete(),
             ],
         );
     }
@@ -105,19 +101,19 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [
-                    Field\Text::new('title'),
+                    new Field\Text('title'),
                     $files,
                 ],
                 actions: [
-                    Action\Index::new(),
-                    Action\Create::new(),
-                    Action\Store::new(),
-                    Action\Edit::new(),
-                    Action\Update::new(),
-                    Action\Delete::new(),
-                    Action\Copy::new(),
-                    Action\Show::new(),
-                    Action\BulkDelete::new(),
+                    new Action\Index(),
+                    new Action\Create(),
+                    new Action\Store(),
+                    new Action\Edit(),
+                    new Action\Update(),
+                    new Action\Delete(),
+                    new Action\Copy(),
+                    new Action\Show(),
+                    new Action\BulkDelete(),
                 ],
             );
         });
@@ -205,12 +201,12 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFilesUsesStoreFilenameTo()
     {
         $this->withFile(function () {
-            return Field\Files::new('files')
+            return new Field\Files('files')
                 ->file(function(Field\File $file): void {
                     $file->storeFilenameTo(field: 'alt');
                 })
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text'),
+                    new Field\Text('alt', 'Alt Text'),
                 );
         });
         
@@ -410,7 +406,7 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUploadFilesFailsIfMinNumberOfFilesIsNotReached()
     {
         $this->withFile(function () {
-            return Field\Files::new('files')
+            return new Field\Files('files')
                 ->numberOfFiles(min: 2);
         });
         
@@ -433,7 +429,7 @@ class FilesTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUploadFilesFailsIfMaxNumberOfFilesExceeds()
     {
         $this->withFile(function () {
-            return Field\Files::new('files')
+            return new Field\Files('files')
                 ->numberOfFiles(max: 2);
         });
         

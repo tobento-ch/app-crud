@@ -48,9 +48,9 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new('id'),
-                Column\Text::new('title'),
-                Column\Text::new('filesrc'),
+                new Column\Id('id'),
+                new Column\Text('title'),
+                new Column\Text('filesrc'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -62,20 +62,20 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\Text::new('title'),
-                Field\FileSource::new('filesrc')
+                new Field\Text('title'),
+                new Field\FileSource('filesrc')
                     ->allowedExtensions('jpg', 'txt'),
             ],
             actions: [
-                Action\Index::new(),
-                Action\Create::new(),
-                Action\Store::new(),
-                Action\Edit::new(),
-                Action\Update::new(),
-                Action\Delete::new(),
-                Action\Copy::new(),
-                Action\BulkDelete::new(),
-                Action\Show::new(),
+                new Action\Index(),
+                new Action\Create(),
+                new Action\Store(),
+                new Action\Edit(),
+                new Action\Update(),
+                new Action\Delete(),
+                new Action\Copy(),
+                new Action\BulkDelete(),
+                new Action\Show(),
             ],
         );
     }
@@ -88,19 +88,19 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [
-                    Field\Text::new('title'),
+                    new Field\Text('title'),
                     $fileSource,
                 ],
                 actions: [
-                    Action\Index::new(),
-                    Action\Create::new(),
-                    Action\Store::new(),
-                    Action\Edit::new(),
-                    Action\Update::new(),
-                    Action\Delete::new(),
-                    Action\Copy::new(),
-                    Action\BulkDelete::new(),
-                    Action\Show::new(),
+                    new Action\Index(),
+                    new Action\Create(),
+                    new Action\Store(),
+                    new Action\Edit(),
+                    new Action\Update(),
+                    new Action\Delete(),
+                    new Action\Copy(),
+                    new Action\BulkDelete(),
+                    new Action\Show(),
                 ],
             );
         });
@@ -351,7 +351,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredStorage()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->storage('images');
+            return new Field\FileSource('filesrc')->storage('images');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -370,7 +370,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredFolder()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->folder(path: 'products');
+            return new Field\FileSource('filesrc')->folder(path: 'products');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -389,7 +389,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredAllowedExtensions()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->allowedExtensions('txt');
+            return new Field\FileSource('filesrc')->allowedExtensions('txt');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -408,7 +408,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredMaxFileSizeInKb()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->maxFileSizeInKb(1000);
+            return new Field\FileSource('filesrc')->maxFileSizeInKb(1000);
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -431,7 +431,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredValidator()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')
+            return new Field\FileSource('filesrc')
                 ->validator(static function(): ValidatorInterface {
                     return new Validator(
                         allowedExtensions: ['txt'],
@@ -455,7 +455,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredFileWriter()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')
+            return new Field\FileSource('filesrc')
                 ->fileWriter(static function(FileStorageInterface $storage): FileWriterInterface {
                     return new FileWriter(
                         storage: $storage,
@@ -482,7 +482,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUsesConfiguredInputModifier()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')
+            return new Field\FileSource('filesrc')
                 ->modifyInputValue(
                     modifier: function(mixed $value, Field\FileSource $field, UploadedFileFactoryInterface $uploadedFileFactory): mixed {
                         return 'modifiedValue';
@@ -571,7 +571,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionNotDisplaysPictureIfDisabled()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->picture(definition: null);
+            return new Field\FileSource('filesrc')->picture(definition: null);
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -594,7 +594,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionDisplaysImageEditorIfConfiguredAndIsImageFile()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->imageEditor(template: 'default');
+            return new Field\FileSource('filesrc')->imageEditor(template: 'default');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -619,7 +619,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionNotDisplaysImageEditorIfNotImageFile()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->imageEditor(template: 'default');
+            return new Field\FileSource('filesrc')->imageEditor(template: 'default');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -644,7 +644,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionDisplaysPictureEditorIfConfiguredAndIsImageFile()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->pictureEditor(template: 'default', definitions: ['user']);
+            return new Field\FileSource('filesrc')->pictureEditor(template: 'default', definitions: ['user']);
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -669,7 +669,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionNotDisplaysPictureEditorIfNotImageFile()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->pictureEditor(template: 'default', definitions: ['user']);
+            return new Field\FileSource('filesrc')->pictureEditor(template: 'default', definitions: ['user']);
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -1000,7 +1000,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUsesConfiguredStorage()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->storage('images');
+            return new Field\FileSource('filesrc')->storage('images');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -1021,7 +1021,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUsesConfiguredFolder()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->folder(path: 'products');
+            return new Field\FileSource('filesrc')->folder(path: 'products');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -1042,7 +1042,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUsesConfiguredAllowedExtensions()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->allowedExtensions('txt');
+            return new Field\FileSource('filesrc')->allowedExtensions('txt');
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -1063,7 +1063,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUsesConfiguredMaxFileSizeInKb()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')->maxFileSizeInKb(1000);
+            return new Field\FileSource('filesrc')->maxFileSizeInKb(1000);
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -1088,7 +1088,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUsesConfiguredValidator()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')
+            return new Field\FileSource('filesrc')
                 ->validator(static function(): ValidatorInterface {
                     return new Validator(
                         allowedExtensions: ['txt'],
@@ -1114,7 +1114,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUsesConfiguredFileWriter()
     {
         $this->withFileSource(function () {
-            return Field\FileSource::new('filesrc')
+            return new Field\FileSource('filesrc')
                 ->fileWriter(static function(FileStorageInterface $storage): FileWriterInterface {
                     return new FileWriter(
                         storage: $storage,

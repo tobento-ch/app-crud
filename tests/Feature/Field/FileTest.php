@@ -54,9 +54,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new('id'),
-                Column\Text::new('title'),
-                Column\Json::new('file'),
+                new Column\Id('id'),
+                new Column\Text('title'),
+                new Column\Json('file'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -68,25 +68,25 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\Text::new('title'),
-                Field\File::new('file', 'File')
+                new Field\Text('title'),
+                new Field\File('file', 'File')
                     ->fileSource(function(Field\FileSource $fs): void {
                         $fs->allowedExtensions('jpg', 'txt');
                     })
                     ->fields(
-                        Field\Text::new('desc', 'Desc'),
+                        new Field\Text('desc', 'Desc'),
                     ),
             ],
             actions: [
-                Action\Index::new(),
-                Action\Create::new(),
-                Action\Store::new(),
-                Action\Edit::new(),
-                Action\Update::new(),
-                Action\Delete::new(),
-                Action\Copy::new(),
-                Action\BulkDelete::new(),
-                Action\Show::new(),
+                new Action\Index(),
+                new Action\Create(),
+                new Action\Store(),
+                new Action\Edit(),
+                new Action\Update(),
+                new Action\Delete(),
+                new Action\Copy(),
+                new Action\BulkDelete(),
+                new Action\Show(),
             ],
         );
     }
@@ -99,19 +99,19 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [
-                    Field\Text::new('title'),
+                    new Field\Text('title'),
                     $file,
                 ],
                 actions: [
-                    Action\Index::new(),
-                    Action\Create::new(),
-                    Action\Store::new(),
-                    Action\Edit::new(),
-                    Action\Update::new(),
-                    Action\Delete::new(),
-                    Action\Copy::new(),
-                    Action\BulkDelete::new(),
-                    Action\Show::new(),
+                    new Action\Index(),
+                    new Action\Create(),
+                    new Action\Store(),
+                    new Action\Edit(),
+                    new Action\Update(),
+                    new Action\Delete(),
+                    new Action\Copy(),
+                    new Action\BulkDelete(),
+                    new Action\Show(),
                 ],
             );
         });
@@ -161,7 +161,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testCreateActionTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')->translatable();
+            return new Field\File('file')->translatable();
         });
         
         $http = $this->fakeHttp();
@@ -207,7 +207,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')->translatable();
+            return new Field\File('file')->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -233,9 +233,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileUsesStoreFilenameTo()
     {
         $this->withFile(function () {
-            return Field\File::new('file')
+            return new Field\File('file')
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text'),
+                    new Field\Text('alt', 'Alt Text'),
                 )
                 ->storeFilenameTo(field: 'alt');
         });
@@ -256,9 +256,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileUsesStoreFilenameToWithModify()
     {
         $this->withFile(function () {
-            return Field\File::new('file')
+            return new Field\File('file')
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text'),
+                    new Field\Text('alt', 'Alt Text'),
                 )
                 ->storeFilenameTo(field: 'alt', modify: static function(string $filename): string {
                     return 'custom';
@@ -281,9 +281,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileUsesStoreFilenameToTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')
+            return new Field\File('file')
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text')->translatable(),
+                    new Field\Text('alt', 'Alt Text')->translatable(),
                 )
                 ->storeFilenameTo(field: 'alt');
         });
@@ -305,9 +305,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileTranslatableUsesStoreFilenameToTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')
+            return new Field\File('file')
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text')->translatable(),
+                    new Field\Text('alt', 'Alt Text')->translatable(),
                 )
                 ->storeFilenameTo(field: 'alt')
                 ->translatable();
@@ -333,9 +333,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileTranslatableUsesStoreFilenameToTranslatableFallsbackToDefault()
     {
         $this->withFile(function () {
-            return Field\File::new('file')
+            return new Field\File('file')
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text')->translatable(),
+                    new Field\Text('alt', 'Alt Text')->translatable(),
                 )
                 ->storeFilenameTo(field: 'alt')
                 ->translatable();
@@ -360,9 +360,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileTranslatableUsesStoreFilenameTo()
     {
         $this->withFile(function () {
-            return Field\File::new('file')
+            return new Field\File('file')
                 ->fields(
-                    Field\Text::new('alt', 'Alt Text'),
+                    new Field\Text('alt', 'Alt Text'),
                 )
                 ->storeFilenameTo(field: 'alt')
                 ->translatable();
@@ -428,7 +428,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionDisplaysFileTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')->translatable();
+            return new Field\File('file')->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -453,7 +453,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionDisplaysFileTranslatableShowsFileInputForMissingLocale()
     {
         $this->withFile(function () {
-            return Field\File::new('file')->translatable();
+            return new Field\File('file')->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -511,7 +511,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testUpdateActionUploadsFileTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')->translatable();
+            return new Field\File('file')->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -585,7 +585,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testDeleteActionDeletesFileTranslatable()
     {
         $this->withFile(function () {
-            return Field\File::new('file')->translatable();
+            return new Field\File('file')->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();

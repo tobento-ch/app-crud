@@ -40,9 +40,9 @@ class SlugTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Translatable::new('title'),
-                Column\Translatable::new('slug'),
+                new Column\Id(),
+                new Column\Translatable('title'),
+                new Column\Translatable('slug'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -54,17 +54,17 @@ class SlugTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\Text::new('id'),
-                Field\Text::new('title')->translatable(),
-                Field\Slug::new('slug')->translatable(),
+                new Field\Text('id'),
+                new Field\Text('title')->translatable(),
+                new Field\Slug('slug')->translatable(),
             ],
             actions: [
-                Action\Index::new(),
-                Action\Create::new(),
-                Action\Store::new(),
-                Action\Edit::new(),
-                Action\Update::new(),
-                Action\Delete::new(),
+                new Action\Index(),
+                new Action\Create(),
+                new Action\Store(),
+                new Action\Edit(),
+                new Action\Update(),
+                new Action\Delete(),
             ],
         );
     }
