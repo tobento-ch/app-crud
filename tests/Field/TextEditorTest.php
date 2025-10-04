@@ -15,7 +15,7 @@ namespace Tobento\App\Crud\Test\Field;
 
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
-use Tobento\App\Crud\new Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Test\Factory;
@@ -25,14 +25,14 @@ class TextEditorTest extends AbstractField
     public function testDefaultInterfaceMethods()
     {
         $field = new Field\TextEditor(name: 'name');
-        $this->assertInstanceof(new Field\TextEditor::class, $field);
-        $this->assertInstanceof(new Field\FieldInterface::class, $field);
+        $this->assertInstanceof(Field\TextEditor::class, $field);
+        $this->assertInstanceof(Field\FieldInterface::class, $field);
         
         $this->processTests(new Field\TextEditor(name: 'name'));
         $this->renderTests(new Field\TextEditor(name: 'name'));
-        $this->nameTests(new Field\TextEditor::class);
-        $this->labelTests(new Field\TextEditor::class);
-        $this->groupTests(new Field\TextEditor::class);
+        $this->nameTests(Field\TextEditor::class);
+        $this->labelTests(Field\TextEditor::class);
+        $this->groupTests(Field\TextEditor::class);
         $this->translatableTests(new Field\TextEditor(name: 'name'));
         $this->localeTests(new Field\TextEditor(name: 'name'));
         $this->storableTests(new Field\TextEditor(name: 'name'));
@@ -42,28 +42,28 @@ class TextEditorTest extends AbstractField
         $this->readonlyTests(new Field\TextEditor(name: 'name'));
         $this->disabledTests(new Field\TextEditor(name: 'name'));
         $this->entityTests(new Field\TextEditor(name: 'name'));
-        $this->validateTests(new Field\TextEditor::class);
-        $this->requiredTextTests(new Field\TextEditor::class);
-        $this->optionalTextTests(new Field\TextEditor::class);
-        $this->infoTextTests(new Field\TextEditor::class);
+        $this->validateTests(Field\TextEditor::class);
+        $this->requiredTextTests(Field\TextEditor::class);
+        $this->optionalTextTests(Field\TextEditor::class);
+        $this->infoTextTests(Field\TextEditor::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processIndexTests(new Field\TextEditor::class);
-        $this->processStoreTests(new Field\TextEditor::class);
-        $this->processUpdateTests(new Field\TextEditor::class);
-        $this->processShowTests(new Field\TextEditor::class);
+        $this->processIndexTests(Field\TextEditor::class);
+        $this->processStoreTests(Field\TextEditor::class);
+        $this->processUpdateTests(Field\TextEditor::class);
+        $this->processShowTests(Field\TextEditor::class);
     }
     
     public function testProcessCreateEdit()
     {
         $field = new Field\TextEditor(name: 'name')->setEntity(new Entity(['name' => 'Foo']));
-        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<textarea data-editor=\'[]\' name="name" id="name">Foo</textarea>', $field->render());
         
         $field = new Field\TextEditor(name: 'name')->setEntity(new Entity(['name' => ['en' => 'Foo']]))->translatable();
-        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<textarea data-editor=\'[]\' name="name[en]" id="name_en">Foo</textarea>', $field->render());
     }
     
@@ -80,7 +80,7 @@ class TextEditorTest extends AbstractField
             ->setEntity(new Entity(['name' => 'Foo']))
             ->attributes(['data-foo' => ['foo'], 'required']);
         
-        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString(
             '<textarea data-foo=\'[&quot;foo&quot;]\' required data-editor=\'[]\' name="name" id="name">Foo</textarea>',
             $field->render()
@@ -95,7 +95,7 @@ class TextEditorTest extends AbstractField
                 'toolbar' => ['p', 'h1']
             ]);
         
-        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString(
             '<textarea data-editor=\'{&quot;toolbar&quot;:[&quot;p&quot;,&quot;h1&quot;]}\' name="name" id="name">Foo</textarea>',
             $field->render()

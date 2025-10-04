@@ -16,7 +16,7 @@ namespace Tobento\App\Crud\Test\Field;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
-use Tobento\App\Crud\new Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\Input;
@@ -29,14 +29,14 @@ class RadiosTest extends AbstractField
     public function testDefaultInterfaceMethods()
     {
         $field = new Field\Radios(name: 'name');
-        $this->assertInstanceof(new Field\Radios::class, $field);
-        $this->assertInstanceof(new Field\FieldInterface::class, $field);
+        $this->assertInstanceof(Field\Radios::class, $field);
+        $this->assertInstanceof(Field\FieldInterface::class, $field);
         
         $this->processTests(new Field\Radios(name: 'name'));
         $this->renderTests(new Field\Radios(name: 'name'));
-        $this->nameTests(new Field\Radios::class);
-        $this->labelTests(new Field\Radios::class);
-        $this->groupTests(new Field\Radios::class);
+        $this->nameTests(Field\Radios::class);
+        $this->labelTests(Field\Radios::class);
+        $this->groupTests(Field\Radios::class);
         $this->localeTests(new Field\Radios(name: 'name'));
         $this->storableTests(new Field\Radios(name: 'name'));
         $this->indexableTests(new Field\Radios(name: 'name'));
@@ -45,17 +45,17 @@ class RadiosTest extends AbstractField
         $this->readonlyTests(new Field\Text(name: 'name'));
         $this->disabledTests(new Field\Text(name: 'name'));
         $this->entityTests(new Field\Radios(name: 'name'));
-        //$this->validateTests(new Field\Radios::class);
-        $this->requiredTextTests(new Field\Radios::class, withTranslatable: false);
-        $this->optionalTextTests(new Field\Radios::class, withTranslatable: false);
-        $this->infoTextTests(new Field\Radios::class);
+        //$this->validateTests(Field\Radios::class);
+        $this->requiredTextTests(Field\Radios::class, withTranslatable: false);
+        $this->optionalTextTests(Field\Radios::class, withTranslatable: false);
+        $this->infoTextTests(Field\Radios::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processStoreTests(new Field\Radios::class, withTranslatable: false);
-        $this->processUpdateTests(new Field\Radios::class, withTranslatable: false);
-        $this->processShowTests(new Field\Radios::class, withTranslatable: false);
+        $this->processStoreTests(Field\Radios::class, withTranslatable: false);
+        $this->processUpdateTests(Field\Radios::class, withTranslatable: false);
+        $this->processShowTests(Field\Radios::class, withTranslatable: false);
     }
     
     public function testProcessIndex()
@@ -75,7 +75,7 @@ class RadiosTest extends AbstractField
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -91,7 +91,7 @@ class RadiosTest extends AbstractField
         $field = new Field\Radios(name: 'name')
             ->options(fn(RadiosColorRepo $repo): array => $repo->findColors());
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -109,7 +109,7 @@ class RadiosTest extends AbstractField
             ->setEntity(new Entity(['name' => 'red']));
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -126,7 +126,7 @@ class RadiosTest extends AbstractField
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(value: 'red', action: 'edit');
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -148,7 +148,7 @@ class RadiosTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -170,7 +170,7 @@ class RadiosTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -188,7 +188,7 @@ class RadiosTest extends AbstractField
             ->setEntity(new Entity(['option' => ['color' => 'red']]));
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -207,7 +207,7 @@ class RadiosTest extends AbstractField
             ->setEntity(new Entity(['color' => 'red']));
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -275,8 +275,8 @@ class RadiosTest extends AbstractField
             ->options(fn(RadiosColorRepo $repo): array => $repo->findColors());
         
         $input = new Input(['color' => 'blue']);
-        $action = Action\Update()
-            ->setFields(new new Field\Fields($field))
+        $action = new Action\Update()
+            ->setFields(new Field\Fields($field))
             ->setInput($input);
         
         $actionProcessor = Factory::createActionProcessor();
@@ -313,7 +313,7 @@ class RadiosTest extends AbstractField
         $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'index');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
         
         $field->processIndex(field: $field);
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
@@ -324,7 +324,7 @@ class RadiosTest extends AbstractField
         $field = new Field\Radios(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());

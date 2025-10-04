@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Test\Field;
 
-use Tobento\App\Crud\new Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\Input;
@@ -24,13 +24,13 @@ class ValueTest extends AbstractField
     public function testDefaultInterfaceMethods()
     {
         $field = new Field\Value(name: 'name');
-        $this->assertInstanceof(new Field\Value::class, $field);
-        $this->assertInstanceof(new Field\FieldInterface::class, $field);
+        $this->assertInstanceof(Field\Value::class, $field);
+        $this->assertInstanceof(Field\FieldInterface::class, $field);
         
         $this->processTests(new Field\Value(name: 'name'));
         $this->renderTests(new Field\Value(name: 'name'));
-        $this->nameTests(new Field\Value::class);
-        $this->groupTests(new Field\Value::class);
+        $this->nameTests(Field\Value::class);
+        $this->groupTests(Field\Value::class);
         $this->translatableTests(new Field\Value(name: 'name'));
         $this->localeTests(new Field\Value(name: 'name'));
         $this->storableTests(new Field\Value(name: 'name'));
@@ -40,18 +40,18 @@ class ValueTest extends AbstractField
         $this->readonlyTests(new Field\Value(name: 'name'));
         $this->disabledTests(new Field\Value(name: 'name'));
         $this->entityTests(new Field\Value(name: 'name'));
-        $this->validateTests(new Field\Value::class);
-        $this->requiredTextTests(new Field\Value::class);
-        $this->optionalTextTests(new Field\Value::class);
-        $this->infoTextTests(new Field\Value::class);
+        $this->validateTests(Field\Value::class);
+        $this->requiredTextTests(Field\Value::class);
+        $this->optionalTextTests(Field\Value::class);
+        $this->infoTextTests(Field\Value::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processIndexTests(new Field\Value::class);
-        $this->processStoreTests(new Field\Value::class);
-        $this->processUpdateTests(new Field\Value::class);
-        $this->processShowTests(new Field\Value::class);
+        $this->processIndexTests(Field\Value::class);
+        $this->processStoreTests(Field\Value::class);
+        $this->processUpdateTests(Field\Value::class);
+        $this->processShowTests(Field\Value::class);
     }
     
     public function testProcessBeforeSaveMethodAddsValue()
@@ -95,7 +95,7 @@ class ValueTest extends AbstractField
     {
         $field = new Field\Value(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'index');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
         
         $field->processIndexAction(field: $field);
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
@@ -105,7 +105,7 @@ class ValueTest extends AbstractField
     {
         $field = new Field\Value(name: 'name')
             ->setEntity(new Entity(['name' => 'Foo']))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
@@ -116,7 +116,7 @@ class ValueTest extends AbstractField
         $field = new Field\Value(name: 'name')
             ->translatable()
             ->setEntity(new Entity(['name' => ['en' => 'Foo']]))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());

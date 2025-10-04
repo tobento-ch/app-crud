@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Test\Field;
 
 use PHPUnit\Framework\TestCase;
-use Tobento\App\Crud\new Field\Option;
+use Tobento\App\Crud\Field\Option;
 
 class OptionTest extends TestCase
 {
@@ -31,7 +31,7 @@ class OptionTest extends TestCase
         $option->text('bar')->text('baz');
         
         $this->assertSame('<span>bar</span><span>baz</span>', $option->getHtml());
-        $this->assertSame('<span>&lt;p&gt;foo&lt;/p&gt;</span>', (new Option(value: 'foo'))->text('<p>foo</p>')->getHtml());
+        $this->assertSame('<span>&lt;p&gt;foo&lt;/p&gt;</span>', new Option(value: 'foo')->text('<p>foo</p>')->getHtml());
     }
     
     public function testHtmlMethod()

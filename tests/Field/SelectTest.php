@@ -16,7 +16,7 @@ namespace Tobento\App\Crud\Test\Field;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
-use Tobento\App\Crud\new Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\Input;
@@ -29,14 +29,14 @@ class SelectTest extends AbstractField
     public function testDefaultInterfaceMethods()
     {
         $field = new Field\Select(name: 'name');
-        $this->assertInstanceof(new Field\Select::class, $field);
-        $this->assertInstanceof(new Field\FieldInterface::class, $field);
+        $this->assertInstanceof(Field\Select::class, $field);
+        $this->assertInstanceof(Field\FieldInterface::class, $field);
         
         $this->processTests(new Field\Select(name: 'name'));
         $this->renderTests(new Field\Select(name: 'name'));
-        $this->nameTests(new Field\Select::class);
-        $this->labelTests(new Field\Select::class);
-        $this->groupTests(new Field\Select::class);
+        $this->nameTests(Field\Select::class);
+        $this->labelTests(Field\Select::class);
+        $this->groupTests(Field\Select::class);
         $this->localeTests(new Field\Select(name: 'name'));
         $this->storableTests(new Field\Select(name: 'name'));
         $this->indexableTests(new Field\Select(name: 'name'));
@@ -45,18 +45,18 @@ class SelectTest extends AbstractField
         $this->readonlyTests(new Field\Text(name: 'name'));
         $this->disabledTests(new Field\Text(name: 'name'));
         $this->entityTests(new Field\Select(name: 'name'));
-        //$this->validateTests(new Field\Select::class);
-        $this->requiredTextTests(new Field\Select::class, withTranslatable: false);
-        $this->optionalTextTests(new Field\Select::class, withTranslatable: false);
-        $this->infoTextTests(new Field\Select::class);
+        //$this->validateTests(Field\Select::class);
+        $this->requiredTextTests(Field\Select::class, withTranslatable: false);
+        $this->optionalTextTests(Field\Select::class, withTranslatable: false);
+        $this->infoTextTests(Field\Select::class);
     }
     
     public function testActionProcesses()
     {
-        $this->processIndexTests(new Field\Select::class, withTranslatable: false);
-        $this->processStoreTests(new Field\Select::class, withTranslatable: false);
-        $this->processUpdateTests(new Field\Select::class, withTranslatable: false);
-        $this->processShowTests(new Field\Select::class, withTranslatable: false);
+        $this->processIndexTests(Field\Select::class, withTranslatable: false);
+        $this->processStoreTests(Field\Select::class, withTranslatable: false);
+        $this->processUpdateTests(Field\Select::class, withTranslatable: false);
+        $this->processShowTests(Field\Select::class, withTranslatable: false);
     }
     
     public function testProcessIndex()
@@ -88,7 +88,7 @@ class SelectTest extends AbstractField
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -104,7 +104,7 @@ class SelectTest extends AbstractField
         $field = new Field\Select(name: 'name')
             ->options(fn(ColorRepo $repo): array => $repo->findColors());
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -128,7 +128,7 @@ class SelectTest extends AbstractField
             ]);
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -146,7 +146,7 @@ class SelectTest extends AbstractField
             ->emptyOption(value: 'none', label: '---');
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -164,7 +164,7 @@ class SelectTest extends AbstractField
             ->setEntity(new Entity(['name' => ['red']]));
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -181,7 +181,7 @@ class SelectTest extends AbstractField
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->selected(value: 'red', action: 'edit');
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -203,7 +203,7 @@ class SelectTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -225,7 +225,7 @@ class SelectTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -247,7 +247,7 @@ class SelectTest extends AbstractField
                 action: 'edit',
             );
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -266,7 +266,7 @@ class SelectTest extends AbstractField
             ->setEntity(new Entity(['option' => ['color' => ['red', 'blue']]]));
         
         $field->processCreateEdit(
-            action: Action\Edit(),
+            action: new Action\Edit(),
             field: $field,
             view: Factory::createView(),
         );
@@ -438,7 +438,7 @@ class SelectTest extends AbstractField
             ->attributes(['multiple'])
             ->options(fn(ColorRepo $repo): array => $repo->findColors());
         
-        $action = Action\Edit()->setFields(new new Field\Fields($field));
+        $action = new Action\Edit()->setFields(new Field\Fields($field));
         $actionProcessor = Factory::createActionProcessor();
         $actionProcessor->processFields(action: $action);
         $field = $action->fields()->get(name: $field->name());
@@ -469,7 +469,7 @@ class SelectTest extends AbstractField
                 'blue' => ['data-blue' => 'value'],
             ]);
         
-        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString(
             '<select id="color" name="color"><option data-all="value" data-blue="value" value="blue">Blue</option><option data-all="value" value="red">Red</option></select>',
             $field->render()
@@ -489,7 +489,7 @@ class SelectTest extends AbstractField
             ])
             ->optgroupAttributes(['data-foo' => 'value']);
         
-        $field->processCreateEdit(action: Action\Edit(), field: $field, view: Factory::createView());
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertStringContainsString(
             '<select id="color" name="color"><optgroup data-foo="value" label="Frontend"><option value="guest">Guest</option></optgroup><optgroup data-foo="value" label="Backend"><option value="editor">Editor</option></optgroup></select>',
             $field->render()
@@ -501,7 +501,7 @@ class SelectTest extends AbstractField
         $field = new Field\Select(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'index');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'index');
         
         $field->processIndex(field: $field);
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
@@ -512,7 +512,7 @@ class SelectTest extends AbstractField
         $field = new Field\Select(name: 'color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->setEntity(new Entity(['color' => 'red']))
-            ->formatValue(formatter: new new Field\Formatter\CssClass('text-700'), action: 'show');
+            ->formatValue(formatter: new Field\Formatter\CssClass('text-700'), action: 'show');
         
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
