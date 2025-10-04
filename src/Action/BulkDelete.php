@@ -67,6 +67,8 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
      *
      * @return void
      * @throws ActionProcessException
+     * @psalm-suppress RedundantCondition
+     * @psalm-suppress NoValue
      */
     public function processBulk(): void
     {
@@ -83,7 +85,6 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         $ids = $input->get('ids', []);
         
         foreach(array_values($ids) as $id) {
-
             if (!is_string($id) && !is_int($id)) {
                 continue;
             }
