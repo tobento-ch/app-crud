@@ -196,7 +196,7 @@ class Views extends AbstractFilter
     {
         $form = $view->form();
         $attributes = [];
-        $attributes['id'] ??= $form->nameToId('filter.'.$this->name());
+        $attributes['id'] = $form->nameToId('filter.'.$this->name());
         
         $body = $form->radios(
             name: $form->nameToArray('filter.'.$this->name()),
