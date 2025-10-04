@@ -29,7 +29,7 @@ class ConfigurableButtonsTest extends TestCase
     {
         $button = new Button('foo', 'group');
         
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->addButton($button)
             ->applyButtonsConfig(new Buttons(new Button('bar', 'group')));
         
@@ -38,7 +38,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testRemoveButtonMethod()
     {
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->removeButton('foo', 'baz')
             ->applyButtonsConfig(new Buttons(
                 new Button('foo', 'group'),
@@ -51,7 +51,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testReoderButtonsMethod()
     {
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->reorderButtons('bar', 'baz')
             ->applyButtonsConfig(new Buttons(
                 new Button('foo', 'group'),
@@ -64,7 +64,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testModifyButtonMethod()
     {
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->modifyButton('foo', function(ButtonInterface $button, EntityInterface $entity): void {
                 $button->group('Foo');
             })
@@ -82,7 +82,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testGroupButtonsMethodWithExcept()
     {
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->groupButtons(except: ['bar'], label: 'More', name: 'more')
             ->applyButtonsConfig(new Buttons(
                 new Button('foo', 'group'),
@@ -98,7 +98,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testGroupButtonsMethodWithOnly()
     {
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->groupButtons(only: ['bar', 'baz'], label: 'More', name: 'more')
             ->applyButtonsConfig(new Buttons(
                 new Button('foo', 'group'),
@@ -114,9 +114,9 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testGroupButtonsMethodWithButton()
     {
-        $btn = Dropdown::new(label: 'more', group: 'group');
+        $btn = new Dropdown(label: 'more', group: 'group');
         
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->groupButtons(only: ['bar', 'baz'], button: $btn)
             ->applyButtonsConfig(new Buttons(
                 new Button('foo', 'group'),
@@ -132,7 +132,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testGroupButtonsMethodMultiple()
     {
-        $buttons = (new ConfigurableButtonsAction())
+        $buttons = new ConfigurableButtonsAction()
             ->groupButtons(only: ['bar'], name: 'more')
             ->groupButtons(except: ['foo', 'more'], name: 'another')
             ->applyButtonsConfig(new Buttons(
@@ -149,7 +149,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testDisplayButtonIfMethod()
     {
-        $buttons = (new ConfigurableButtonsAction(entity: new Entity(['isPaid' => false])))
+        $buttons = new ConfigurableButtonsAction(entity: new Entity(['isPaid' => false]))
             ->displayButtonIf('foo', true)
             ->displayButtonIf('bar', false)
             ->displayButtonIf('baz', fn (EntityInterface $entity): bool => $entity->get('isPaid'))
@@ -168,7 +168,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testConfirmButtonActionMethod()
     {
-        $buttons = (new ConfigurableButtonsAction(entity: new Entity(['title' => 'Title'])))
+        $buttons = new ConfigurableButtonsAction(entity: new Entity(['title' => 'Title']))
             ->confirmButtonAction('foo')
             ->confirmButtonAction('bar', 'Bar text')
             ->confirmButtonAction('baz', fn (EntityInterface $entity): string => $entity->get('title'))
@@ -177,7 +177,7 @@ class ConfigurableButtonsTest extends TestCase
                 new Button('foo', 'group'),
                 new Button('bar', 'group'),
                 new Button('baz', 'group'),
-                (new Button('zoo', 'group'))->attr('data-confirm', 'lorem'),
+                new Button('zoo', 'group')->attr('data-confirm', 'lorem'),
             ));
         
         $this->assertSame(
@@ -203,7 +203,7 @@ class ConfigurableButtonsTest extends TestCase
     
     public function testAjaxButtonActionMethod()
     {
-        $buttons = (new ConfigurableButtonsAction(entity: new Entity(['title' => 'Title'])))
+        $buttons = new ConfigurableButtonsAction(entity: new Entity(['title' => 'Title']))
             ->ajaxButtonAction('foo')
             ->ajaxButtonAction('bar', 'Bar text')
             ->ajaxButtonAction('baz', fn (EntityInterface $entity): string => $entity->get('title'))
@@ -212,7 +212,7 @@ class ConfigurableButtonsTest extends TestCase
                 new Button('foo', 'group'),
                 new Button('bar', 'group'),
                 new Button('baz', 'group'),
-                (new Button('zoo', 'group'))->attr('data-button-ajax', 'lorem'),
+                new Button('zoo', 'group')->attr('data-button-ajax', 'lorem'),
             ));
         
         $this->assertSame(
@@ -246,8 +246,8 @@ class ConfigurableButtonsTest extends TestCase
         ];
         
         $buttons = new Buttons(
-            (new Button('foo', 'group'))->name('foo'),
-            (new Button('bar', 'group'))->name('bar'),
+            new Button('foo', 'group')->name('foo'),
+            new Button('bar', 'group')->name('bar'),
         );
         
         $labels = [];
@@ -276,8 +276,8 @@ class ConfigurableButtonsTest extends TestCase
         ];
         
         $buttons = new Buttons(
-            (new Button('foo', 'group'))->name('foo'),
-            (new Button('bar', 'group'))->name('bar'),
+            new Button('foo', 'group')->name('foo'),
+            new Button('bar', 'group')->name('bar'),
         );
         
         $labels = [];
@@ -308,8 +308,8 @@ class ConfigurableButtonsTest extends TestCase
         ];
         
         $buttons = new Buttons(
-            (new Button('foo', 'entity'))->name('foo'),
-            (new Button('bar', 'entity'))->name('bar'),
+            new Button('foo', 'entity')->name('foo'),
+            new Button('bar', 'entity')->name('bar'),
         );
         
         $exists = [];
@@ -332,9 +332,9 @@ class ConfigurableButtonsTest extends TestCase
         $action = new ConfigurableButtonsAction();
 
         $buttons = new Buttons(
-            (new Button('list', 'group'))->name('list'),
-            (new Button('foo', 'group'))->name('foo'),
-            (new Button('bar', 'group'))->name('bar'),
+            new Button('list', 'group')->name('list'),
+            new Button('foo', 'group')->name('foo'),
+            new Button('bar', 'group')->name('bar'),
         );
         
         $labels = [];
@@ -358,8 +358,8 @@ class ConfigurableButtonsTest extends TestCase
         $action = new ConfigurableButtonsAction();
 
         $buttons = new Buttons(
-            (new Button('foo', 'group'))->name('foo'),
-            (new Button('bar', 'group'))->name('bar'),
+            new Button('foo', 'group')->name('foo'),
+            new Button('bar', 'group')->name('bar'),
         );
         
         $labels = [];

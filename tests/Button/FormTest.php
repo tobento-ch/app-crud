@@ -22,12 +22,12 @@ class FormTest extends AbstractButton
 {
     public function testLinkableInterfaceMethods()
     {
-        $this->linkToTests(Form::new(label: 'label', group: 'group'));
+        $this->linkToTests(new Form(label: 'label', group: 'group'));
     }
     
     public function testInterfaceGetterMethods()
     {
-        $button = Form::new(label: 'label', group: 'group');
+        $button = new Form(label: 'label', group: 'group');
         
         $this->assertSame('label', $button->getName());
         $this->assertSame('label', $button->getLabel());
@@ -38,7 +38,7 @@ class FormTest extends AbstractButton
     
     public function testInterfaceSetterMethods()
     {
-        $button = Form::new(label: 'label', group: 'group');
+        $button = new Form(label: 'label', group: 'group');
         $button->name('Name')->label('Label')->group('Group')->icon('Icon');
         
         $this->assertSame('Name', $button->getName());
@@ -49,7 +49,7 @@ class FormTest extends AbstractButton
     
     public function testWithUrlMethod()
     {
-        $button = Form::new(label: 'label', group: 'group');
+        $button = new Form(label: 'label', group: 'group');
         $newButton = $button->withUrl('url');
         
         $this->assertFalse($button === $newButton);
@@ -57,7 +57,7 @@ class FormTest extends AbstractButton
     
     public function testWithEntityMethod()
     {
-        $button = Form::new(label: 'label', group: 'group');
+        $button = new Form(label: 'label', group: 'group');
         $newButton = $button->withEntity(new Entity());
         
         $this->assertFalse($button === $newButton);
@@ -65,7 +65,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodReturnsEmptyStringIfUrlIsEmpty()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->name('delete')
             ->withEntity(new Entity(['id' => 3]));
         
@@ -77,7 +77,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethod()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->renderEmptyUrl(true)
             ->name('delete')
             ->withEntity(new Entity(['id' => 3]));
@@ -90,7 +90,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodWithPrimary()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->renderEmptyUrl(true)
             ->primary()
             ->withEntity(new Entity(['id' => 3]));
@@ -103,7 +103,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodWithRaw()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->renderEmptyUrl(true)
             ->raw()
             ->withEntity(new Entity(['id' => 3]));
@@ -116,7 +116,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodWithIcon()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->renderEmptyUrl(true)
             ->icon('foo')
             ->withEntity(new Entity(['id' => 3]));
@@ -129,7 +129,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodWithAttr()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->renderEmptyUrl(true)
             ->attr('data-foo', 'value')
             ->withEntity(new Entity(['id' => 3]));
@@ -142,7 +142,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodWithCustomMethod()
     {
-        $button = Form::new(label: 'label', group: 'group')
+        $button = new Form(label: 'label', group: 'group')
             ->renderEmptyUrl(true)
             ->name('delete')
             ->method('PATCH')
@@ -156,7 +156,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodLabelIsEscaped()
     {
-        $button = Form::new(label: '<p>label</p>', group: 'group')
+        $button = new Form(label: '<p>label</p>', group: 'group')
             ->renderEmptyUrl(true)
             ->name('delete')
             ->withEntity(new Entity(['id' => 3]));
@@ -169,7 +169,7 @@ class FormTest extends AbstractButton
     
     public function testRenderMethodWithoutEntityReturnsEmptyString()
     {
-        $button = Form::new(label: 'label', group: 'group');
+        $button = new Form(label: 'label', group: 'group');
         
         $this->assertSame('', $button->render(Factory::createView()));
     }    

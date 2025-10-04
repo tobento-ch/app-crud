@@ -27,7 +27,7 @@ class ButtonsTest extends TestCase
         $buttons = new Buttons();
         $this->assertInstanceof(ButtonsInterface::class, $buttons);
         
-        $buttons = new Buttons(Button::new(label: 'label', group: 'group'));
+        $buttons = new Buttons(new Button(label: 'label', group: 'group'));
         $this->assertTrue($buttons->has());
     }
     
@@ -37,7 +37,7 @@ class ButtonsTest extends TestCase
         $this->assertSame(null, $buttons->get(name: 'create'));
         
         $buttons = new Buttons(
-            Button::new(label: 'create', group: 'group'),
+            new Button(label: 'create', group: 'group'),
         );
         $this->assertSame('create', $buttons->get(name: 'create')->getName());
     }
@@ -47,8 +47,8 @@ class ButtonsTest extends TestCase
         $buttons = new Buttons();
         
         $buttons->add(
-            Button::new(label: 'create', group: 'group'),
-            Button::new(label: 'edit', group: 'group'),
+            new Button(label: 'create', group: 'group'),
+            new Button(label: 'edit', group: 'group'),
         );
         
         $this->assertSame(2, $buttons->count());
@@ -58,9 +58,9 @@ class ButtonsTest extends TestCase
     public function testRemoveMethod()
     {
         $buttons = new Buttons(
-            Button::new(label: 'create', group: 'group'),
-            Button::new(label: 'edit', group: 'group'),
-            Button::new(label: 'new', group: 'group'),
+            new Button(label: 'create', group: 'group'),
+            new Button(label: 'edit', group: 'group'),
+            new Button(label: 'new', group: 'group'),
         );
         
         $buttons->remove('create', 'new');
@@ -73,9 +73,9 @@ class ButtonsTest extends TestCase
     public function testReorderMethod()
     {
         $buttons = new Buttons(
-            Button::new(label: 'create', group: 'group'),
-            Button::new(label: 'edit', group: 'group'),
-            Button::new(label: 'new', group: 'group'),
+            new Button(label: 'create', group: 'group'),
+            new Button(label: 'edit', group: 'group'),
+            new Button(label: 'new', group: 'group'),
         );
         
         $newButtons = $buttons->reorder('new', 'edit');
@@ -89,8 +89,8 @@ class ButtonsTest extends TestCase
     public function testFilterMethod()
     {
         $buttons = new Buttons(
-            Button::new(label: 'create', group: 'group'),
-            Button::new(label: 'edit', group: 'group'),
+            new Button(label: 'create', group: 'group'),
+            new Button(label: 'edit', group: 'group'),
         );
         
         $filtered = $buttons->filter(fn(ButtonInterface $b): bool => $b->getName() === 'create');
@@ -103,9 +103,9 @@ class ButtonsTest extends TestCase
     public function testGroupMethod()
     {
         $buttons = new Buttons(
-            Button::new(label: 'create', group: 'foo'),
-            Button::new(label: 'edit', group: 'bar'),
-            Button::new(label: 'new', group: 'foo'),
+            new Button(label: 'create', group: 'foo'),
+            new Button(label: 'edit', group: 'bar'),
+            new Button(label: 'new', group: 'foo'),
         );
         $buttonsNew = $buttons->group('foo');
         
@@ -119,7 +119,7 @@ class ButtonsTest extends TestCase
         $buttons = new Buttons();
         $this->assertSame(null, $buttons->first());
         
-        $create = Button::new(label: 'create', group: 'foo');
+        $create = new Button(label: 'create', group: 'foo');
         $buttons = new Buttons($create);
         $this->assertSame($create, $buttons->first());
     }
@@ -129,7 +129,7 @@ class ButtonsTest extends TestCase
         $buttons = new Buttons();
         $this->assertSame([], $buttons->all());
         
-        $create = Button::new(label: 'create', group: 'foo');
+        $create = new Button(label: 'create', group: 'foo');
         $buttons = new Buttons($create);
         $this->assertSame(['create' => $create], $buttons->all());
     }
@@ -137,8 +137,8 @@ class ButtonsTest extends TestCase
     public function testNamesMethod()
     {
         $buttons = new Buttons(
-            Button::new(label: 'create', group: 'group'),
-            Button::new(label: 'edit', group: 'group'),
+            new Button(label: 'create', group: 'group'),
+            new Button(label: 'edit', group: 'group'),
         );
         
         $this->assertSame(['create', 'edit'], $buttons->names());
@@ -149,7 +149,7 @@ class ButtonsTest extends TestCase
         $buttons = new Buttons();
         $this->assertFalse($buttons->has());
         
-        $buttons = new Buttons(Button::new(label: 'create', group: 'group'));
+        $buttons = new Buttons(new Button(label: 'create', group: 'group'));
         $this->assertTrue($buttons->has());
     }
     
@@ -158,13 +158,13 @@ class ButtonsTest extends TestCase
         $buttons = new Buttons();
         $this->assertSame(0, $buttons->count());
         
-        $buttons = new Buttons(Button::new(label: 'create', group: 'group'));
+        $buttons = new Buttons(new Button(label: 'create', group: 'group'));
         $this->assertSame(1, $buttons->count());
     }
     
     public function testIteration()
     {
-        $buttons = new Buttons(Button::new(label: 'create', group: 'group'));
+        $buttons = new Buttons(new Button(label: 'create', group: 'group'));
         
         foreach($buttons as $button) {
             $this->assertInstanceof(ButtonInterface::class, $button);

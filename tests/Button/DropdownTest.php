@@ -27,13 +27,13 @@ class DropdownTest extends AbstractButton
     {
         $this->assertInstanceof(
             ButtonsAwareInterface::class,
-            Dropdown::new(label: 'label', group: 'group')
+            new Dropdown(label: 'label', group: 'group')
         );
     }
     
     public function testWithButtonsMethod()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         $newButton = $button->withButtons(new Buttons());
         
         $this->assertFalse($button === $newButton);
@@ -41,21 +41,21 @@ class DropdownTest extends AbstractButton
     
     public function testGetButtonsMethod()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         $this->assertSame(0, $button->getButtons()->count());
         
-        $button = $button->withButtons(new Buttons(Button::new(label: 'bar', group: 'group')));
+        $button = $button->withButtons(new Buttons(new Button(label: 'bar', group: 'group')));
         $this->assertSame(1, $button->getButtons()->count());
     }
     
     public function testLinkableInterfaceMethods()
     {
-        $this->linkToTests(Dropdown::new(label: 'label', group: 'group'));
+        $this->linkToTests(new Dropdown(label: 'label', group: 'group'));
     }
     
     public function testInterfaceGetterMethods()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         
         $this->assertSame('label', $button->getName());
         $this->assertSame('label', $button->getLabel());
@@ -66,7 +66,7 @@ class DropdownTest extends AbstractButton
     
     public function testInterfaceSetterMethods()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         $button->name('Name')->label('Label')->group('Group')->icon('Icon');
         
         $this->assertSame('Name', $button->getName());
@@ -77,7 +77,7 @@ class DropdownTest extends AbstractButton
     
     public function testWithUrlMethod()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         $newButton = $button->withUrl('url');
         
         $this->assertFalse($button === $newButton);
@@ -85,7 +85,7 @@ class DropdownTest extends AbstractButton
     
     public function testWithEntityMethod()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         $newButton = $button->withEntity(new Entity());
         
         $this->assertFalse($button === $newButton);
@@ -93,7 +93,7 @@ class DropdownTest extends AbstractButton
     
     public function testRenderMethod()
     {
-        $button = Dropdown::new(label: 'label', group: 'group');
+        $button = new Dropdown(label: 'label', group: 'group');
         
         $this->assertSame(
             '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"></div></div></div>',
@@ -103,9 +103,9 @@ class DropdownTest extends AbstractButton
     
     public function testRenderWithButtons()
     {
-        $button = Dropdown::new(label: 'label', group: 'group')->buttons(
-            Button::new(label: 'foo', group: 'group'),
-            Button::new(label: 'bar', group: 'group'),
+        $button = new Dropdown(label: 'label', group: 'group')->buttons(
+            new Button(label: 'foo', group: 'group'),
+            new Button(label: 'bar', group: 'group'),
         );
         
         $this->assertSame('<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"><div class="crud-dropdown-item"><button class="button text-xs" data-button="foo">foo</button></div><div class="crud-dropdown-item"><button class="button text-xs" data-button="bar">bar</button></div></div></div></div>', $button->render(Factory::createView()));
@@ -113,7 +113,7 @@ class DropdownTest extends AbstractButton
     
     public function testRenderMethodWithPrimary()
     {
-        $button = Dropdown::new(label: 'label', group: 'group')
+        $button = new Dropdown(label: 'label', group: 'group')
             ->primary();
         
         $this->assertSame(
@@ -124,7 +124,7 @@ class DropdownTest extends AbstractButton
     
     public function testRenderMethodWithRaw()
     {
-        $button = Dropdown::new(label: 'label', group: 'group')
+        $button = new Dropdown(label: 'label', group: 'group')
             ->raw();
         
         $this->assertSame(
@@ -135,7 +135,7 @@ class DropdownTest extends AbstractButton
     
     public function testRenderMethodWithIcon()
     {
-        $button = Dropdown::new(label: 'label', group: 'group')
+        $button = new Dropdown(label: 'label', group: 'group')
             ->icon('foo');
         
         $this->assertSame(
@@ -146,7 +146,7 @@ class DropdownTest extends AbstractButton
     
     public function testRenderMethodWithAttr()
     {
-        $button = Dropdown::new(label: 'label', group: 'group')
+        $button = new Dropdown(label: 'label', group: 'group')
             ->attr('data-foo', 'value');
         
         $this->assertSame(
@@ -157,7 +157,7 @@ class DropdownTest extends AbstractButton
     
     public function testRenderMethodLabelIsEscaped()
     {
-        $button = Dropdown::new(label: '<p>label</p>', group: 'group')
+        $button = new Dropdown(label: '<p>label</p>', group: 'group')
             ->name('name');
         
         $this->assertSame(

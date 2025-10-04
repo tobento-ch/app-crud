@@ -24,12 +24,12 @@ class HtmlTest extends AbstractButton
 {
     public function testLinkableInterfaceMethods()
     {
-        $this->linkToTests(Html::new(group: 'group'));
+        $this->linkToTests(new Html(group: 'group'));
     }
     
     public function testInterfaceGetterMethods()
     {
-        $button = Html::new(group: 'group');
+        $button = new Html(group: 'group');
         
         $this->assertSame('', $button->getName());
         $this->assertSame('', $button->getLabel());
@@ -40,7 +40,7 @@ class HtmlTest extends AbstractButton
     
     public function testInterfaceSetterMethods()
     {
-        $button = Html::new(group: 'group');
+        $button = new Html(group: 'group');
         $button->name('Name')->label('Label')->group('Group')->icon('Icon');
         
         $this->assertSame('Name', $button->getName());
@@ -51,7 +51,7 @@ class HtmlTest extends AbstractButton
     
     public function testWithUrlMethod()
     {
-        $button = Html::new(group: 'group');
+        $button = new Html(group: 'group');
         $newButton = $button->withUrl('url');
         
         $this->assertFalse($button === $newButton);
@@ -59,7 +59,7 @@ class HtmlTest extends AbstractButton
     
     public function testWithEntityMethod()
     {
-        $button = Html::new(group: 'group');
+        $button = new Html(group: 'group');
         $newButton = $button->withEntity(new Entity());
         
         $this->assertFalse($button === $newButton);
@@ -67,7 +67,7 @@ class HtmlTest extends AbstractButton
     
     public function testRenderMethod()
     {
-        $button = Html::new(group: 'group')->html('<a href="#">Label<a/>');
+        $button = new Html(group: 'group')->html('<a href="#">Label<a/>');
         
         $this->assertSame(
             '<a href="#">Label<a/>',
@@ -77,7 +77,7 @@ class HtmlTest extends AbstractButton
     
     public function testRenderMethodUsingClosure()
     {
-        $button = Html::new(group: 'group')->html(function(Html $button, ViewInterface $view): string {
+        $button = new Html(group: 'group')->html(function(Html $button, ViewInterface $view): string {
             $url = $button->getUrl();
             $entity = $button->getEntity();
             $attributes = $button->getAttributes();

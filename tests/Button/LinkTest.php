@@ -22,12 +22,12 @@ class LinkTest extends AbstractButton
 {
     public function testLinkableInterfaceMethods()
     {
-        $this->linkToTests(Link::new(label: 'label', group: 'group'));
+        $this->linkToTests(new Link(label: 'label', group: 'group'));
     }
     
     public function testInterfaceGetterMethods()
     {
-        $button = Link::new(label: 'label', group: 'group');
+        $button = new Link(label: 'label', group: 'group');
         
         $this->assertSame('label', $button->getName());
         $this->assertSame('label', $button->getLabel());
@@ -38,7 +38,7 @@ class LinkTest extends AbstractButton
     
     public function testInterfaceSetterMethods()
     {
-        $button = Link::new(label: 'label', group: 'group');
+        $button = new Link(label: 'label', group: 'group');
         $button->name('Name')->label('Label')->group('Group')->icon('Icon');
         
         $this->assertSame('Name', $button->getName());
@@ -49,7 +49,7 @@ class LinkTest extends AbstractButton
     
     public function testWithUrlMethod()
     {
-        $button = Link::new(label: 'label', group: 'group');
+        $button = new Link(label: 'label', group: 'group');
         $newButton = $button->withUrl('url');
         
         $this->assertFalse($button === $newButton);
@@ -57,7 +57,7 @@ class LinkTest extends AbstractButton
     
     public function testWithEntityMethod()
     {
-        $button = Link::new(label: 'label', group: 'group');
+        $button = new Link(label: 'label', group: 'group');
         $newButton = $button->withEntity(new Entity());
         
         $this->assertFalse($button === $newButton);
@@ -65,7 +65,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderMethod()
     {
-        $button = Link::new(label: 'label', group: 'group')
+        $button = new Link(label: 'label', group: 'group')
             ->withUrl('url');
         
         $this->assertSame(
@@ -76,7 +76,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderMethodWithPrimary()
     {
-        $button = Link::new(label: 'label', group: 'group')
+        $button = new Link(label: 'label', group: 'group')
             ->primary()
             ->withUrl('url');
         
@@ -88,7 +88,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderMethodWithRaw()
     {
-        $button = Link::new(label: 'label', group: 'group')
+        $button = new Link(label: 'label', group: 'group')
             ->raw()
             ->withUrl('url');
         
@@ -100,7 +100,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderMethodWithIcon()
     {
-        $button = Link::new(label: 'label', group: 'group')
+        $button = new Link(label: 'label', group: 'group')
             ->icon('foo')
             ->withUrl('url');
         
@@ -112,7 +112,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderMethodWithAttr()
     {
-        $button = Link::new(label: 'label', group: 'group')
+        $button = new Link(label: 'label', group: 'group')
             ->attr('data-foo', 'value')
             ->withUrl('url');
         
@@ -124,7 +124,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderMethodLabelIsEscaped()
     {
-        $button = Link::new(label: '<p>label</p>', group: 'group')
+        $button = new Link(label: '<p>label</p>', group: 'group')
             ->name('name')
             ->withUrl('url');
         
@@ -136,7 +136,7 @@ class LinkTest extends AbstractButton
     
     public function testRenderReturnsEmptyStringIfNoHref()
     {
-        $button = Link::new(label: 'label', group: 'group')
+        $button = new Link(label: 'label', group: 'group')
             ->withUrl('');
         
         $this->assertSame('', $button->render(Factory::createView()));

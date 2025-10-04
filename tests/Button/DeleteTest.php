@@ -22,12 +22,12 @@ class DeleteTest extends AbstractButton
 {
     public function testLinkableInterfaceMethods()
     {
-        $this->linkToTests(Delete::new(label: 'label', group: 'group'));
+        $this->linkToTests(new Delete(label: 'label', group: 'group'));
     }
     
     public function testInterfaceGetterMethods()
     {
-        $button = Delete::new(label: 'label', group: 'group');
+        $button = new Delete(label: 'label', group: 'group');
         
         $this->assertSame('label', $button->getName());
         $this->assertSame('label', $button->getLabel());
@@ -38,7 +38,7 @@ class DeleteTest extends AbstractButton
     
     public function testInterfaceSetterMethods()
     {
-        $button = Delete::new(label: 'label', group: 'group');
+        $button = new Delete(label: 'label', group: 'group');
         $button->name('Name')->label('Label')->group('Group')->icon('Icon');
         
         $this->assertSame('Name', $button->getName());
@@ -49,7 +49,7 @@ class DeleteTest extends AbstractButton
     
     public function testWithUrlMethod()
     {
-        $button = Delete::new(label: 'label', group: 'group');
+        $button = new Delete(label: 'label', group: 'group');
         $newButton = $button->withUrl('url');
         
         $this->assertFalse($button === $newButton);
@@ -57,7 +57,7 @@ class DeleteTest extends AbstractButton
     
     public function testWithEntityMethod()
     {
-        $button = Delete::new(label: 'label', group: 'group');
+        $button = new Delete(label: 'label', group: 'group');
         $newButton = $button->withEntity(new Entity());
         
         $this->assertFalse($button === $newButton);
@@ -65,7 +65,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethod()
     {
-        $button = Delete::new(label: 'label', group: 'group')
+        $button = new Delete(label: 'label', group: 'group')
             ->name('delete')
             ->withEntity(new Entity(['id' => 3]));
         
@@ -77,7 +77,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethodWithPrimary()
     {
-        $button = Delete::new(label: 'label', group: 'group')
+        $button = new Delete(label: 'label', group: 'group')
             ->primary()
             ->withEntity(new Entity(['id' => 3]));
         
@@ -89,7 +89,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethodWithRaw()
     {
-        $button = Delete::new(label: 'label', group: 'group')
+        $button = new Delete(label: 'label', group: 'group')
             ->raw()
             ->withEntity(new Entity(['id' => 3]));
         
@@ -101,7 +101,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethodWithIcon()
     {
-        $button = Delete::new(label: 'label', group: 'group')
+        $button = new Delete(label: 'label', group: 'group')
             ->icon('foo')
             ->withEntity(new Entity(['id' => 3]));
         
@@ -113,7 +113,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethodWithAttr()
     {
-        $button = Delete::new(label: 'label', group: 'group')
+        $button = new Delete(label: 'label', group: 'group')
             ->attr('data-foo', 'value')
             ->withEntity(new Entity(['id' => 3]));
         
@@ -125,7 +125,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethodLabelIsEscaped()
     {
-        $button = Delete::new(label: '<p>label</p>', group: 'group')
+        $button = new Delete(label: '<p>label</p>', group: 'group')
             ->name('delete')
             ->withEntity(new Entity(['id' => 3]));
         
@@ -137,7 +137,7 @@ class DeleteTest extends AbstractButton
     
     public function testRenderMethodWithoutEntityReturnsEmptyString()
     {
-        $button = Delete::new(label: 'label', group: 'group');
+        $button = new Delete(label: 'label', group: 'group');
         
         $this->assertSame('', $button->render(Factory::createView()));
     }    

@@ -22,12 +22,12 @@ class ButtonTest extends AbstractButton
 {
     public function testLinkableInterfaceMethods()
     {
-        $this->linkToTests(Button::new(label: 'label', group: 'group'));
+        $this->linkToTests(new Button(label: 'label', group: 'group'));
     }
     
     public function testInterfaceGetterMethods()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         
         $this->assertSame('label', $button->getName());
         $this->assertSame('label', $button->getLabel());
@@ -38,7 +38,7 @@ class ButtonTest extends AbstractButton
     
     public function testInterfaceSetterMethods()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $button->name('Name')->label('Label')->group('Group')->icon('Icon');
         
         $this->assertSame('Name', $button->getName());
@@ -49,7 +49,7 @@ class ButtonTest extends AbstractButton
     
     public function testWithUrlMethod()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $newButton = $button->withUrl('url');
         
         $this->assertFalse($button === $newButton);
@@ -57,7 +57,7 @@ class ButtonTest extends AbstractButton
     
     public function testWithEntityMethod()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $newButton = $button->withEntity(new Entity());
         
         $this->assertFalse($button === $newButton);
@@ -65,7 +65,7 @@ class ButtonTest extends AbstractButton
     
     public function testRenderMethod()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         
         $this->assertSame(
             '<button class="button text-xs" data-button="label">label</button>',
@@ -75,7 +75,7 @@ class ButtonTest extends AbstractButton
     
     public function testRenderMethodWithPrimary()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $button->primary();
         
         $this->assertSame(
@@ -86,7 +86,7 @@ class ButtonTest extends AbstractButton
     
     public function testRenderMethodWithRaw()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $button->raw();
         
         $this->assertSame(
@@ -97,7 +97,7 @@ class ButtonTest extends AbstractButton
     
     public function testRenderMethodWithIcon()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $button->icon('foo');
         
         $this->assertSame(
@@ -108,7 +108,7 @@ class ButtonTest extends AbstractButton
     
     public function testRenderMethodWithAttr()
     {
-        $button = Button::new(label: 'label', group: 'group');
+        $button = new Button(label: 'label', group: 'group');
         $button->attr('data-foo', 'value');
         
         $this->assertSame(
@@ -119,7 +119,7 @@ class ButtonTest extends AbstractButton
     
     public function testRenderMethodLabelIsEscaped()
     {
-        $button = Button::new(label: '<p>label</p>', group: 'group');
+        $button = new Button(label: '<p>label</p>', group: 'group');
         $button->name('name');
         
         $this->assertSame(
