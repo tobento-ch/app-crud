@@ -21,23 +21,23 @@ class ShowJsonTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\ShowJson::new());
-        $this->linkUrlTests(Action\ShowJson::new());
-        $this->linkToTests(Action\ShowJson::new());
-        $this->viewTests(Action\ShowJson::new());
-        $this->localeTests(Action\ShowJson::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\ShowJson::new());
-        $this->entitiesTests(Action\ShowJson::new());
-        $this->entityTests(Action\ShowJson::new());
-        $this->controllerTests(Action\ShowJson::new());
-        $this->actionsTests(Action\ShowJson::new());
-        $this->inputTests(Action\ShowJson::new());
+        $this->urlTests(new Action\ShowJson());
+        $this->linkUrlTests(new Action\ShowJson());
+        $this->linkToTests(new Action\ShowJson());
+        $this->viewTests(new Action\ShowJson());
+        $this->localeTests(new Action\ShowJson());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\ShowJson());
+        $this->entitiesTests(new Action\ShowJson());
+        $this->entityTests(new Action\ShowJson());
+        $this->controllerTests(new Action\ShowJson());
+        $this->actionsTests(new Action\ShowJson());
+        $this->inputTests(new Action\ShowJson());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\ShowJson::new();
+        $action = new Action\ShowJson();
         $this->assertInstanceof(Action\ShowJson::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,8 +51,8 @@ class ShowJsonTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Show JSON', Action\ShowJson::new()->title());
-        $this->assertSame('Foo', Action\ShowJson::new(title: 'Foo')->title());
-        $this->assertSame('Foo', Action\ShowJson::new(title: fn(EntityInterface $e) => 'Foo')->title());
+        $this->assertSame('Show JSON', new Action\ShowJson()->title());
+        $this->assertSame('Foo', new Action\ShowJson(title: 'Foo')->title());
+        $this->assertSame('Foo', new Action\ShowJson(title: fn(EntityInterface $e) => 'Foo')->title());
     }
 }

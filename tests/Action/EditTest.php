@@ -21,23 +21,23 @@ class EditTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Edit::new());
-        $this->linkUrlTests(Action\Edit::new());
-        $this->linkToTests(Action\Edit::new());
-        $this->viewTests(Action\Edit::new());
-        $this->localeTests(Action\Edit::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\Edit::new());
-        $this->entitiesTests(Action\Edit::new());
-        $this->entityTests(Action\Edit::new());
-        $this->controllerTests(Action\Edit::new());
-        $this->actionsTests(Action\Edit::new());
-        $this->inputTests(Action\Edit::new());
+        $this->urlTests(new Action\Edit());
+        $this->linkUrlTests(new Action\Edit());
+        $this->linkToTests(new Action\Edit());
+        $this->viewTests(new Action\Edit());
+        $this->localeTests(new Action\Edit());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\Edit());
+        $this->entitiesTests(new Action\Edit());
+        $this->entityTests(new Action\Edit());
+        $this->controllerTests(new Action\Edit());
+        $this->actionsTests(new Action\Edit());
+        $this->inputTests(new Action\Edit());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Edit::new(title: 'title');
+        $action = new Action\Edit(title: 'title');
         $this->assertInstanceof(Action\Edit::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,8 +51,8 @@ class EditTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Edit', Action\Edit::new()->title());
-        $this->assertSame('Foo', Action\Edit::new(title: 'Foo')->title());        
-        $this->assertSame('Foo', Action\Edit::new(title: fn(EntityInterface $e) => 'Foo')->title());
+        $this->assertSame('Edit', new Action\Edit()->title());
+        $this->assertSame('Foo', new Action\Edit(title: 'Foo')->title());        
+        $this->assertSame('Foo', new Action\Edit(title: fn(EntityInterface $e) => 'Foo')->title());
     }
 }

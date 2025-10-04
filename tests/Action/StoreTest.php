@@ -21,23 +21,23 @@ class StoreTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Store::new());
-        $this->linkUrlTests(Action\Store::new());
-        $this->linkToTests(Action\Store::new());
-        $this->viewTests(Action\Store::new());
-        $this->localeTests(Action\Store::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\Store::new());
-        $this->entitiesTests(Action\Store::new());
-        $this->entityTests(Action\Store::new());
-        $this->controllerTests(Action\Store::new());
-        $this->actionsTests(Action\Store::new());
-        $this->inputTests(Action\Store::new());
+        $this->urlTests(new Action\Store());
+        $this->linkUrlTests(new Action\Store());
+        $this->linkToTests(new Action\Store());
+        $this->viewTests(new Action\Store());
+        $this->localeTests(new Action\Store());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\Store());
+        $this->entitiesTests(new Action\Store());
+        $this->entityTests(new Action\Store());
+        $this->controllerTests(new Action\Store());
+        $this->actionsTests(new Action\Store());
+        $this->inputTests(new Action\Store());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Store::new();
+        $action = new Action\Store();
         $this->assertInstanceof(Action\Store::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,6 +51,6 @@ class StoreTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Store', Action\Store::new()->title());
+        $this->assertSame('Store', new Action\Store()->title());
     }
 }

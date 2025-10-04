@@ -21,23 +21,23 @@ class DeleteTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Delete::new());
-        $this->linkUrlTests(Action\Delete::new());
-        $this->linkToTests(Action\Delete::new());
-        $this->viewTests(Action\Delete::new());
-        $this->localeTests(Action\Delete::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\Delete::new());
-        $this->entitiesTests(Action\Delete::new());
-        $this->entityTests(Action\Delete::new());
-        $this->controllerTests(Action\Delete::new());
-        $this->actionsTests(Action\Delete::new());
-        $this->inputTests(Action\Delete::new());
+        $this->urlTests(new Action\Delete());
+        $this->linkUrlTests(new Action\Delete());
+        $this->linkToTests(new Action\Delete());
+        $this->viewTests(new Action\Delete());
+        $this->localeTests(new Action\Delete());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\Delete());
+        $this->entitiesTests(new Action\Delete());
+        $this->entityTests(new Action\Delete());
+        $this->controllerTests(new Action\Delete());
+        $this->actionsTests(new Action\Delete());
+        $this->inputTests(new Action\Delete());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Delete::new(title: 'title');
+        $action = new Action\Delete(title: 'title');
         $this->assertInstanceof(Action\Delete::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,8 +51,8 @@ class DeleteTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Delete', Action\Delete::new()->title());
-        $this->assertSame('Foo', Action\Delete::new(title: 'Foo')->title());        
-        $this->assertSame('Foo', Action\Delete::new(title: fn(EntityInterface $e) => 'Foo')->title());
+        $this->assertSame('Delete', new Action\Delete()->title());
+        $this->assertSame('Foo', new Action\Delete(title: 'Foo')->title());        
+        $this->assertSame('Foo', new Action\Delete(title: fn(EntityInterface $e) => 'Foo')->title());
     }
 }

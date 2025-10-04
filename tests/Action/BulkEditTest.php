@@ -22,24 +22,24 @@ class BulkEditTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->linkUrlTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->linkToTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->viewTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->localeTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->buttonTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->fieldTests(Action\BulkEdit::new(name: 'edit-status')->field('foo'));
-        $this->entitiesTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->entityTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->controllerTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->actionsTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->inputTests(Action\BulkEdit::new(name: 'edit-status'));
-        $this->assertTrue(Action\BulkDelete::new()->displayButton());
+        $this->urlTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->linkUrlTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->linkToTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->viewTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->localeTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->buttonTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->fieldTests(new Action\BulkEdit(name: 'edit-status')->field('foo'));
+        $this->entitiesTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->entityTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->controllerTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->actionsTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->inputTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->assertTrue(new Action\BulkDelete()->displayButton());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\BulkEdit::new(name: 'edit-status', title: 'title');
+        $action = new Action\BulkEdit(name: 'edit-status', title: 'title');
         $this->assertInstanceof(Action\BulkEdit::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         $this->assertInstanceof(BulkActionInterface::class, $action);
@@ -54,7 +54,7 @@ class BulkEditTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('edit-status', Action\BulkEdit::new(name: 'edit-status')->title());
-        $this->assertSame('Foo', Action\BulkEdit::new(name: 'edit-status', title: 'Foo')->title());
+        $this->assertSame('edit-status', new Action\BulkEdit(name: 'edit-status')->title());
+        $this->assertSame('Foo', new Action\BulkEdit(name: 'edit-status', title: 'Foo')->title());
     }
 }

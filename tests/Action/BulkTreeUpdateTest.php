@@ -22,24 +22,24 @@ class BulkTreeUpdateTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\BulkTreeUpdate::new());
-        $this->linkUrlTests(Action\BulkTreeUpdate::new());
-        $this->linkToTests(Action\BulkTreeUpdate::new());
-        $this->viewTests(Action\BulkTreeUpdate::new());
-        $this->localeTests(Action\BulkTreeUpdate::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\BulkTreeUpdate::new());
-        $this->entitiesTests(Action\BulkTreeUpdate::new());
-        $this->entityTests(Action\BulkTreeUpdate::new());
-        $this->controllerTests(Action\BulkTreeUpdate::new());
-        $this->actionsTests(Action\BulkTreeUpdate::new());
-        $this->inputTests(Action\BulkTreeUpdate::new());
-        $this->assertFalse(Action\BulkTreeUpdate::new()->displayButton());
+        $this->urlTests(new Action\BulkTreeUpdate());
+        $this->linkUrlTests(new Action\BulkTreeUpdate());
+        $this->linkToTests(new Action\BulkTreeUpdate());
+        $this->viewTests(new Action\BulkTreeUpdate());
+        $this->localeTests(new Action\BulkTreeUpdate());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\BulkTreeUpdate());
+        $this->entitiesTests(new Action\BulkTreeUpdate());
+        $this->entityTests(new Action\BulkTreeUpdate());
+        $this->controllerTests(new Action\BulkTreeUpdate());
+        $this->actionsTests(new Action\BulkTreeUpdate());
+        $this->inputTests(new Action\BulkTreeUpdate());
+        $this->assertFalse(new Action\BulkTreeUpdate()->displayButton());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\BulkTreeUpdate::new(title: 'title');
+        $action = new Action\BulkTreeUpdate(title: 'title');
         $this->assertInstanceof(Action\BulkTreeUpdate::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         $this->assertInstanceof(BulkActionInterface::class, $action);
@@ -54,7 +54,7 @@ class BulkTreeUpdateTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Tree Update', Action\BulkTreeUpdate::new()->title());
-        $this->assertSame('Foo', Action\BulkTreeUpdate::new(title: 'Foo')->title());
+        $this->assertSame('Tree Update', new Action\BulkTreeUpdate()->title());
+        $this->assertSame('Foo', new Action\BulkTreeUpdate(title: 'Foo')->title());
     }
 }

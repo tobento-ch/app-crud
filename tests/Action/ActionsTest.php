@@ -26,13 +26,13 @@ class ActionsTest extends TestCase
         $actions = new Actions();
         $this->assertInstanceof(ActionsInterface::class, $actions);
         
-        $actions = new Actions(Action\Create::new());
+        $actions = new Actions(new Action\Create());
         $this->assertFalse($actions->empty());
     }
     
     public function testFilterMethod()
     {
-        $actions = new Actions(Action\Create::new(), Action\Edit::new());
+        $actions = new Actions(new Action\Create(), new Action\Edit());
         $filtered = $actions->filter(fn(ActionInterface $a): bool => $a->name() === 'create');
         
         $this->assertFalse($actions === $filtered);
@@ -42,7 +42,7 @@ class ActionsTest extends TestCase
     
     public function testBulksMethod()
     {
-        $actions = new Actions(Action\Create::new(), Action\BulkEdit::new(name: 'foo'));
+        $actions = new Actions(new Action\Create(), new Action\BulkEdit(name: 'foo'));
         $actionsNew = $actions->bulks();
         
         $this->assertFalse($actions === $actionsNew);
@@ -55,7 +55,7 @@ class ActionsTest extends TestCase
         $actions = new Actions();
         $this->assertSame(null, $actions->first());
         
-        $actions = new Actions(Action\Create::new(), Action\Edit::new());
+        $actions = new Actions(new Action\Create(), new Action\Edit());
         $this->assertSame('create', $actions->first()->name());
     }
     
@@ -64,7 +64,7 @@ class ActionsTest extends TestCase
         $actions = new Actions();
         $this->assertSame(null, $actions->get(name: 'create'));
         
-        $actions = new Actions(Action\Create::new(), Action\Edit::new());
+        $actions = new Actions(new Action\Create(), new Action\Edit());
         $this->assertSame('create', $actions->get(name: 'create')->name());
     }
     
@@ -73,7 +73,7 @@ class ActionsTest extends TestCase
         $actions = new Actions();
         $this->assertSame([], $actions->all());
         
-        $create = Action\Create::new();
+        $create = new Action\Create();
         $actions = new Actions($create);
         $this->assertSame([$create], $actions->all());
     }
@@ -83,7 +83,7 @@ class ActionsTest extends TestCase
         $actions = new Actions();
         $this->assertTrue($actions->empty());
         
-        $actions = new Actions(Action\Create::new());
+        $actions = new Actions(new Action\Create());
         $this->assertFalse($actions->empty());
     }
     
@@ -92,13 +92,13 @@ class ActionsTest extends TestCase
         $actions = new Actions();
         $this->assertSame(0, $actions->count());
         
-        $actions = new Actions(Action\Create::new(), Action\Edit::new());
+        $actions = new Actions(new Action\Create(), new Action\Edit());
         $this->assertSame(2, $actions->count());
     }
     
     public function testIteration()
     {
-        $actions = new Actions(Action\Create::new(), Action\Edit::new());
+        $actions = new Actions(new Action\Create(), new Action\Edit());
         
         foreach($actions as $action) {
             $this->assertInstanceof(ActionInterface::class, $action);

@@ -111,7 +111,7 @@ abstract class AbstractAction extends TestCase
         $this->assertInstanceof(FiltersInterface::class, $action->filters());
         $this->assertSame(0, $action->setFilters(new Filters())->filters()->count());
         $this->assertSame(1, $action->setFilters(new Filters(
-            Filter\FieldsSortOrder::new(),
+            new Filter\FieldsSortOrder(),
         ))->filters()->count());
     }
     

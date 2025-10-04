@@ -21,24 +21,24 @@ class IndexTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Index::new());
-        $this->linkUrlTests(Action\Index::new());
-        $this->linkToTests(Action\Index::new());
-        $this->viewTests(Action\Index::new());
-        $this->localeTests(Action\Index::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\Index::new());
-        $this->filterTests(Action\Index::new());
-        $this->entitiesTests(Action\Index::new());
-        $this->entityTests(Action\Index::new());
-        $this->controllerTests(Action\Index::new());
-        $this->actionsTests(Action\Index::new());
-        $this->inputTests(Action\Index::new());
+        $this->urlTests(new Action\Index());
+        $this->linkUrlTests(new Action\Index());
+        $this->linkToTests(new Action\Index());
+        $this->viewTests(new Action\Index());
+        $this->localeTests(new Action\Index());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\Index());
+        $this->filterTests(new Action\Index());
+        $this->entitiesTests(new Action\Index());
+        $this->entityTests(new Action\Index());
+        $this->controllerTests(new Action\Index());
+        $this->actionsTests(new Action\Index());
+        $this->inputTests(new Action\Index());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Index::new(title: 'title');
+        $action = new Action\Index(title: 'title');
         $this->assertInstanceof(Action\Index::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -52,8 +52,8 @@ class IndexTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Index', Action\Index::new()->title());
-        $this->assertSame('Foo', Action\Index::new(title: 'Foo')->title());        
-        $this->assertSame('Foo', Action\Index::new(title: fn(EntityInterface $e) => 'Foo')->title());
+        $this->assertSame('Index', new Action\Index()->title());
+        $this->assertSame('Foo', new Action\Index(title: 'Foo')->title());        
+        $this->assertSame('Foo', new Action\Index(title: fn(EntityInterface $e) => 'Foo')->title());
     }
 }

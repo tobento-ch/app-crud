@@ -21,23 +21,23 @@ class UpdateTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Update::new());
-        $this->linkUrlTests(Action\Update::new());
-        $this->linkToTests(Action\Update::new());
-        $this->viewTests(Action\Update::new());
-        $this->localeTests(Action\Update::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\Update::new());
-        $this->entitiesTests(Action\Update::new());
-        $this->entityTests(Action\Update::new());
-        $this->controllerTests(Action\Update::new());
-        $this->actionsTests(Action\Update::new());
-        $this->inputTests(Action\Update::new());
+        $this->urlTests(new Action\Update());
+        $this->linkUrlTests(new Action\Update());
+        $this->linkToTests(new Action\Update());
+        $this->viewTests(new Action\Update());
+        $this->localeTests(new Action\Update());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\Update());
+        $this->entitiesTests(new Action\Update());
+        $this->entityTests(new Action\Update());
+        $this->controllerTests(new Action\Update());
+        $this->actionsTests(new Action\Update());
+        $this->inputTests(new Action\Update());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Update::new();
+        $action = new Action\Update();
         $this->assertInstanceof(Action\Update::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,6 +51,6 @@ class UpdateTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Update', Action\Update::new()->title());
+        $this->assertSame('Update', new Action\Update()->title());
     }
 }

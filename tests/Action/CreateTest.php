@@ -21,23 +21,23 @@ class CreateTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Create::new());
-        $this->linkUrlTests(Action\Create::new());
-        $this->linkToTests(Action\Create::new());
-        $this->viewTests(Action\Create::new());
-        $this->localeTests(Action\Create::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\Create::new());
-        $this->entitiesTests(Action\Create::new());
-        $this->entityTests(Action\Create::new());
-        $this->controllerTests(Action\Create::new());
-        $this->actionsTests(Action\Create::new());
-        $this->inputTests(Action\Create::new());
+        $this->urlTests(new Action\Create());
+        $this->linkUrlTests(new Action\Create());
+        $this->linkToTests(new Action\Create());
+        $this->viewTests(new Action\Create());
+        $this->localeTests(new Action\Create());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\Create());
+        $this->entitiesTests(new Action\Create());
+        $this->entityTests(new Action\Create());
+        $this->controllerTests(new Action\Create());
+        $this->actionsTests(new Action\Create());
+        $this->inputTests(new Action\Create());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Create::new(title: 'title');
+        $action = new Action\Create(title: 'title');
         $this->assertInstanceof(Action\Create::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,8 +51,8 @@ class CreateTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Create', Action\Create::new()->title());
-        $this->assertSame('Foo', Action\Create::new(title: 'Foo')->title());        
-        $this->assertSame('Foo', Action\Create::new(title: fn(EntityInterface $e) => 'Foo')->title());
+        $this->assertSame('Create', new Action\Create()->title());
+        $this->assertSame('Foo', new Action\Create(title: 'Foo')->title());        
+        $this->assertSame('Foo', new Action\Create(title: fn(EntityInterface $e) => 'Foo')->title());
     }
 }

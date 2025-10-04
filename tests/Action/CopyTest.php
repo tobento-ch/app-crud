@@ -21,23 +21,23 @@ class CopyTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\Copy::new());
-        $this->linkUrlTests(Action\Copy::new());
-        $this->linkToTests(Action\Copy::new());
-        $this->viewTests(Action\Copy::new());
-        $this->localeTests(Action\Copy::new());
-        $this->buttonTests(Action\Copy::new());
-        $this->fieldTests(Action\Copy::new());
-        $this->entitiesTests(Action\Copy::new());
-        $this->entityTests(Action\Copy::new());
-        $this->controllerTests(Action\Copy::new());
-        $this->actionsTests(Action\Copy::new());
-        $this->inputTests(Action\Copy::new());
+        $this->urlTests(new Action\Copy());
+        $this->linkUrlTests(new Action\Copy());
+        $this->linkToTests(new Action\Copy());
+        $this->viewTests(new Action\Copy());
+        $this->localeTests(new Action\Copy());
+        $this->buttonTests(new Action\Copy());
+        $this->fieldTests(new Action\Copy());
+        $this->entitiesTests(new Action\Copy());
+        $this->entityTests(new Action\Copy());
+        $this->controllerTests(new Action\Copy());
+        $this->actionsTests(new Action\Copy());
+        $this->inputTests(new Action\Copy());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\Copy::new(title: 'title');
+        $action = new Action\Copy(title: 'title');
         $this->assertInstanceof(Action\Copy::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         
@@ -51,8 +51,8 @@ class CopyTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Copy', Action\Copy::new()->title());
-        $this->assertSame('Foo', Action\Copy::new(title: 'Foo')->title());        
-        $this->assertSame('Foo', Action\Copy::new(title: fn(EntityInterface $e) => 'Foo')->title());
+        $this->assertSame('Copy', new Action\Copy()->title());
+        $this->assertSame('Foo', new Action\Copy(title: 'Foo')->title());        
+        $this->assertSame('Foo', new Action\Copy(title: fn(EntityInterface $e) => 'Foo')->title());
     }
 }

@@ -22,24 +22,24 @@ class BulkDeleteTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
     {
-        $this->urlTests(Action\BulkDelete::new());
-        $this->linkUrlTests(Action\BulkDelete::new());
-        $this->linkToTests(Action\BulkDelete::new());
-        $this->viewTests(Action\BulkDelete::new());
-        $this->localeTests(Action\BulkDelete::new());
-        $this->buttonTests(Action\Create::new());
-        $this->fieldTests(Action\BulkDelete::new());
-        $this->entitiesTests(Action\BulkDelete::new());
-        $this->entityTests(Action\BulkDelete::new());
-        $this->controllerTests(Action\BulkDelete::new());
-        $this->actionsTests(Action\BulkDelete::new());
-        $this->inputTests(Action\BulkDelete::new());
-        $this->assertTrue(Action\BulkDelete::new()->displayButton());
+        $this->urlTests(new Action\BulkDelete());
+        $this->linkUrlTests(new Action\BulkDelete());
+        $this->linkToTests(new Action\BulkDelete());
+        $this->viewTests(new Action\BulkDelete());
+        $this->localeTests(new Action\BulkDelete());
+        $this->buttonTests(new Action\Create());
+        $this->fieldTests(new Action\BulkDelete());
+        $this->entitiesTests(new Action\BulkDelete());
+        $this->entityTests(new Action\BulkDelete());
+        $this->controllerTests(new Action\BulkDelete());
+        $this->actionsTests(new Action\BulkDelete());
+        $this->inputTests(new Action\BulkDelete());
+        $this->assertTrue(new Action\BulkDelete()->displayButton());
     }
     
     public function testDefaultAction()
     {
-        $action = Action\BulkDelete::new(title: 'title');
+        $action = new Action\BulkDelete(title: 'title');
         $this->assertInstanceof(Action\BulkDelete::class, $action);
         $this->assertInstanceof(ActionInterface::class, $action);
         $this->assertInstanceof(BulkActionInterface::class, $action);
@@ -54,7 +54,7 @@ class BulkDeleteTest extends AbstractAction
     
     public function testTitleMethod()
     {
-        $this->assertSame('Delete', Action\BulkDelete::new()->title());
-        $this->assertSame('Foo', Action\BulkDelete::new(title: 'Foo')->title());
+        $this->assertSame('Delete', new Action\BulkDelete()->title());
+        $this->assertSame('Foo', new Action\BulkDelete(title: 'Foo')->title());
     }
 }
