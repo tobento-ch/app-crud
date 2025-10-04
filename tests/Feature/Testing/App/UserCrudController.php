@@ -44,15 +44,15 @@ class UserCrudController extends AbstractCrudController
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
         return [
-            Field\Text::new('id'),
-            Field\Text::new('number'),
-            Field\Text::new('type'),
-            Field\Text::new('username'),
-            Field\Text::new('email')->infoText('Email info ...'),
-            Field\Text::new('smartphone')
+            new Field\Text('id'),
+            new Field\Text('number'),
+            new Field\Text('type'),
+            new Field\Text('username'),
+            new Field\Text('email')->infoText('Email info ...'),
+            new Field\Text('smartphone')
                 ->validate('required|string')
                 ->requiredText('Required smartphone ...'),
-            Field\Text::new('translatable')
+            new Field\Text('translatable')
                 ->validate('alnum')
                 ->translatable()
                 ->infoText('Translatable info text ...')
@@ -68,15 +68,15 @@ class UserCrudController extends AbstractCrudController
     protected function configureActions(): iterable|ActionsInterface
     {
         return [
-            Action\BulkDelete::new(),
-            Action\BulkEdit::new(name: 'bulk-edit')->field('smartphone'),
-            Action\Index::new('Users'),
-            Action\Create::new('New user'),
-            Action\Store::new(),
-            Action\Edit::new(fn ($entity) => 'Edit User: '.$entity?->get('id')),
-            Action\Update::new(),
-            Action\Show::new(),
-            Action\Delete::new(),
+            new Action\BulkDelete(),
+            new Action\BulkEdit(name: 'bulk-edit')->field('smartphone'),
+            new Action\Index('Users'),
+            new Action\Create('New user'),
+            new Action\Store(),
+            new Action\Edit(fn ($entity) => 'Edit User: '.$entity?->get('id')),
+            new Action\Update(),
+            new Action\Show(),
+            new Action\Delete(),
         ];
     }
     
@@ -89,31 +89,31 @@ class UserCrudController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         $filters = [
-            Filter\Columns::new()
+            new Filter\Columns()
                 ->open(false),
-            Filter\Select::new('category')
+            new Filter\Select('category')
                 ->group('header'),
-            Filter\Select::new('sku-select', 'sku')
+            new Filter\Select('sku-select', 'sku')
                 ->group('header')
                 //->options(['blue' => 'Blue', 'red' => 'RED']),
                 ->options(fn () => ['blue' => 'Blue', 'red' => 'RED']),
-            Filter\Input::new('sku-same', 'sku')
+            new Filter\Input('sku-same', 'sku')
                 ->type('number')
                 ->comparison('>')
                 ->group('header'),
-            Filter\FieldsSortOrder::new()
+            new Filter\FieldsSortOrder()
                 ->only('sku', 'title', 'price'),
                 //->except('title', 'price'),
-            ...Filter\Fields::new()
+            ...new Filter\Fields()
                ->group('field')
                //->open(false)
                ->fields($action->fields())
                //->only('sku')
                ->toFilters(),
-            Filter\PaginationItemsPerPage::new()
+            new Filter\PaginationItemsPerPage()
                 ->group('footer')
                 ->open(false),
-            Filter\Pagination::new(),
+            new Filter\Pagination(),
         ];
         
         return $filters;

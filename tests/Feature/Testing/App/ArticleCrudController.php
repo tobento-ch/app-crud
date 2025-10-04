@@ -43,10 +43,10 @@ class ArticleCrudController extends AbstractCrudController
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
         return [
-            Field\Text::new('id'),
-            Field\Text::new('name'),
-            Field\Text::new('title')->validate('required|htmlclean')->translatable(),
-            Field\Text::new('desc'),
+            new Field\Text('id'),
+            new Field\Text('name'),
+            new Field\Text('title')->validate('required|htmlclean')->translatable(),
+            new Field\Text('desc'),
         ];
     }
     
@@ -58,15 +58,15 @@ class ArticleCrudController extends AbstractCrudController
     protected function configureActions(): iterable|ActionsInterface
     {
         return [
-            Action\BulkDelete::new(),
-            Action\BulkEdit::new(name: 'bulk-edit')->field('smartphone'),
-            Action\Index::new('Articles'),
-            Action\Create::new('New Article'),
-            Action\Store::new(),
-            Action\Edit::new(fn ($entity) => 'Edit Article: '.$entity?->get('id')),
-            Action\Update::new(),
-            Action\Show::new(),
-            Action\Delete::new(),
+            new Action\BulkDelete(),
+            new Action\BulkEdit(name: 'bulk-edit')->field('smartphone'),
+            new Action\Index('Articles'),
+            new Action\Create('New Article'),
+            new Action\Store(),
+            new Action\Edit(fn ($entity) => 'Edit Article: '.$entity?->get('id')),
+            new Action\Update(),
+            new Action\Show(),
+            new Action\Delete(),
         ];
     }
     
@@ -79,30 +79,30 @@ class ArticleCrudController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         $filters = [
-            Filter\Columns::new()
+            new Filter\Columns()
                 ->open(false),
-            Filter\Select::new('category')
+            new Filter\Select('category')
                 ->group('header'),
-            Filter\Select::new('sku-select', 'status')
+            new Filter\Select('sku-select', 'status')
                 ->group('header')
                 //->options(['blue' => 'Blue', 'red' => 'RED']),
                 ->options(fn () => ['blue' => 'Blue', 'red' => 'RED']),
-            Filter\Input::new('sku-same', 'sku')
+            new Filter\Input('sku-same', 'sku')
                 ->type('number')
                 ->comparison('>')
                 ->group('header'),
-            Filter\FieldsSortOrder::new()
+            new Filter\FieldsSortOrder()
                 ->only('status', 'title'),
-            ...Filter\Fields::new()
+            ...new Filter\Fields()
                ->group('field')
                //->open(false)
                ->fields($action->fields())
                //->only('sku')
                ->toFilters(),
-            Filter\PaginationItemsPerPage::new()
+            new Filter\PaginationItemsPerPage()
                 ->group('footer')
                 ->open(false),
-            Filter\Pagination::new(),
+            new Filter\Pagination(),
         ];
         
         return $filters;
