@@ -48,22 +48,6 @@ final class Dropdown extends AbstractButton implements ButtonsAwareInterface
     }
     
     /**
-     * Create a new instance.
-     *
-     * @param string $label
-     * @param string $group
-     * @param null|string $icon
-     * @return static
-     */
-    public static function new(
-        string $label,
-        string $group,
-        null|string $icon = null,
-    ): static {
-        return new static($label, $group, $icon);
-    }
-    
-    /**
      * Sets the buttons.
      *
      * @param ButtonInterface $button

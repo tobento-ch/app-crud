@@ -43,18 +43,6 @@ final class Html extends AbstractButton
     }
     
     /**
-     * Create a new instance.
-     *
-     * @param string $group
-     * @return static
-     */
-    public static function new(
-        string $group,
-    ): static {
-        return new static($group);
-    }
-    
-    /**
      * Sets the html. MUST be escaped.
      *
      * @param string|Stringable|Closure $html
