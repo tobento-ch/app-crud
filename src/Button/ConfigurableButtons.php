@@ -316,7 +316,7 @@ trait ConfigurableButtons
                     continue;
                 }
                 
-                $button = Dropdown::new(
+                $button = new Dropdown(
                     label: $group['label'] ?? '',
                     icon: $group['icon'] ?? null,
                     group: $groupName ?? '',
