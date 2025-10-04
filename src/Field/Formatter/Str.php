@@ -57,9 +57,11 @@ class Str
     /**
      * Formats value.
      *
-     * @param array $values
+     * @param mixed $value
      * @param FieldInterface $field
      * @return string
+     * @psalm-suppress TypeDoesNotContainType
+     * @psalm-suppress RedundantCondition
      */
     protected function formatValue(mixed $value, Field\FieldInterface $field): string
     {

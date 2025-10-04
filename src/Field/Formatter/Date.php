@@ -94,7 +94,7 @@ class Date
     /**
      * Formats value.
      *
-     * @param array $values
+     * @param array $value
      * @param FieldInterface $field
      * @return string
      */
