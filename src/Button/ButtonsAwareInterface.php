@@ -21,7 +21,7 @@ interface ButtonsAwareInterface
     /**
      * Sets the buttons.
      *
-     * @param ButtonInterface $button
+     * @param ButtonInterface $buttons
      * @return static $this
      */
     public function buttons(ButtonInterface ...$buttons): static;
