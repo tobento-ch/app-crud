@@ -24,15 +24,15 @@ class ValidationExceptionTest extends TestCase
 {
     public function testException()
     {
-        $validation = new Validation(rule: new Rule\Same(), value: 'value');
-        $action = Index::new();
+        $validation = new Validation(rule: new Rule\Same(), value: 'value', key: 'password');
+        $action = new Index();
         $e = new ValidationException(validation: $validation, action: $action);
         
         $this->assertInstanceof(ActionProcessException::class, $e);
         $this->assertTrue($validation === $e->validation());
         $this->assertTrue($action === $e->action());
         $this->assertSame(null, $e->redirectActionName());
-        $this->assertSame('Processing index action failed.', $e->getMessage());
+        $this->assertSame('The password and [0] must match.', $e->getMessage());
         
         $e = new ValidationException(
             validation: $validation,
