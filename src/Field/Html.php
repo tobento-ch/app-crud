@@ -32,11 +32,9 @@ class Html extends AbstractField
      * Create a new Html instance.
      *
      * @param string $name
-     * @param null|string $label
      */
     final public function __construct(
         string $name,
-        null|string $label = null,
     ) {
         $this->name = $name;
         $this->process('create|edit|index|show', [$this, 'processRender']);
