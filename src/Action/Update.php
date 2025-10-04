@@ -24,7 +24,7 @@ use Tobento\Service\Validation\ValidatorInterface;
 final class Update extends AbstractAction
 {
     /**
-     * @var null|callable|array<array-key, int|string>
+     * @var null|callable(EntityInterface):bool|array<array-key, int|string>
      */
     private $unupdatable = null;
     
@@ -77,7 +77,7 @@ final class Update extends AbstractAction
     /**
      * Sets the unupdatable ids or using a callback returning whether the entity is unupdatable.
      *
-     * @param callable|array<array-key, int|string> $ids
+     * @param callable(EntityInterface):bool|array<array-key, int|string> $ids
      * @param string $reason
      * @return static $this
      */

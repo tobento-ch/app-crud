@@ -22,7 +22,7 @@ use Closure;
 final class Delete extends AbstractAction
 {
     /**
-     * @var null|callable|array<array-key, int|string>
+     * @var null|callable(EntityInterface):bool|array<array-key, int|string>
      */
     private $undeletable = null;
     
@@ -79,7 +79,7 @@ final class Delete extends AbstractAction
     /**
      * Sets the undeletable ids or using a callback returning whether the entity is undeletable.
      *
-     * @param callable|array<array-key, int|string> $ids
+     * @param callable(EntityInterface):bool|array<array-key, int|string> $ids
      * @param string $reason
      * @return static $this
      */
