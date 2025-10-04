@@ -197,7 +197,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Add a resolvement.
      *
-     * @param callable $readonly
+     * @param callable $resolve
      * @param null|callable $resolved
      * @param null|string $action
      * @return static $this
@@ -307,7 +307,7 @@ abstract class AbstractField implements FieldInterface
     /**
      * Set the parent field name.
      *
-     * @param string $name
+     * @param string $field
      * @return static $this
      */
     public function parent(string $field): static
