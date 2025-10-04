@@ -62,7 +62,7 @@ final class Show extends AbstractAction
         }
         
         $this->buttons = new Buttons(
-            Button\Link::new(label: $this->trans('Back to index'), group: 'entity')
+            new Button\Link(label: $this->trans('Back to index'), group: 'entity')
                 ->name('back')
                 ->linkToAction('index'),
         );

@@ -63,29 +63,29 @@ final class Edit extends AbstractAction
         }
         
         $this->buttons = new Buttons(
-            Button\Link::new(label: $this->trans('Cancel'), group: 'entity')
+            new Button\Link(label: $this->trans('Cancel'), group: 'entity')
                 ->name('cancel')
                 ->linkToAction('index'),
-            Button\Button::new(label: $this->trans('Save'), group: 'entity')
+            new Button\Button(label: $this->trans('Save'), group: 'entity')
                 ->name('save')
                 ->attr(name: 'name', value: 'next_action')
                 ->attr(name: 'value', value: 'edit')
                 ->attr(name: 'data-loading', value: 'true')
                 ->ajaxAction($this->trans('Record saved successfully.'))
                 ->primary(),
-            Button\Button::new(label: $this->trans('Save & Close'), group: 'entity')
+            new Button\Button(label: $this->trans('Save & Close'), group: 'entity')
                 ->name('close')
                 ->attr(name: 'data-loading', value: 'true')
                 ->ajaxAction()
                 ->primary(),
-            Button\Button::new(label: $this->trans('Save & Copy'), group: 'entity')
+            new Button\Button(label: $this->trans('Save & Copy'), group: 'entity')
                 ->name('copy')
                 ->attr(name: 'name', value: 'next_action')
                 ->attr(name: 'value', value: 'copy')
                 ->attr(name: 'data-loading', value: 'true')
                 ->ajaxAction()
                 ->primary(),
-            Button\Button::new(label: $this->trans('Save & New'), group: 'entity')
+            new Button\Button(label: $this->trans('Save & New'), group: 'entity')
                 ->name('new')
                 ->attr(name: 'name', value: 'next_action')
                 ->attr(name: 'value', value: 'create')

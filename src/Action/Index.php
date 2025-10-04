@@ -59,34 +59,34 @@ final class Index extends AbstractAction
         }
         
         $this->buttons = new Buttons(
-            Button\Link::new(label: $this->trans('Create New'), group: 'global')
+            new Button\Link(label: $this->trans('Create New'), group: 'global')
                 ->name('create')
                 ->linkToAction('create'),
-            Button\Link::new(label: $this->trans('Edit'), group: 'entity')
+            new Button\Link(label: $this->trans('Edit'), group: 'entity')
                 ->name('edit')
                 ->raw()
                 ->linkToAction('edit'),
-            Button\Link::new(label: $this->trans('Copy'), group: 'entity')
+            new Button\Link(label: $this->trans('Copy'), group: 'entity')
                 ->name('copy')
                 ->raw()
                 ->linkToAction('copy'),
-            Button\Link::new(label: $this->trans('Show'), group: 'entity')
+            new Button\Link(label: $this->trans('Show'), group: 'entity')
                 ->name('show')
                 ->raw()
                 ->linkToAction('show'),
-            Button\Link::new(label: $this->trans('Data'), group: 'entity')
+            new Button\Link(label: $this->trans('Data'), group: 'entity')
                 ->name('show.json')
                 ->linkToAction('show.json')
                 ->raw()
                 ->attr('target', '_blank'),
-            Button\Delete::new(label: $this->trans('Delete'), group: 'entity')
+            new Button\Delete(label: $this->trans('Delete'), group: 'entity')
                 ->name('delete')
                 ->raw()
                 ->askConfirmation()
                 ->ajaxAction()
                 ->linkToAction('delete'),
             // required for table editing columns:
-            Button\Link::new(label: 'Update', group: 'invisible')
+            new Button\Link(label: 'Update', group: 'invisible')
                 ->name('update')
                 ->linkToAction('update'),
         );
