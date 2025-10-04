@@ -22,7 +22,7 @@ class EntityNotFoundExceptionTest extends TestCase
 {
     public function testException()
     {
-        $action = Index::new();
+        $action = new Index();
         $e = new EntityNotFoundException(id: 'foo', action: $action);
         
         $this->assertInstanceof(RuntimeException::class, $e);

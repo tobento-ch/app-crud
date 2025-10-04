@@ -22,7 +22,7 @@ class EntityUndeletableExceptionTest extends TestCase
 {
     public function testException()
     {
-        $action = Delete::new();
+        $action = new Delete();
         $e = new EntityUndeletableException(id: 'foo', action: $action);
         
         $this->assertInstanceof(RuntimeException::class, $e);
@@ -34,7 +34,7 @@ class EntityUndeletableExceptionTest extends TestCase
         $this->assertSame(5, $e->id());
         $this->assertSame('Custom', $e->getMessage());
         
-        $action = Delete::new();
+        $action = new Delete();
         $action->undeletable([1], 'Reason');
         $e = new EntityUndeletableException(id: 'foo', action: $action);
         $this->assertSame('Reason', $e->getMessage());

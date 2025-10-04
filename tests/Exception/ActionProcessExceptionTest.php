@@ -22,7 +22,7 @@ class ActionProcessExceptionTest extends TestCase
 {
     public function testException()
     {
-        $action = Index::new();
+        $action = new Index();
         $e = new ActionProcessException(action: $action);
         
         $this->assertInstanceof(RuntimeException::class, $e);

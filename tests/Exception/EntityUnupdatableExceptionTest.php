@@ -22,7 +22,7 @@ class EntityUnupdatableExceptionTest extends TestCase
 {
     public function testException()
     {
-        $action = Update::new();
+        $action = new Update();
         $e = new EntityUnupdatableException(id: 'foo', action: $action);
         
         $this->assertInstanceof(RuntimeException::class, $e);
@@ -34,7 +34,7 @@ class EntityUnupdatableExceptionTest extends TestCase
         $this->assertSame(5, $e->id());
         $this->assertSame('Custom', $e->getMessage());
         
-        $action = Update::new();
+        $action = new Update();
         $action->unupdatable([5], 'Reason');
         $e = new EntityUnupdatableException(id: 5, action: $action, message: '');
         $this->assertSame('Reason', $e->getMessage());
