@@ -31,7 +31,6 @@ final class Html extends AbstractButton
      * Create a new Form instance.
      *
      * @param string $group
-     * @param null|string $icon
      */
     public function __construct(
         string $group,
