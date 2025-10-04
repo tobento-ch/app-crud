@@ -71,7 +71,7 @@ class CrudTableRenderer extends Renderer
         $attributes = new Attributes($table->getAttributes());
         $attributes->add('class', 'table');
         $attributes->add('role', 'table');
-        $html = '<div'.$attributes.'>';
+        $html = '<div'.(string)$attributes.'>';
         
         foreach($groups as $groupName => $rows) {
             if (empty($rows)) {
@@ -92,7 +92,7 @@ class CrudTableRenderer extends Renderer
                     $attributes->add('class', 'th');
                 }
 
-                $html .= '<div'.$attributes.'>';
+                $html .= '<div'.(string)$attributes.'>';
 
                 if ($row->prependedHtml()) {
                     $html .= $row->prependedHtml();
@@ -121,7 +121,7 @@ class CrudTableRenderer extends Renderer
                         $attributes = new Attributes($column->attributes());
                         $attributes->add('class', 'table-col grow-'.Str::esc((string)$size));
                         $attributes->set('role', $role);
-                        $html .= '<div'.$attributes.'>'.$text.'</div>';
+                        $html .= '<div'.(string)$attributes.'>'.$text.'</div>';
                     }
                 }
 
