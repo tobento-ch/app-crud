@@ -51,7 +51,7 @@ class Buttons implements ButtonsInterface
     /**
      * Adds a button or multiple.
      *
-     * @param ButtonInterface ...$button
+     * @param ButtonInterface ...$buttons
      * @return static $this
      */
     public function add(ButtonInterface ...$buttons): static
@@ -66,7 +66,7 @@ class Buttons implements ButtonsInterface
     /**
      * Removes a button or multiple.
      *
-     * @param string ...$name
+     * @param string ...$names
      * @return static $this
      */
     public function remove(string ...$names): static
@@ -82,7 +82,7 @@ class Buttons implements ButtonsInterface
     /**
      * Returns a new instance with the buttons orderd by the names set.
      *
-     * @param string ...$name
+     * @param string ...$names
      * @return static
      */
     public function reorder(string ...$names): static
@@ -177,7 +177,7 @@ class Buttons implements ButtonsInterface
     /**
      * Get iterator.
      *
-     * @return Traversable
+     * @return Traversable<string, ButtonInterface>
      */
     public function getIterator(): Traversable
     {

@@ -18,7 +18,7 @@ use IteratorAggregate;
 use Tobento\Service\Support\Arrayable;
 
 /**
- * EntitiesInterface
+ * @extends IteratorAggregate<int, EntityInterface>
  */
 interface EntitiesInterface extends Countable, IteratorAggregate, Arrayable
 {

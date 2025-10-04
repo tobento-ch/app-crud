@@ -18,7 +18,7 @@ use Countable;
 use Tobento\App\Crud\Action\ActionInterface;
 
 /**
- * FieldsInterface
+ * @extends IteratorAggregate<string, FieldInterface>
  */
 interface FieldsInterface extends IteratorAggregate, Countable
 {

@@ -146,7 +146,7 @@ final class Entities implements EntitiesInterface
     /**
      * Get iterator.
      *
-     * @return Traversable
+     * @return Traversable<int, EntityInterface>
      */
     public function getIterator(): Traversable
     {

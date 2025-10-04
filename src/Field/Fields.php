@@ -267,7 +267,7 @@ class Fields implements FieldsInterface
     /**
      * Get iterator.
      *
-     * @return Traversable
+     * @return Traversable<string, FieldInterface>
      */
     public function getIterator(): Traversable
     {

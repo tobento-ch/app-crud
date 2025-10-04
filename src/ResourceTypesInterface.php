@@ -16,6 +16,9 @@ namespace Tobento\App\Crud;
 use IteratorAggregate;
 use Tobento\App\Crud\Exception\ResourceTypeNotFoundException;
 
+/**
+ * @extends IteratorAggregate<string, ResourceTypeInterface>
+ */
 interface ResourceTypesInterface extends IteratorAggregate
 {
     /**

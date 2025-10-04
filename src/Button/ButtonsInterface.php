@@ -17,7 +17,7 @@ use IteratorAggregate;
 use Countable;
 
 /**
- * ButtonsInterface
+ * @extends IteratorAggregate<string, ButtonInterface>
  */
 interface ButtonsInterface extends IteratorAggregate, Countable
 {
@@ -32,7 +32,7 @@ interface ButtonsInterface extends IteratorAggregate, Countable
     /**
      * Adds a button or multiple.
      *
-     * @param ButtonInterface ...$button
+     * @param ButtonInterface ...$buttons
      * @return static $this
      */
     public function add(ButtonInterface ...$buttons): static;
@@ -40,7 +40,7 @@ interface ButtonsInterface extends IteratorAggregate, Countable
     /**
      * Removes a button or multiple.
      *
-     * @param string ...$name
+     * @param string ...$names
      * @return static $this
      */
     public function remove(string ...$names): static;
@@ -48,7 +48,7 @@ interface ButtonsInterface extends IteratorAggregate, Countable
     /**
      * Returns a new instance with the buttons orderd by the names set.
      *
-     * @param string ...$name
+     * @param string ...$names
      * @return static
      */
     public function reorder(string ...$names): static;

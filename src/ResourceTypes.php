@@ -115,7 +115,7 @@ class ResourceTypes implements ResourceTypesInterface
     /**
      * Get iterator.
      *
-     * @return Traversable
+     * @return Traversable<string, ResourceTypeInterface>
      */
     public function getIterator(): Traversable
     {

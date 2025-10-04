@@ -17,7 +17,7 @@ use IteratorAggregate;
 use Countable;
 
 /**
- * ActionsInterface
+ * @extends IteratorAggregate<int, ActionInterface>
  */
 interface ActionsInterface extends IteratorAggregate, Countable
 {

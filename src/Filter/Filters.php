@@ -147,7 +147,7 @@ class Filters implements FiltersInterface
     /**
      * Returns a new instance with the specified open filtered.
      *
-     * @param string $name
+     * @param bool $open
      * @return static
      */
     public function open(bool $open = true): static
@@ -235,7 +235,7 @@ class Filters implements FiltersInterface
     /**
      * Get iterator.
      *
-     * @return Traversable
+     * @return Traversable<string, FilterInterface>
      */
     public function getIterator(): Traversable
     {
