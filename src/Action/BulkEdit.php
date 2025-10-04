@@ -110,6 +110,8 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
      *
      * @return void
      * @throws ActionProcessException
+     * @psalm-suppress RedundantCondition
+     * @psalm-suppress NoValue
      */
     public function processBulk(): void
     {
