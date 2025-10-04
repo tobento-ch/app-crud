@@ -232,7 +232,7 @@ class Columns extends AbstractFilter
             'data-filter-sortable' => 'filter.'.$this->name().'.'.$this->getGroup(),
         ]);
         
-        $body = '<div'.$attributes.'>';
+        $body = '<div'.(string)$attributes.'>';
         
         $name = $form->nameToArray('filter.'.$this->name().'.');
         
