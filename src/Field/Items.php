@@ -78,18 +78,6 @@ class Items extends AbstractField implements FieldsAwareInterface
         $this->configure();
         $this->storable(false);
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
     
     /**
      * Set if the attribute is translatable.

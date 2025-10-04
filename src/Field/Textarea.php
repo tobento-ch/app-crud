@@ -46,18 +46,6 @@ class Textarea extends AbstractField
         $this->process('show', [$this, 'processShow']);
         $this->configure();
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
     
     /**
      * Processes the create and edit action.

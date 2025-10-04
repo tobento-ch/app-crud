@@ -63,18 +63,6 @@ class Text extends AbstractField
     }
 
     /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
-
-    /**
      * Sets the value.
      *
      * @param string|array $value

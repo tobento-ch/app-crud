@@ -80,18 +80,6 @@ class Files extends AbstractField implements FieldsAwareInterface
         // call validate as to add rule:
         $this->validate([]);
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
     
     /**
      * Returns whether the attribute is storable.

@@ -48,18 +48,6 @@ class TextEditor extends AbstractField
         $this->process('update', [$this, 'processUpdate']);
         $this->configure();
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
     
     /**
      * Sets the editor config.

@@ -81,18 +81,6 @@ class Select extends AbstractField implements OptionsAwareInterface
     }
     
     /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
-    
-    /**
      * Sets the options.
      *
      * @param iterable|callable $options

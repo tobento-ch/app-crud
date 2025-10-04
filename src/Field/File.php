@@ -79,18 +79,6 @@ class File extends AbstractField implements FieldsAwareInterface
         $this->storable(false);
         $this->group($this->label());
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
     
     /**
      * Returns the label.

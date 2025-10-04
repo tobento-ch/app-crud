@@ -88,18 +88,6 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
     }
 
     /**
-     * Create a new instance.
-     *
-     * @param string $name
-     * @param null|string $label
-     * @return static
-     */
-    public static function new(string $name, null|string $label = null): static
-    {
-        return new static($name, $label);
-    }
-
-    /**
      * Set whether to prepend group name to fields.
      *
      * @param bool $prepend
