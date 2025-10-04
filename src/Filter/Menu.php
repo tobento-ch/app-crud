@@ -314,7 +314,7 @@ class Menu extends AbstractFilter
             return;
         }
         
-        $menuItem = $menu->link('?filter['.$this->name().']='.$id, (string)$name)->id((string)$id);
+        $menuItem = $menu->link('?filter['.$this->name().']='.(string)$id, (string)$name)->id((string)$id);
         
         if (!empty($parent) && is_scalar($parent)) {
             $menuItem->parent((string)$parent);
