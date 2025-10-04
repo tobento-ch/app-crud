@@ -56,7 +56,9 @@ final class BulkTreeUpdate extends AbstractAction implements BulkActionInterface
     /**
      * Sets the field mapping.
      *
-     * @param string ...$names
+     * @param null|string $id
+     * @param null|string $parentId
+     * @param null|string $sortorder
      * @return static $this
      */
     public function mapping(null|string $id = null, null|string $parentId = null, null|string $sortorder = null): static
