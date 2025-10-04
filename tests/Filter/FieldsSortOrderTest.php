@@ -27,7 +27,7 @@ class FieldsSortOrderTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('sort', $filter->name());
@@ -48,15 +48,15 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplySort()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc', 'title' => 'desc']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -70,15 +70,15 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplySortSkipsInvalidField()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc', 'invalid' => 'desc']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -90,15 +90,15 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplySortSkipsInvalidFieldAsArray()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc', []]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -110,15 +110,15 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplySortSkipsInvalidSortValue()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc', 'title' => 'invalid']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -130,15 +130,15 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplySortSkipsInvalidSortValueAsArray()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc', 'title' => []]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -150,13 +150,13 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplySortSkipsInvalidValue()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => 'invalid']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
             )),
         );
         
@@ -167,13 +167,13 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyResortSetsAsc()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['resort' => 'sku']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -184,13 +184,13 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyResortSetsDescIfAscBefore()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc'], 'resort' => 'sku']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -201,13 +201,13 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyResortRemovesIfDescBefore()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'desc'], 'resort' => 'sku']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -218,13 +218,13 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyResortIngoresInvalid()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['resort' => 'invalid']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -235,14 +235,14 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyWithDefault()
     {
-        $filter = FieldsSortOrder::new()->addDefault(name: 'sku', value: 'asc');
+        $filter = new FieldsSortOrder()->addDefault(name: 'sku', value: 'asc');
         
         $filter->apply(
             input: new Input([]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -254,14 +254,14 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyWithDefaultNotAppliedIfInput()
     {
-        $filter = FieldsSortOrder::new()->addDefault(name: 'sku', value: 'asc');
+        $filter = new FieldsSortOrder()->addDefault(name: 'sku', value: 'asc');
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'desc']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -273,14 +273,14 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyWithActive()
     {
-        $filter = FieldsSortOrder::new()->addActive(name: 'sku', value: 'asc');
+        $filter = new FieldsSortOrder()->addActive(name: 'sku', value: 'asc');
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'desc']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -292,14 +292,14 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyWithActiveGetsAppliedAfterApply()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'desc']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -313,25 +313,25 @@ class FieldsSortOrderTest extends TestCase
     
     public function testApplyClearsSorted()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(['sort' => ['sku' => 'asc', 'title' => 'desc']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
         $filter->apply(
             input: new Input([]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );        
         
@@ -342,14 +342,14 @@ class FieldsSortOrderTest extends TestCase
     
     public function testIsSortable()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
 
@@ -360,14 +360,14 @@ class FieldsSortOrderTest extends TestCase
     
     public function testRender()
     {
-        $filter = FieldsSortOrder::new();
+        $filter = new FieldsSortOrder();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         

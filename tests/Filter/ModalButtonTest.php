@@ -26,7 +26,7 @@ class ModalButtonTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = ModalButton::new();
+        $filter = new ModalButton();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('modal-button', $filter->name());
@@ -47,14 +47,14 @@ class ModalButtonTest extends TestCase
     
     public function testRender()
     {
-        $filter = ModalButton::new();
+        $filter = new ModalButton();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('modal'),
+                new Filter\Input(name: 'foo')->group('modal'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -63,14 +63,14 @@ class ModalButtonTest extends TestCase
     
     public function testRenderReturnsEmptyStringIfNoModalGroupFilters()
     {
-        $filter = ModalButton::new();
+        $filter = new ModalButton();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('header'),
+                new Filter\Input(name: 'foo')->group('header'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -79,14 +79,14 @@ class ModalButtonTest extends TestCase
     
     public function testRenderWithSpecificNameAndLabel()
     {
-        $filter = ModalButton::new(name: 'foo')->label('Show Filters');
+        $filter = new ModalButton(name: 'foo')->label('Show Filters');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('modal'),
+                new Filter\Input(name: 'foo')->group('modal'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -95,14 +95,14 @@ class ModalButtonTest extends TestCase
     
     public function testRenderWithAttributes()
     {
-        $filter = ModalButton::new(name: 'foo')->attributes(['data-foo' => 'Foo', 'class' => 'btn']);
+        $filter = new ModalButton(name: 'foo')->attributes(['data-foo' => 'Foo', 'class' => 'btn']);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('modal'),
+                new Filter\Input(name: 'foo')->group('modal'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());

@@ -27,7 +27,7 @@ class ColumnsTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('columns', $filter->name());
@@ -48,15 +48,15 @@ class ColumnsTest extends TestCase
     
     public function testApplyFields()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(['columns' => ['id', 'sku']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -67,15 +67,15 @@ class ColumnsTest extends TestCase
     
     public function testApplyUsesDefaultFields()
     {
-        $filter = Columns::new()->default('title', 'sku');
+        $filter = new Columns()->default('title', 'sku');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -86,12 +86,12 @@ class ColumnsTest extends TestCase
     
     public function testApplyReordersFields()
     {
-        $filter = Columns::new()->reorder('title', 'sku');
+        $filter = new Columns()->reorder('title', 'sku');
         
-        $action = Index::new()->setFields(new Fields(
-            Field\Text::new(name: 'id'),
-            Field\Text::new(name: 'sku'),
-            Field\Text::new(name: 'title'),
+        $action = new Index()->setFields(new Fields(
+            new Field\Text(name: 'id'),
+            new Field\Text(name: 'sku'),
+            new Field\Text(name: 'title'),
         ));
         
         $filter->apply(
@@ -108,12 +108,12 @@ class ColumnsTest extends TestCase
     
     public function testApplyReordersFieldsFromInput()
     {
-        $filter = Columns::new()->reorder('title', 'sku');
+        $filter = new Columns()->reorder('title', 'sku');
         
-        $action = Index::new()->setFields(new Fields(
-            Field\Text::new(name: 'id'),
-            Field\Text::new(name: 'sku'),
-            Field\Text::new(name: 'title'),
+        $action = new Index()->setFields(new Fields(
+            new Field\Text(name: 'id'),
+            new Field\Text(name: 'sku'),
+            new Field\Text(name: 'title'),
         ));
         
         $filter->apply(
@@ -130,13 +130,13 @@ class ColumnsTest extends TestCase
     
     public function testApplyWithEmptyDataAppliesDefaultFields()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -146,19 +146,19 @@ class ColumnsTest extends TestCase
     
     public function testApplyWithEmptyDataAppliesDefaultFieldsLimits()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
-                Field\Text::new(name: 'desc'),
-                Field\Text::new(name: 'intro'),
-                Field\Text::new(name: 'created_at'),
-                Field\Text::new(name: 'actions'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
+                new Field\Text(name: 'desc'),
+                new Field\Text(name: 'intro'),
+                new Field\Text(name: 'created_at'),
+                new Field\Text(name: 'actions'),
             )),
         );
         
@@ -168,13 +168,13 @@ class ColumnsTest extends TestCase
     
     public function testApplyWithNoneDataAppliesDefaultFields()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(['columns' => ['_none']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -184,13 +184,13 @@ class ColumnsTest extends TestCase
     
     public function testApplyWithInvalidDataTypeAppliesDefaultFields()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(['columns' => 'invalid']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -200,14 +200,14 @@ class ColumnsTest extends TestCase
     
     public function testApplyIgnoresInvalidFields()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(['columns' => ['id', 'invalid', ['invalid']]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -217,14 +217,14 @@ class ColumnsTest extends TestCase
     
     public function testApplyIgnoresNotIndexableFields()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(['columns' => ['id', 'sku']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku')->indexable(false),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku')->indexable(false),
             )),
         );
         
@@ -234,25 +234,25 @@ class ColumnsTest extends TestCase
     
     public function testApplyClearsColumns()
     {
-        $filter = Columns::new();
+        $filter = new Columns();
         
         $filter->apply(
             input: new Input(['columns' => ['id', 'sku']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
         $filter->apply(
             input: new Input(['columns' => ['sku']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             )),
         );
         
@@ -262,14 +262,14 @@ class ColumnsTest extends TestCase
     
     public function testRender()
     {
-        $filter = Columns::new()->group('header')->label('LABEL')->description('DESC');
+        $filter = new Columns()->group('header')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(['columns' => ['id']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -289,14 +289,14 @@ class ColumnsTest extends TestCase
     
     public function testRenderIgnoresNotIndexableFields()
     {
-        $filter = Columns::new()->group('header')->label('LABEL')->description('DESC');
+        $filter = new Columns()->group('header')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(['columns' => ['id']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku')->indexable(false),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku')->indexable(false),
             )),
         );
         
@@ -306,14 +306,14 @@ class ColumnsTest extends TestCase
     
     public function testRenderWithoutSorting()
     {
-        $filter = Columns::new()->sortable(false);
+        $filter = new Columns()->sortable(false);
         
         $filter->apply(
             input: new Input(['columns' => ['id']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku')->indexable(false),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku')->indexable(false),
             )),
         );
         
@@ -323,13 +323,13 @@ class ColumnsTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Columns::new()->view('custom/crud/filter');
+        $filter = new Columns()->view('custom/crud/filter');
         
         $filter->apply(
             input: new Input(['columns' => ['id']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'id'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
             )),
         );
         

@@ -27,7 +27,7 @@ class RadiosTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Radios::new(name: 'foo');
+        $filter = new Radios(name: 'foo');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('foo', $filter->name());
@@ -50,24 +50,24 @@ class RadiosTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        $filter = Radios::new(name: 'foo bar');
+        $filter = new Radios(name: 'foo bar');
     }
     
     public function testWithFieldName()
     {
-        $filter = Radios::new(name: 'foo', field: 'bar');
+        $filter = new Radios(name: 'foo', field: 'bar');
         $this->assertSame('bar', $filter->fieldName());
     }
     
     public function testApplyValue()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -78,13 +78,13 @@ class RadiosTest extends TestCase
     
     public function testApplyZeroValue()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')->options(['0' => 'Inactive', '1' => 'Active']);
+        $filter = new Radios(name: 'foo', field: 'sku')->options(['0' => 'Inactive', '1' => 'Active']);
         
         $filter->apply(
             input: new Input(['foo' => '0']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -95,7 +95,7 @@ class RadiosTest extends TestCase
     
     public function testApplyValueWithOptionsUsingClosure()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')
+        $filter = new Radios(name: 'foo', field: 'sku')
             ->options(function() {
                 return ['blue' => 'Blue', 'red' => 'Red'];
             });
@@ -107,8 +107,8 @@ class RadiosTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -118,13 +118,13 @@ class RadiosTest extends TestCase
     
     public function testApplyValueIgnoresNoneValue()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')->options(['_none' => 'None', 'blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo', field: 'sku')->options(['_none' => 'None', 'blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => '_none']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -136,13 +136,13 @@ class RadiosTest extends TestCase
     
     public function testApplyValueIsIngoredIfOptionDoesNotExist()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'green']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -152,13 +152,13 @@ class RadiosTest extends TestCase
     
     public function testApplyAppliesFieldEvenIfNotExists()
     {
-        $filter = Radios::new(name: 'foo', field: 'bar')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo', field: 'bar')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -170,13 +170,13 @@ class RadiosTest extends TestCase
     
     public function testApplySkipsWhereParamsIfFieldIsNotSet()
     {
-        $filter = Radios::new(name: 'foo')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -187,13 +187,13 @@ class RadiosTest extends TestCase
     
     public function testApplyWithInvalidValueDoesNotApply()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => [[]]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -204,13 +204,13 @@ class RadiosTest extends TestCase
     
     public function testApplyWithDottedName()
     {
-        $filter = Radios::new(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => ['bar' => 'blue']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -220,13 +220,13 @@ class RadiosTest extends TestCase
     
     public function testApplyWithDottedNameDoesNotSetAppliedParamsIfInvalid()
     {
-        $filter = Radios::new(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Radios(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => [[]]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -236,15 +236,15 @@ class RadiosTest extends TestCase
     
     public function testApplyWithLikeComaprison()
     {
-        $filter = Radios::new(name: 'foo', field: 'bar')
+        $filter = new Radios(name: 'foo', field: 'bar')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('like');
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -255,15 +255,15 @@ class RadiosTest extends TestCase
     
     public function testApplyWithNotLikeComaprison()
     {
-        $filter = Radios::new(name: 'foo', field: 'bar')
+        $filter = new Radios(name: 'foo', field: 'bar')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('not like');
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -274,15 +274,15 @@ class RadiosTest extends TestCase
     
     public function testApplyWithInvalidComaprisonFallsbackToDefault()
     {
-        $filter = Radios::new(name: 'foo', field: 'bar')
+        $filter = new Radios(name: 'foo', field: 'bar')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('invalid');
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -293,7 +293,7 @@ class RadiosTest extends TestCase
     
     public function testApplyUsingAfterMethod()
     {
-        $filter = Radios::new(name: 'foo')
+        $filter = new Radios(name: 'foo')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->after(function(Radios $filter) {
                 if (empty($filter->getSelected())) {
@@ -306,8 +306,8 @@ class RadiosTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -321,15 +321,15 @@ class RadiosTest extends TestCase
 
     public function testApplyWithDefinedSelected()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')
+        $filter = new Radios(name: 'foo', field: 'sku')
             ->selected('blue')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -339,15 +339,15 @@ class RadiosTest extends TestCase
     
     public function testApplyWithDefinedSelectedNotAppliedIfInput()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')
+        $filter = new Radios(name: 'foo', field: 'sku')
             ->selected('blue')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -357,22 +357,22 @@ class RadiosTest extends TestCase
     
     public function testApplyClearsParameters()
     {
-        $filter = Radios::new(name: 'foo', field: 'sku')
+        $filter = new Radios(name: 'foo', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
         $filter->apply(
             input: new Input([]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );        
         
@@ -382,7 +382,7 @@ class RadiosTest extends TestCase
     
     public function testRender()
     {
-        $filter = Radios::new(name: 'sku', field: 'sku')
+        $filter = new Radios(name: 'sku', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->group('header')
             ->label('LABEL')
@@ -391,8 +391,8 @@ class RadiosTest extends TestCase
         $filter->apply(
             input: new Input(['sku' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -405,7 +405,7 @@ class RadiosTest extends TestCase
     
     public function testRenderDoesNotSetValueIfNotApplied()
     {
-        $filter = Radios::new(name: 'sku', field: 'sku')->options(['blue' => 'Blue']);
+        $filter = new Radios(name: 'sku', field: 'sku')->options(['blue' => 'Blue']);
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<span class="wrap-v"><input id="filter_sku_1" name="filter[sku]" type="radio" value="blue"><label for="filter_sku_1">Blue</label></span>', $rendered);
@@ -413,7 +413,7 @@ class RadiosTest extends TestCase
     
     public function testRenderDottedName()
     {
-        $filter = Radios::new(name: 'options.color', field: 'options')
+        $filter = new Radios(name: 'options.color', field: 'options')
             ->options(['blue' => 'Blue'])
             ->label('LABEL');
         
@@ -424,7 +424,7 @@ class RadiosTest extends TestCase
     
     public function testRenderWithAttributes()
     {
-        $filter = Radios::new(name: 'sku', field: 'sku')
+        $filter = new Radios(name: 'sku', field: 'sku')
             ->options(['blue' => 'Blue'])
             ->attributes(['mulitple', 'data-foo' => ['key' => 'val']]);
         
@@ -434,7 +434,7 @@ class RadiosTest extends TestCase
     
     public function testRenderWithoutLabel()
     {
-        $filter = Radios::new(name: 'sku', field: 'sku');
+        $filter = new Radios(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('label for', $rendered);
@@ -442,7 +442,7 @@ class RadiosTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Radios::new(name: 'sku', field: 'sku')->view('custom/crud/filter');
+        $filter = new Radios(name: 'sku', field: 'sku')->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));

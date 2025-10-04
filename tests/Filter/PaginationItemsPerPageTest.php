@@ -27,7 +27,7 @@ class PaginationItemsPerPageTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('pagination_items_header', $filter->name());
@@ -48,19 +48,19 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testGroupIsAddedToName()
     {
-        $this->assertSame('pagination_items_header', PaginationItemsPerPage::new()->name());
-        $this->assertSame('pagination_items_footer', PaginationItemsPerPage::new()->group('footer')->name());
-        $this->assertSame('pagination_items_foo_bar', PaginationItemsPerPage::new()->group('foo bar')->name());
+        $this->assertSame('pagination_items_header', new PaginationItemsPerPage()->name());
+        $this->assertSame('pagination_items_footer', new PaginationItemsPerPage()->group('footer')->name());
+        $this->assertSame('pagination_items_foo_bar', new PaginationItemsPerPage()->group('foo bar')->name());
     }
     
     public function testApply()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $this->assertSame([], $filter->getAppliedParameters());
@@ -72,12 +72,12 @@ class PaginationItemsPerPageTest extends TestCase
 
     public function testRenderReturnsEmptyStringIfWithoutPaginationFilter()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -86,14 +86,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderShowsDefaultValueIfNotExists()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -102,14 +102,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderShowsDefaultValueIfNoneExists()
     {
-        $filter = PaginationItemsPerPage::new(show: 75);
+        $filter = new PaginationItemsPerPage(show: 75);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -118,14 +118,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderShowsSpecificValueIfExists()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => 50]]),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -134,14 +134,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderShowsSpecificArrayValueIfExists()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => [50]]]),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -150,14 +150,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderShowsDefaultValueIfInvalid()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => []]]),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -166,14 +166,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderMaxIsSetFromPagination()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => 50]]),
             filters: new Filters(
-                Pagination::new(maxItemsPerPage: 500),
+                new Pagination(maxItemsPerPage: 500),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -182,14 +182,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderGroupIsAppliedToId()
     {
-        $filter = PaginationItemsPerPage::new()->group('footer')->label('LABEL');
+        $filter = new PaginationItemsPerPage()->group('footer')->label('LABEL');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -199,14 +199,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderWithCustomLabelAndDesc()
     {
-        $filter = PaginationItemsPerPage::new()->group('header')->label('LABEL')->description('DESC');
+        $filter = new PaginationItemsPerPage()->group('header')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -217,14 +217,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRenderDefaultLabel()
     {
-        $filter = PaginationItemsPerPage::new();
+        $filter = new PaginationItemsPerPage();
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -233,14 +233,14 @@ class PaginationItemsPerPageTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = PaginationItemsPerPage::new()->view('custom/crud/filter');
+        $filter = new PaginationItemsPerPage()->view('custom/crud/filter');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Pagination::new(),
+                new Pagination(),
             ),
-            action: Index::new(),
+            action: new Index(),
         );        
         
         // empty as view does not exist, but we know that it is changable:

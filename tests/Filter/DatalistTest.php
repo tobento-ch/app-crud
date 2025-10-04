@@ -32,8 +32,8 @@ class DatalistTest extends TestCase
         $repository = Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('sku'),
+                new Column\Id(),
+                new Column\Text('sku'),
             ],
         );
 
@@ -49,18 +49,18 @@ class DatalistTest extends TestCase
             repository: $repository,
             resourceName: 'users',
             fields: [
-                //Field\Text::new('id'),
-                //Field\Text::new('email'),
+                //new Field\Text('id'),
+                //new Field\Text('email'),
             ],
             actions: [
-                //Action\Index::new('Users'),
+                //new Action\new Index('Users'),
             ],
         );
     }
     
     public function testDefaultInterfaceMethods()
     {
-        $filter = Datalist::new(name: 'foo');
+        $filter = new Datalist(name: 'foo');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('foo', $filter->name());
@@ -81,12 +81,12 @@ class DatalistTest extends TestCase
     
     public function testRenderWithoutAnyOptions()
     {
-        $filter = Datalist::new(name: 'foo');
+        $filter = new Datalist(name: 'foo');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -95,12 +95,12 @@ class DatalistTest extends TestCase
     
     public function testRenderWithOptions()
     {
-        $filter = Datalist::new(name: 'foo')->options(['red', 'blue']);
+        $filter = new Datalist(name: 'foo')->options(['red', 'blue']);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -114,7 +114,7 @@ class DatalistTest extends TestCase
             ['sku' => 'bar'],
         ]);
         
-        $filter = Datalist::new(name: 'foo')->options(fn($repo): array => $repo->findAll()->column('sku'));
+        $filter = new Datalist(name: 'foo')->options(fn($repo): array => $repo->findAll()->column('sku'));
         
         foreach($filter->getBeforeCallables() as $callable) {
             $callable->resolved($callable->callable()($controller->repository()));
@@ -123,7 +123,7 @@ class DatalistTest extends TestCase
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($controller),
+            action: new Index()->setController($controller),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -138,12 +138,12 @@ class DatalistTest extends TestCase
             ['sku' => 'baz'],
         ]);
         
-        $filter = Datalist::new(name: 'foo')->optionsFromField(field: 'sku', limit: 2);
+        $filter = new Datalist(name: 'foo')->optionsFromField(field: 'sku', limit: 2);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($controller),
+            action: new Index()->setController($controller),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -154,12 +154,12 @@ class DatalistTest extends TestCase
     {
         $controller = $this->getController();
         
-        $filter = Datalist::new(name: 'foo')->optionsFromField(field: 'unknown', limit: 2);
+        $filter = new Datalist(name: 'foo')->optionsFromField(field: 'unknown', limit: 2);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($controller),
+            action: new Index()->setController($controller),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -175,12 +175,12 @@ class DatalistTest extends TestCase
             ['sku' => 'bas'],
         ]);
         
-        $filter = Datalist::new(name: 'foo')->optionsFromField(field: 'sku', fromInput: 'data', limit: 2);
+        $filter = new Datalist(name: 'foo')->optionsFromField(field: 'sku', fromInput: 'data', limit: 2);
         
         $filter->apply(
             input: new Input(['data' => 'ba']),
             filters: new Filters(),
-            action: Index::new()->setController($controller),
+            action: new Index()->setController($controller),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -196,12 +196,12 @@ class DatalistTest extends TestCase
             ['sku' => 'bas'],
         ]);
         
-        $filter = Datalist::new(name: 'foo')->optionsFromField(field: 'sku', fromInput: 'data', limit: 2);
+        $filter = new Datalist(name: 'foo')->optionsFromField(field: 'sku', fromInput: 'data', limit: 2);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($controller),
+            action: new Index()->setController($controller),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -217,12 +217,12 @@ class DatalistTest extends TestCase
             ['sku' => 'bas'],
         ]);
         
-        $filter = Datalist::new(name: 'foo')->optionsFromField(field: 'sku', fromInput: 'data', limit: 2);
+        $filter = new Datalist(name: 'foo')->optionsFromField(field: 'sku', fromInput: 'data', limit: 2);
         
         $filter->apply(
             input: new Input(['data' => []]),
             filters: new Filters(),
-            action: Index::new()->setController($controller),
+            action: new Index()->setController($controller),
         );
         
         $rendered = $filter->render(Factory::createView());

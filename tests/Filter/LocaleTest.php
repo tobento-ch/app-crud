@@ -25,7 +25,7 @@ class LocaleTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Locale::new();
+        $filter = new Locale();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('locale', $filter->name());
@@ -46,8 +46,8 @@ class LocaleTest extends TestCase
     
     public function testApplyDefaultLocale()
     {
-        $filter = Locale::new(name: 'foo');
-        $action = Index::new();
+        $filter = new Locale(name: 'foo');
+        $action = new Index();
         
         $this->assertSame('en', $action->getLocale());
         $this->assertSame(['en' => 'EN'], $action->getLocales());
@@ -65,8 +65,8 @@ class LocaleTest extends TestCase
     
     public function testApplyLocale()
     {
-        $filter = Locale::new();
-        $action = Index::new()->locales(['en' => 'EN', 'de' => 'DE']);
+        $filter = new Locale();
+        $action = new Index()->locales(['en' => 'EN', 'de' => 'DE']);
         
         $this->assertSame('en', $action->getLocale());
         $this->assertSame(['en' => 'EN', 'de' => 'DE'], $action->getLocales());
@@ -84,8 +84,8 @@ class LocaleTest extends TestCase
     
     public function testApplyInvalidLocaleFallsbackToDefault()
     {
-        $filter = Locale::new();
-        $action = Index::new();
+        $filter = new Locale();
+        $action = new Index();
         
         $this->assertSame('en', $action->getLocale());
         $this->assertSame(['en' => 'EN'], $action->getLocales());
@@ -103,8 +103,8 @@ class LocaleTest extends TestCase
     
     public function testApplyInvalidArrayLocaleFallsbackToDefault()
     {
-        $filter = Locale::new();
-        $action = Index::new();
+        $filter = new Locale();
+        $action = new Index();
         
         $this->assertSame('en', $action->getLocale());
         $this->assertSame(['en' => 'EN'], $action->getLocales());
@@ -122,12 +122,12 @@ class LocaleTest extends TestCase
     
     public function testRender()
     {
-        $filter = Locale::new()->group('header')->label('LABEL')->description('DESC');
+        $filter = new Locale()->group('header')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(['locale' => 'de']),
             filters: new Filters(),
-            action: Index::new()->locales(['en' => 'EN', 'de' => 'DE']),
+            action: new Index()->locales(['en' => 'EN', 'de' => 'DE']),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -139,12 +139,12 @@ class LocaleTest extends TestCase
     
     public function testRenderDottedName()
     {
-        $filter = Locale::new(name: 'options.locale')->label('LABEL');
+        $filter = new Locale(name: 'options.locale')->label('LABEL');
         
         $filter->apply(
             input: new Input(['locale' => 'de']),
             filters: new Filters(),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -154,7 +154,7 @@ class LocaleTest extends TestCase
 
     public function testRenderWithoutLabel()
     {
-        $filter = Locale::new();
+        $filter = new Locale();
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('label for', $rendered);
@@ -162,7 +162,7 @@ class LocaleTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Locale::new()->view('custom/crud/filter');
+        $filter = new Locale()->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));

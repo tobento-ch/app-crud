@@ -27,7 +27,7 @@ class SelectTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Select::new(name: 'foo');
+        $filter = new Select(name: 'foo');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('foo', $filter->name());
@@ -50,24 +50,24 @@ class SelectTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        $filter = Select::new(name: 'foo bar');
+        $filter = new Select(name: 'foo bar');
     }
     
     public function testWithFieldName()
     {
-        $filter = Select::new(name: 'foo', field: 'bar');
+        $filter = new Select(name: 'foo', field: 'bar');
         $this->assertSame('bar', $filter->fieldName());
     }
     
     public function testApplyValue()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -78,13 +78,13 @@ class SelectTest extends TestCase
     
     public function testApplyZeroValue()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')->options(['0' => 'Inactive', '1' => 'Active']);
+        $filter = new Select(name: 'foo', field: 'sku')->options(['0' => 'Inactive', '1' => 'Active']);
         
         $filter->apply(
             input: new Input(['foo' => '0']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -95,7 +95,7 @@ class SelectTest extends TestCase
     
     public function testApplyValueWithOptionsUsingClosure()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->options(function() {
                 return ['blue' => 'Blue', 'red' => 'Red'];
             });
@@ -107,8 +107,8 @@ class SelectTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -118,13 +118,13 @@ class SelectTest extends TestCase
     
     public function testApplyValueIgnoresNoneValue()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'none']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -134,13 +134,13 @@ class SelectTest extends TestCase
     
     public function testApplyValueIsIngoredIfOptionDoesNotExist()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'green']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -150,15 +150,15 @@ class SelectTest extends TestCase
     
     public function testApplyValueWithMultiple()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->attributes(['multiple']);
         
         $filter->apply(
             input: new Input(['foo' => ['blue', 'red']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -168,15 +168,15 @@ class SelectTest extends TestCase
     
     public function testApplyValueWithMultipleIgnoresNoneValue()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->attributes(['multiple']);
         
         $filter->apply(
             input: new Input(['foo' => ['blue', 'none']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -186,15 +186,15 @@ class SelectTest extends TestCase
     
     public function testApplyValueWithMultipleValuesWillBeIngoredIfOptionDoesNotExists()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->attributes(['multiple']);
         
         $filter->apply(
             input: new Input(['foo' => ['blue', 'green']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -204,13 +204,13 @@ class SelectTest extends TestCase
     
     public function testApplyAppliesFieldEvenIfNotExists()
     {
-        $filter = Select::new(name: 'foo', field: 'bar')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo', field: 'bar')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -222,13 +222,13 @@ class SelectTest extends TestCase
     
     public function testApplySkipsWhereParamsIfFieldIsNotSet()
     {
-        $filter = Select::new(name: 'foo')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -239,13 +239,13 @@ class SelectTest extends TestCase
     
     public function testApplyWithInvalidValueDoesNotApply()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => [[]]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -256,13 +256,13 @@ class SelectTest extends TestCase
     
     public function testApplyWithDottedName()
     {
-        $filter = Select::new(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => ['bar' => 'blue']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -272,13 +272,13 @@ class SelectTest extends TestCase
     
     public function testApplyWithDottedNameDoesNotSetAppliedParamsIfInvalid()
     {
-        $filter = Select::new(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
+        $filter = new Select(name: 'foo.bar', field: 'sku')->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => [[]]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -288,15 +288,15 @@ class SelectTest extends TestCase
     
     public function testApplyWithLikeComaprison()
     {
-        $filter = Select::new(name: 'foo', field: 'bar')
+        $filter = new Select(name: 'foo', field: 'bar')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('like');
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -307,15 +307,15 @@ class SelectTest extends TestCase
     
     public function testApplyWithNotLikeComaprison()
     {
-        $filter = Select::new(name: 'foo', field: 'bar')
+        $filter = new Select(name: 'foo', field: 'bar')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('not like');
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -326,15 +326,15 @@ class SelectTest extends TestCase
     
     public function testApplyWithInvalidComaprisonFallsbackToDefault()
     {
-        $filter = Select::new(name: 'foo', field: 'bar')
+        $filter = new Select(name: 'foo', field: 'bar')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('invalid');
         
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -345,7 +345,7 @@ class SelectTest extends TestCase
     
     public function testApplyUsingAfterMethod()
     {
-        $filter = Select::new(name: 'foo')
+        $filter = new Select(name: 'foo')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->after(function(Select $filter) {
                 if (!is_string($filter->getSelected())) {
@@ -358,8 +358,8 @@ class SelectTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -373,15 +373,15 @@ class SelectTest extends TestCase
 
     public function testApplyWithDefinedSelected()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->selected('blue')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -391,15 +391,15 @@ class SelectTest extends TestCase
     
     public function testApplyWithDefinedSelectedNotAppliedIfInput()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->selected('blue')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -409,22 +409,22 @@ class SelectTest extends TestCase
     
     public function testApplyClearsParameters()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(['foo' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
         $filter->apply(
             input: new Input([]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -434,15 +434,15 @@ class SelectTest extends TestCase
     
     public function testApplyWithDefinedSelectedMultiple()
     {
-        $filter = Select::new(name: 'foo', field: 'sku')
+        $filter = new Select(name: 'foo', field: 'sku')
             ->selected(['blue'])
             ->options(['blue' => 'Blue', 'red' => 'Red']);
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -452,7 +452,7 @@ class SelectTest extends TestCase
     
     public function testRender()
     {
-        $filter = Select::new(name: 'sku', field: 'sku')
+        $filter = new Select(name: 'sku', field: 'sku')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->group('header')
             ->label('LABEL')
@@ -461,8 +461,8 @@ class SelectTest extends TestCase
         $filter->apply(
             input: new Input(['sku' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -475,7 +475,7 @@ class SelectTest extends TestCase
     
     public function testRenderDoesNotSetValueIfNotApplied()
     {
-        $filter = Select::new(name: 'sku', field: 'sku');
+        $filter = new Select(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<select id="filter_sku" aria-label="sku" name="filter[sku]"><option value="none">---</option></select>', $rendered);
@@ -483,7 +483,7 @@ class SelectTest extends TestCase
     
     public function testRenderDottedName()
     {
-        $filter = Select::new(name: 'options.color', field: 'options')->label('LABEL');
+        $filter = new Select(name: 'options.color', field: 'options')->label('LABEL');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<select id="filter_options_color" name="filter[options][color]"><option value="none">---</option></select>', $rendered);
@@ -492,7 +492,7 @@ class SelectTest extends TestCase
     
     public function testRenderWithCustomEmptyOption()
     {
-        $filter = Select::new(name: 'sku', field: 'sku')->emptyOption('_null', 'foo');
+        $filter = new Select(name: 'sku', field: 'sku')->emptyOption('_null', 'foo');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<select id="filter_sku" aria-label="sku" name="filter[sku]"><option value="_null">foo</option></select>', $rendered);
@@ -500,7 +500,7 @@ class SelectTest extends TestCase
     
     public function testRenderWithoutEmptyOption()
     {
-        $filter = Select::new(name: 'sku', field: 'sku')->emptyOption(null);
+        $filter = new Select(name: 'sku', field: 'sku')->emptyOption(null);
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<select id="filter_sku" aria-label="sku" name="filter[sku]"></select>', $rendered);
@@ -508,7 +508,7 @@ class SelectTest extends TestCase
     
     public function testRenderWithAttributes()
     {
-        $filter = Select::new(name: 'sku', field: 'sku')
+        $filter = new Select(name: 'sku', field: 'sku')
             ->attributes(['mulitple', 'data-foo' => ['key' => 'val']]);
         
         $rendered = $filter->render(Factory::createView());
@@ -517,7 +517,7 @@ class SelectTest extends TestCase
     
     public function testRenderWithoutLabel()
     {
-        $filter = Select::new(name: 'sku', field: 'sku');
+        $filter = new Select(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('label for', $rendered);
@@ -525,7 +525,7 @@ class SelectTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Select::new(name: 'sku', field: 'sku')->view('custom/crud/filter');
+        $filter = new Select(name: 'sku', field: 'sku')->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));

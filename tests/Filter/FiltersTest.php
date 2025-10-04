@@ -30,23 +30,23 @@ class FiltersTest extends TestCase
         $filters = new Filters();
         $this->assertInstanceof(FiltersInterface::class, $filters);
         
-        $filters = new Filters(Filter\Pagination::new());
+        $filters = new Filters(new Filter\Pagination());
         $this->assertFalse($filters->empty());
     }
     
     public function testGetAppliedParametersMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo', field: 'foo'),
-            Filter\Input::new(name: 'options.color', field: 'options->color'),
-            Filter\Input::new(name: 'options.meta', field: 'options->meta'),
+            new Filter\Input(name: 'foo', field: 'foo'),
+            new Filter\Input(name: 'options.color', field: 'options->color'),
+            new Filter\Input(name: 'options.meta', field: 'options->meta'),
         );
         
         $this->assertSame([], $filters->getAppliedParameters());
 
-        $action = Index::new()->setFields(new Fields(
-            Field\Text::new(name: 'foo'),
-            Field\Select::new(name: 'options'),
+        $action = new Index()->setFields(new Fields(
+            new Field\Text(name: 'foo'),
+            new Field\Select(name: 'options'),
         ));
                 
         $filters->get('foo')->apply(input: new Input(['foo' => 'value']), filters: new Filters(), action: $action);
@@ -76,17 +76,17 @@ class FiltersTest extends TestCase
     public function testGetWhereParametersMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo', field: 'foo')->comparison('>'),
-            Filter\Input::new(name: 'bar', field: 'foo')->comparison('<'),
-            Filter\Input::new(name: 'options.color', field: 'options->color'),
+            new Filter\Input(name: 'foo', field: 'foo')->comparison('>'),
+            new Filter\Input(name: 'bar', field: 'foo')->comparison('<'),
+            new Filter\Input(name: 'options.color', field: 'options->color'),
         );
         
         $this->assertSame([], $filters->getWhereParameters());
 
-        $action = Index::new()->setFields(new Fields(
-            Field\Text::new(name: 'foo'),
-            Field\Text::new(name: 'bar'),
-            Field\Select::new(name: 'options'),
+        $action = new Index()->setFields(new Fields(
+            new Field\Text(name: 'foo'),
+            new Field\Text(name: 'bar'),
+            new Field\Select(name: 'options'),
         ));
                 
         $filters->get('foo')->apply(input: new Input(['foo' => '5']), filters: new Filters(), action: $action);
@@ -113,15 +113,15 @@ class FiltersTest extends TestCase
     
     public function testGetOrderByParametersMethod()
     {
-        $filter = Filter\FieldsSortOrder::new();
+        $filter = new Filter\FieldsSortOrder();
         
         $filters = new Filters($filter);
         
         $this->assertSame([], $filters->getOrderByParameters());
 
-        $action = Index::new()->setFields(new Fields(
-            Field\Text::new(name: 'foo'),
-            Field\Text::new(name: 'bar'),
+        $action = new Index()->setFields(new Fields(
+            new Field\Text(name: 'foo'),
+            new Field\Text(name: 'bar'),
         ));
                 
         $filter->apply(input: new Input(['sort' => ['foo' => 'asc', 'bar' => 'desc']]), filters: $filters, action: $action);
@@ -135,8 +135,8 @@ class FiltersTest extends TestCase
     public function testGetLimitParameterMethod()
     {
         $filters = new Filters(
-            Filter\Pagination::new(),
-            Filter\Pagination::new()->group('footer'),
+            new Filter\Pagination(),
+            new Filter\Pagination()->group('footer'),
         );
         
         $this->assertSame([0 => 1, 1 => 0], $filters->getLimitParameter());
@@ -145,8 +145,8 @@ class FiltersTest extends TestCase
     public function testFilterMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo', field: 'id'),
-            Filter\Input::new(name: 'bar', field: 'sku'),
+            new Filter\Input(name: 'foo', field: 'id'),
+            new Filter\Input(name: 'bar', field: 'sku'),
         );
         
         $filtered = $filters->filter(fn(FilterInterface $f): bool => $f->name() === 'foo');
@@ -159,8 +159,8 @@ class FiltersTest extends TestCase
     public function testGroupMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo')->group('header'),
-            Filter\Input::new(name: 'bar')->group('field'),
+            new Filter\Input(name: 'foo')->group('header'),
+            new Filter\Input(name: 'bar')->group('field'),
         );
         
         $filtersNew = $filters->group(name: 'header');
@@ -173,8 +173,8 @@ class FiltersTest extends TestCase
     public function testFieldMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo', field: 'id'),
-            Filter\Input::new(name: 'bar', field: 'sku'),
+            new Filter\Input(name: 'foo', field: 'id'),
+            new Filter\Input(name: 'bar', field: 'sku'),
         );
         
         $filtersNew = $filters->field(name: 'sku');
@@ -187,8 +187,8 @@ class FiltersTest extends TestCase
     public function testOpenMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo')->open(true),
-            Filter\Input::new(name: 'bar')->open(false),
+            new Filter\Input(name: 'foo')->open(true),
+            new Filter\Input(name: 'bar')->open(false),
         );
         
         $filtersNew = $filters->open(false);
@@ -201,8 +201,8 @@ class FiltersTest extends TestCase
     public function testByClassMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo'),
-            Filter\Pagination::new(),
+            new Filter\Input(name: 'foo'),
+            new Filter\Pagination(),
         );
         
         $filtersNew = $filters->byClass(name: Filter\Input::class);
@@ -217,7 +217,7 @@ class FiltersTest extends TestCase
         $filters = new Filters();
         $this->assertSame(null, $filters->get(name: 'foo'));
         
-        $filters = new Filters(Filter\Input::new(name: 'foo'));
+        $filters = new Filters(new Filter\Input(name: 'foo'));
         $this->assertSame('foo', $filters->get(name: 'foo')->name());
     }
     
@@ -226,7 +226,7 @@ class FiltersTest extends TestCase
         $filters = new Filters();
         $this->assertSame(null, $filters->first());
         
-        $filters = new Filters(Filter\Input::new(name: 'foo'), Filter\Input::new(name: 'bar'));
+        $filters = new Filters(new Filter\Input(name: 'foo'), new Filter\Input(name: 'bar'));
         $this->assertSame('foo', $filters->first()->name());
     }
     
@@ -235,7 +235,7 @@ class FiltersTest extends TestCase
         $filters = new Filters();
         $this->assertSame([], $filters->all());
         
-        $foo = Filter\Input::new(name: 'foo');
+        $foo = new Filter\Input(name: 'foo');
         $filters = new Filters($foo);
         $this->assertSame(['foo' => $foo], $filters->all());
     }
@@ -243,8 +243,8 @@ class FiltersTest extends TestCase
     public function testNamesMethod()
     {
         $filters = new Filters(
-            Filter\Input::new(name: 'foo'),
-            Filter\Input::new(name: 'bar'),
+            new Filter\Input(name: 'foo'),
+            new Filter\Input(name: 'bar'),
         );
         
         $this->assertSame(['foo', 'bar'], $filters->names());
@@ -255,7 +255,7 @@ class FiltersTest extends TestCase
         $filters = new Filters();
         $this->assertTrue($filters->empty());
         
-        $filters = new Filters(Filter\Input::new(name: 'foo'));
+        $filters = new Filters(new Filter\Input(name: 'foo'));
         $this->assertFalse($filters->empty());
     }
     
@@ -264,13 +264,13 @@ class FiltersTest extends TestCase
         $filters = new Filters();
         $this->assertSame(0, $filters->count());
         
-        $filters = new Filters(Filter\Input::new(name: 'foo'));
+        $filters = new Filters(new Filter\Input(name: 'foo'));
         $this->assertSame(1, $filters->count());
     }
     
     public function testIteration()
     {
-        $filters = new Filters(Filter\Input::new(name: 'foo'), Filter\Input::new(name: 'bar'));
+        $filters = new Filters(new Filter\Input(name: 'foo'), new Filter\Input(name: 'bar'));
         
         foreach($filters as $filter) {
             $this->assertInstanceof(FilterInterface::class, $filter);

@@ -23,17 +23,17 @@ class FieldsTest extends TestCase
 {
     public function testToFilterMethodReturnsNoneIfNoFieldsSpecified()
     {
-        $this->assertSame([], Fields::new()->toFilters());
-        $this->assertSame([], Fields::new()->only('sku', 'title')->toFilters());
-        $this->assertSame([], Fields::new()->except('sku', 'title')->toFilters());
+        $this->assertSame([], new Fields()->toFilters());
+        $this->assertSame([], new Fields()->only('sku', 'title')->toFilters());
+        $this->assertSame([], new Fields()->except('sku', 'title')->toFilters());
     }
     
     public function testToFilterMethodReturnsFilters()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             ));
         
         $filters = $fields->toFilters();
@@ -52,10 +52,10 @@ class FieldsTest extends TestCase
     
     public function testToFilterMethodWithOnly()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             ))
             ->only('sku', 'unknown');
         
@@ -68,10 +68,10 @@ class FieldsTest extends TestCase
     
     public function testToFilterMethodWithExcept()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
             ))
             ->except('id', 'unknown');
         
@@ -84,9 +84,9 @@ class FieldsTest extends TestCase
     
     public function testToFilterMethodWithGroupAndOpen()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id'),
+                new Field\Text(name: 'id'),
             ))
             ->group('custom')
             ->open(false);
@@ -100,11 +100,11 @@ class FieldsTest extends TestCase
     
     public function testToFilterMethodResets()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id'),
-                Field\Text::new(name: 'sku'),
-                Field\Text::new(name: 'title'),
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
             ));
                 
         $this->assertSame(1, count($fields->except('title', 'sku')->toFilters()));
@@ -115,9 +115,9 @@ class FieldsTest extends TestCase
     
     public function testRender()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Text::new(name: 'id', label: 'LABEL'),
+                new Field\Text(name: 'id', label: 'LABEL'),
             ));
         
         $filters = $fields->toFilters();
@@ -129,9 +129,9 @@ class FieldsTest extends TestCase
     
     public function testRendersSelectElementIfRadiosField()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Radios::new(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']),
+                new Field\Radios(name: 'color')->options(['blue' => 'Blue', 'red' => 'Red']),
             ));
         
         $filters = $fields->toFilters();
@@ -143,9 +143,9 @@ class FieldsTest extends TestCase
     
     public function testRendersSelectElementIfSelectFieldNotMultiple()
     {
-        $fields = Fields::new()
+        $fields = new Fields()
             ->fields(new Field\Fields(
-                Field\Select::new(name: 'color', label: 'LABEL')->options(['blue' => 'Blue', 'red' => 'Red']),
+                new Field\Select(name: 'color', label: 'LABEL')->options(['blue' => 'Blue', 'red' => 'Red']),
             ));
         
         $filters = $fields->toFilters();

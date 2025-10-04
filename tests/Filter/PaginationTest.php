@@ -33,8 +33,8 @@ class PaginationTest extends TestCase
         $repository = Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('sku'),
+                new Column\Id(),
+                new Column\Text('sku'),
             ],
         );
         
@@ -60,18 +60,18 @@ class PaginationTest extends TestCase
             repository: $repository,
             resourceName: 'users',
             fields: [
-                //Field\Text::new('id'),
-                //Field\Text::new('email'),
+                //new Field\Text('id'),
+                //new Field\Text('email'),
             ],
             actions: [
-                //Action\Index::new('Users'),
+                //new Action\new Index('Users'),
             ],
         );
     }
     
     public function testDefaultInterfaceMethods()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('pagination_header', $filter->name());
@@ -92,19 +92,19 @@ class PaginationTest extends TestCase
     
     public function testGroupIsAppliedToName()
     {
-        $this->assertSame('pagination_header', Pagination::new()->name());
-        $this->assertSame('pagination_footer', Pagination::new()->group('footer')->name());
-        $this->assertSame('pagination_foo_bar', Pagination::new()->group('foo bar')->name());
+        $this->assertSame('pagination_header', new Pagination()->name());
+        $this->assertSame('pagination_footer', new Pagination()->group('footer')->name());
+        $this->assertSame('pagination_foo_bar', new Pagination()->group('foo bar')->name());
     }
     
     public function testApply()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100, 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -115,12 +115,12 @@ class PaginationTest extends TestCase
 
     public function testApplyShowDefault()
     {
-        $filter = Pagination::new(show: 30);
+        $filter = new Pagination(show: 30);
         
         $filter->apply(
             input: new Input(['pagination' => []]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 30, 'page' => 1]], $filter->getAppliedParameters());
@@ -129,12 +129,12 @@ class PaginationTest extends TestCase
     
     public function testApplyShowIsLimitedByDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100000, 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 1000, 'page' => 1]], $filter->getAppliedParameters());
@@ -143,12 +143,12 @@ class PaginationTest extends TestCase
     
     public function testApplyShowIsLimitedAsDefined()
     {
-        $filter = Pagination::new(maxItemsPerPage: 2000);
+        $filter = new Pagination(maxItemsPerPage: 2000);
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100000, 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 2000, 'page' => 1]], $filter->getAppliedParameters());
@@ -157,7 +157,7 @@ class PaginationTest extends TestCase
     
     public function testApplyWithoutApplyCalledFallsback()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
         // 1 because no count can happen:
@@ -166,12 +166,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithoutShowParamFallsbackToDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -180,12 +180,12 @@ class PaginationTest extends TestCase
 
     public function testApplyWithInvalidShowParamFallsbackToDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => [], 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -194,12 +194,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithArrayParamsUsesFirstIfValid()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => [0 => 50], 'page' => [0 => 1]]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 50, 'page' => 1]], $filter->getAppliedParameters());
@@ -208,12 +208,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithNegativeShowParamFallsbackToOne()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => -20, 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 1, 'page' => 1]], $filter->getAppliedParameters());
@@ -222,12 +222,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithoutPageParamFallsbackToDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -236,12 +236,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithInvalidPageParamFallsbackToDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100, 'page' => []]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -250,12 +250,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithoutAnyParamsFallsbackToDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -264,12 +264,12 @@ class PaginationTest extends TestCase
     
     public function testApplyWithoutInvalidParamsFallsbackToDefault()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
 
         $filter->apply(
             input: new Input(['pagination' => 'invalid']),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -278,12 +278,12 @@ class PaginationTest extends TestCase
     
     public function testApplyPageExists()
     {
-        $filter = Pagination::new()->clearTotalItemsCount();
+        $filter = new Pagination()->clearTotalItemsCount();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 10, 'page' => 2]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController(createItems: 25)),
+            action: new Index()->setController($this->getController(createItems: 25)),
         );
         
         $this->assertSame(['pagination' => ['show' => 10, 'page' => 2]], $filter->getAppliedParameters());
@@ -292,12 +292,12 @@ class PaginationTest extends TestCase
     
     public function testApplyPageFallsbackToOneIfNotExists()
     {
-        $filter = Pagination::new()->clearTotalItemsCount();
+        $filter = new Pagination()->clearTotalItemsCount();
 
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100, 'page' => 4]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $this->assertSame(['pagination' => ['show' => 100, 'page' => 1]], $filter->getAppliedParameters());
@@ -306,12 +306,12 @@ class PaginationTest extends TestCase
     
     public function testRender()
     {
-        $filter = Pagination::new()->clearTotalItemsCount();
+        $filter = new Pagination()->clearTotalItemsCount();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => 10, 'page' => 2]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController(createItems: 25)),
+            action: new Index()->setController($this->getController(createItems: 25)),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -321,12 +321,12 @@ class PaginationTest extends TestCase
     
     public function testRenderWithNoRecords()
     {
-        $filter = Pagination::new()->clearTotalItemsCount();
+        $filter = new Pagination()->clearTotalItemsCount();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => 10, 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -336,14 +336,14 @@ class PaginationTest extends TestCase
     
     public function testRenderGroupIsAppliedToId()
     {
-        $filter = Pagination::new()->clearTotalItemsCount();
+        $filter = new Pagination()->clearTotalItemsCount();
         
-        $filter = Pagination::new()->group('footer')->label('LABEL')->clearTotalItemsCount();
+        $filter = new Pagination()->group('footer')->label('LABEL')->clearTotalItemsCount();
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => 10, 'page' => 2]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController(createItems: 1)),
+            action: new Index()->setController($this->getController(createItems: 1)),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -353,12 +353,12 @@ class PaginationTest extends TestCase
     
     public function testRenderWithCustomLabelAndDesc()
     {
-        $filter = Pagination::new()->group('header')->label('LABEL')->description('DESC');
+        $filter = new Pagination()->group('header')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(['pagination' => ['show' => 100, 'page' => 1]]),
             filters: new Filters(),
-            action: Index::new()->setController($this->getController()),
+            action: new Index()->setController($this->getController()),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -369,7 +369,7 @@ class PaginationTest extends TestCase
     
     public function testRenderWithoutLabel()
     {
-        $filter = Pagination::new();
+        $filter = new Pagination();
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('label for', $rendered);
@@ -377,7 +377,7 @@ class PaginationTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Pagination::new()->view('custom/crud/filter');
+        $filter = new Pagination()->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));

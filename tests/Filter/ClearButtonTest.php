@@ -22,7 +22,7 @@ class ClearButtonTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = ClearButton::new();
+        $filter = new ClearButton();
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('clear', $filter->name());
@@ -43,7 +43,7 @@ class ClearButtonTest extends TestCase
     
     public function testRender()
     {
-        $filter = ClearButton::new();
+        $filter = new ClearButton();
         
         $rendered = $filter->render(Factory::createView());
         $this->assertSame('<a class="button text-xs" href="?clear-filter=1" data-filter="clear">Clear Filters</a>', $rendered);
@@ -51,7 +51,7 @@ class ClearButtonTest extends TestCase
 
     public function testRenderWithSpecificFilters()
     {
-        $filter = ClearButton::new(filters: ['foo', 'bar.baz']);
+        $filter = new ClearButton(filters: ['foo', 'bar.baz']);
         
         $rendered = $filter->render(Factory::createView());
         $this->assertSame('<a class="button text-xs" href="?clear-filter[]=foo&amp;clear-filter[]=bar.baz" data-filter="clear">Clear Filters</a>', $rendered);
@@ -59,7 +59,7 @@ class ClearButtonTest extends TestCase
     
     public function testRenderWithSpecificNameAndLabel()
     {
-        $filter = ClearButton::new(name: 'foo')->label('Clear');
+        $filter = new ClearButton(name: 'foo')->label('Clear');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertSame('<a class="button text-xs" href="?clear-filter=1" data-filter="foo">Clear</a>', $rendered);
@@ -67,7 +67,7 @@ class ClearButtonTest extends TestCase
     
     public function testRenderWithAttributes()
     {
-        $filter = ClearButton::new()->attributes(['data-foo' => 'Foo', 'class' => 'btn']);
+        $filter = new ClearButton()->attributes(['data-foo' => 'Foo', 'class' => 'btn']);
         
         $rendered = $filter->render(Factory::createView());
         $this->assertSame('<a data-foo="Foo" class="btn" href="?clear-filter=1" data-filter="clear">Clear Filters</a>', $rendered);

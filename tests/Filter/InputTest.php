@@ -27,7 +27,7 @@ class InputTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Input::new(name: 'foo');
+        $filter = new Input(name: 'foo');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('foo', $filter->name());
@@ -50,24 +50,24 @@ class InputTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        $filter = Input::new(name: 'foo bar');
+        $filter = new Input(name: 'foo bar');
     }
     
     public function testWithFieldName()
     {
-        $filter = Input::new(name: 'foo', field: 'bar');
+        $filter = new Input(name: 'foo', field: 'bar');
         $this->assertSame('bar', $filter->fieldName());
     }
     
     public function testApplyAppliesFieldEvenIfNotExists()
     {
-        $filter = Input::new(name: 'foo', field: 'bar');
+        $filter = new Input(name: 'foo', field: 'bar');
         
         $filter->apply(
             input: new Ip(['foo' => 'value']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -80,13 +80,13 @@ class InputTest extends TestCase
     
     public function testApplySkipsWhereParamsIfFieldIsNotSet()
     {
-        $filter = Input::new(name: 'foo');
+        $filter = new Input(name: 'foo');
         
         $filter->apply(
             input: new Ip(['foo' => 'value']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -97,13 +97,13 @@ class InputTest extends TestCase
     
     public function testApplyWithInvalidValueDoesNotApply()
     {
-        $filter = Input::new(name: 'foo', field: 'sku');
+        $filter = new Input(name: 'foo', field: 'sku');
         
         $filter->apply(
             input: new Ip(['foo' => []]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -114,13 +114,13 @@ class InputTest extends TestCase
     
     public function testApplyWithDottedName()
     {
-        $filter = Input::new(name: 'foo.bar', field: 'sku');
+        $filter = new Input(name: 'foo.bar', field: 'sku');
         
         $filter->apply(
             input: new Ip(['foo' => ['bar' => 'value']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -130,13 +130,13 @@ class InputTest extends TestCase
     
     public function testApplyWithDottedNameDoesNotSetAppliedParamsIfInvalid()
     {
-        $filter = Input::new(name: 'foo.bar', field: 'sku');
+        $filter = new Input(name: 'foo.bar', field: 'sku');
         
         $filter->apply(
             input: new Ip(['foo' => []]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -146,13 +146,13 @@ class InputTest extends TestCase
     
     public function testApplyWithDottedNameDoesNotSetAppliedParamsIfInvalidValue()
     {
-        $filter = Input::new(name: 'foo.bar', field: 'sku');
+        $filter = new Input(name: 'foo.bar', field: 'sku');
         
         $filter->apply(
             input: new Ip(['foo' => ['bar' => []]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -162,13 +162,13 @@ class InputTest extends TestCase
     
     public function testApplyWithLikeComaprison()
     {
-        $filter = Input::new(name: 'foo', field: 'bar')->comparison('like');
+        $filter = new Input(name: 'foo', field: 'bar')->comparison('like');
         
         $filter->apply(
             input: new Ip(['foo' => 'value']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -179,13 +179,13 @@ class InputTest extends TestCase
     
     public function testApplyWithNotLikeComaprison()
     {
-        $filter = Input::new(name: 'foo', field: 'bar')->comparison('not like');
+        $filter = new Input(name: 'foo', field: 'bar')->comparison('not like');
         
         $filter->apply(
             input: new Ip(['foo' => 'value']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -196,13 +196,13 @@ class InputTest extends TestCase
     
     public function testApplyWithInvalidComaprisonFallsbackToDefault()
     {
-        $filter = Input::new(name: 'foo', field: 'bar')->comparison('invalid');
+        $filter = new Input(name: 'foo', field: 'bar')->comparison('invalid');
         
         $filter->apply(
             input: new Ip(['foo' => 'value']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -213,7 +213,7 @@ class InputTest extends TestCase
     
     public function testApplyUsingAfterMethod()
     {
-        $filter = Input::new(name: 'foo')
+        $filter = new Input(name: 'foo')
             ->after(function(Input $filter) {
                 if (!is_string($filter->getSearchValue())) {
                     return;
@@ -225,8 +225,8 @@ class InputTest extends TestCase
         $filter->apply(
             input: new Ip(['foo' => 'value']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -240,21 +240,21 @@ class InputTest extends TestCase
     
     public function testApplyClearsParameters()
     {
-        $filter = Input::new(name: 'foo.bar', field: 'sku');
+        $filter = new Input(name: 'foo.bar', field: 'sku');
         
         $filter->apply(
             input: new Ip(['foo' => ['bar' => 'value']]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
         $filter->apply(
             input: new Ip([]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -264,13 +264,13 @@ class InputTest extends TestCase
     
     public function testRender()
     {
-        $filter = Input::new(name: 'sku', field: 'sku')->group('header')->label('LABEL')->description('DESC');
+        $filter = new Input(name: 'sku', field: 'sku')->group('header')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Ip(['sku' => 'foo']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -283,7 +283,7 @@ class InputTest extends TestCase
     
     public function testRenderDoesNotSetValueIfNotApplied()
     {
-        $filter = Input::new(name: 'sku', field: 'sku');
+        $filter = new Input(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<input id="filter_sku" aria-label="sku" name="filter[sku]" type="text">', $rendered);
@@ -291,7 +291,7 @@ class InputTest extends TestCase
     
     public function testRenderDottedName()
     {
-        $filter = Input::new(name: 'options.color', field: 'options')->label('LABEL');
+        $filter = new Input(name: 'options.color', field: 'options')->label('LABEL');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<input id="filter_options_color" name="filter[options][color]" type="text">', $rendered);
@@ -300,7 +300,7 @@ class InputTest extends TestCase
     
     public function testRenderWithAttributes()
     {
-        $filter = Input::new(name: 'sku', field: 'sku')
+        $filter = new Input(name: 'sku', field: 'sku')
             ->attributes(['placeholder' => 'value', 'required', 'data-foo' => ['key' => 'val']]);
         
         $rendered = $filter->render(Factory::createView());
@@ -309,7 +309,7 @@ class InputTest extends TestCase
     
     public function testRenderWithoutLabel()
     {
-        $filter = Input::new(name: 'sku', field: 'sku');
+        $filter = new Input(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('label for', $rendered);
@@ -317,7 +317,7 @@ class InputTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Input::new(name: 'sku', field: 'sku')->view('custom/crud/filter');
+        $filter = new Input(name: 'sku', field: 'sku')->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));

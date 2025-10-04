@@ -26,7 +26,7 @@ class GroupTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Group::new(name: 'group');
+        $filter = new Group(name: 'group');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('group', $filter->name());
@@ -47,14 +47,14 @@ class GroupTest extends TestCase
     
     public function testRender()
     {
-        $filter = Group::new(name: 'group');
+        $filter = new Group(name: 'group');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('group'),
+                new Filter\Input(name: 'foo')->group('group'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -66,14 +66,14 @@ class GroupTest extends TestCase
     
     public function testRenderWithLabelAndDesc()
     {
-        $filter = Group::new(name: 'group')->label('LABEL')->description('DESC');
+        $filter = new Group(name: 'group')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('group'),
+                new Filter\Input(name: 'foo')->group('group'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());
@@ -86,14 +86,14 @@ class GroupTest extends TestCase
     
     public function testRenderReturnsEmptyStringWithoutFiltersGrouped()
     {
-        $filter = Group::new(name: 'group')->label('LABEL')->description('DESC');
+        $filter = new Group(name: 'group')->label('LABEL')->description('DESC');
         
         $filter->apply(
             input: new Input(),
             filters: new Filters(
-                Filter\Input::new(name: 'foo')->group('header'),
+                new Filter\Input(name: 'foo')->group('header'),
             ),
-            action: Index::new(),
+            action: new Index(),
         );
         
         $rendered = $filter->render(Factory::createView());

@@ -27,7 +27,7 @@ class ViewsTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Views::new(name: 'foo');
+        $filter = new Views(name: 'foo');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('foo', $filter->name());
@@ -50,20 +50,20 @@ class ViewsTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        $filter = Views::new(name: 'foo bar');
+        $filter = new Views(name: 'foo bar');
     }
 
     public function testApplyValue()
     {
-        $filter = Views::new()
+        $filter = new Views()
             ->addView(id: 'default', view: 'crud/index', label: 'Table')
             ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree');
         
         $filter->apply(
             input: new Input(['views' => 'tree']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -74,15 +74,15 @@ class ViewsTest extends TestCase
     
     public function testApplyIgnoresInvalidValue()
     {
-        $filter = Views::new()
+        $filter = new Views()
             ->addView(id: 'default', view: 'crud/index', label: 'Table')
             ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree');
         
         $filter->apply(
             input: new Input(['views' => 'invalid']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -93,7 +93,7 @@ class ViewsTest extends TestCase
 
     public function testApplyWithDefaultView()
     {
-        $filter = Views::new()
+        $filter = new Views()
             ->addView(id: 'default', view: 'crud/index', label: 'Table')
             ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree')
             ->defaultView(id: 'tree');
@@ -101,8 +101,8 @@ class ViewsTest extends TestCase
         $filter->apply(
             input: new Input([]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -113,7 +113,7 @@ class ViewsTest extends TestCase
     
     public function testApplyWithDefaultViewNotAppliedIfInput()
     {
-        $filter = Views::new()
+        $filter = new Views()
             ->addView(id: 'default', view: 'crud/index', label: 'Table')
             ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree')
             ->defaultView(id: 'tree');
@@ -121,8 +121,8 @@ class ViewsTest extends TestCase
         $filter->apply(
             input: new Input(['views' => 'default']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -133,7 +133,7 @@ class ViewsTest extends TestCase
     
     public function testRender()
     {
-        $filter = Views::new()
+        $filter = new Views()
             ->addView(id: 'default', view: 'crud/index', label: 'Table')
             ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree')
             ->label('LABEL')
@@ -142,8 +142,8 @@ class ViewsTest extends TestCase
         $filter->apply(
             input: new Input(['views' => 'tree']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -155,7 +155,7 @@ class ViewsTest extends TestCase
     
     public function AtestRendersCustomView()
     {
-        $filter = Views::new(name: 'sku', field: 'sku')->view('custom/crud/filter');
+        $filter = new Views(name: 'sku', field: 'sku')->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));

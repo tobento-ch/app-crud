@@ -27,7 +27,7 @@ class MenuTest extends TestCase
 {
     public function testDefaultInterfaceMethods()
     {
-        $filter = Menu::new(name: 'foo');
+        $filter = new Menu(name: 'foo');
         
         $this->assertInstanceof(FilterInterface::class, $filter);
         $this->assertSame('foo', $filter->name());
@@ -50,18 +50,18 @@ class MenuTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         
-        $filter = Menu::new(name: 'foo bar');
+        $filter = new Menu(name: 'foo bar');
     }
     
     public function testWithFieldName()
     {
-        $filter = Menu::new(name: 'foo', field: 'bar');
+        $filter = new Menu(name: 'foo', field: 'bar');
         $this->assertSame('bar', $filter->fieldName());
     }
     
     public function testApplyValue()
     {
-        $filter = Menu::new(name: 'foo', field: 'sku')
+        $filter = new Menu(name: 'foo', field: 'sku')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -70,8 +70,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -81,7 +81,7 @@ class MenuTest extends TestCase
     
     public function testApplyValueWithItemsUsingClosure()
     {
-        $filter = Menu::new(name: 'foo', field: 'sku')
+        $filter = new Menu(name: 'foo', field: 'sku')
             ->items(function() {
                 return [
                     ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
@@ -96,8 +96,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -107,7 +107,7 @@ class MenuTest extends TestCase
     
     public function testApplyValueIgnoresNoneValue()
     {
-        $filter = Menu::new(name: 'foo', field: 'sku')
+        $filter = new Menu(name: 'foo', field: 'sku')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -116,8 +116,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'none']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -127,7 +127,7 @@ class MenuTest extends TestCase
     
     public function testApplyValueIsIngoredIfItemDoesNotExist()
     {
-        $filter = Menu::new(name: 'foo', field: 'sku')
+        $filter = new Menu(name: 'foo', field: 'sku')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -136,8 +136,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'green']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -147,7 +147,7 @@ class MenuTest extends TestCase
     
     public function testApplyAppliesFieldEvenIfNotExists()
     {
-        $filter = Menu::new(name: 'foo', field: 'bar')
+        $filter = new Menu(name: 'foo', field: 'bar')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -156,8 +156,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -169,7 +169,7 @@ class MenuTest extends TestCase
     
     public function testApplySkipsWhereParamsIfFieldIsNotSet()
     {
-        $filter = Menu::new(name: 'foo')
+        $filter = new Menu(name: 'foo')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -178,8 +178,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -190,7 +190,7 @@ class MenuTest extends TestCase
     
     public function testApplyWithInvalidValueDoesNotApply()
     {
-        $filter = Menu::new(name: 'foo', field: 'sku')
+        $filter = new Menu(name: 'foo', field: 'sku')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -199,8 +199,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => [[]]]),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -211,7 +211,7 @@ class MenuTest extends TestCase
     
     public function testApplyWithLikeComaprison()
     {
-        $filter = Menu::new(name: 'foo', field: 'bar')
+        $filter = new Menu(name: 'foo', field: 'bar')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -221,8 +221,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -233,7 +233,7 @@ class MenuTest extends TestCase
     
     public function testApplyWithNotLikeComaprison()
     {
-        $filter = Menu::new(name: 'foo', field: 'bar')
+        $filter = new Menu(name: 'foo', field: 'bar')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -243,8 +243,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -255,7 +255,7 @@ class MenuTest extends TestCase
     
     public function testApplyWithInvalidComaprisonFallsbackToDefault()
     {
-        $filter = Menu::new(name: 'foo', field: 'bar')
+        $filter = new Menu(name: 'foo', field: 'bar')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -265,8 +265,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -277,7 +277,7 @@ class MenuTest extends TestCase
     
     public function testApplyUsingAfterMethod()
     {
-        $filter = Menu::new(name: 'foo')
+        $filter = new Menu(name: 'foo')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -293,8 +293,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'blue']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'foo'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'foo'),
             )),
         );
         
@@ -308,7 +308,7 @@ class MenuTest extends TestCase
     
     public function testRender()
     {
-        $filter = Menu::new(name: 'foo', field: 'sku')
+        $filter = new Menu(name: 'foo', field: 'sku')
             ->items([
                 ['id' => 'blue', 'name' => 'Blue', 'parent' => null],
                 ['id' => 'red', 'name' => 'Red', 'parent' => 'blue'],
@@ -320,8 +320,8 @@ class MenuTest extends TestCase
         $filter->apply(
             input: new Input(['foo' => 'red']),
             filters: new Filters(),
-            action: Index::new()->setFields(new Fields(
-                Field\Text::new(name: 'sku'),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'sku'),
             )),
         );
         
@@ -334,7 +334,7 @@ class MenuTest extends TestCase
     
     public function testRenderDoesNotSetValueIfNotApplied()
     {
-        $filter = Menu::new(name: 'sku', field: 'sku');
+        $filter = new Menu(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<ul class="menu-v spaced"><li><a href="?filter[sku]=none">---</a></li></ul>', $rendered);
@@ -342,7 +342,7 @@ class MenuTest extends TestCase
     
     public function testRenderWithoutLabel()
     {
-        $filter = Menu::new(name: 'sku', field: 'sku');
+        $filter = new Menu(name: 'sku', field: 'sku');
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringNotContainsString('label for', $rendered);
@@ -350,7 +350,7 @@ class MenuTest extends TestCase
     
     public function testRendersCustomView()
     {
-        $filter = Menu::new(name: 'sku', field: 'sku')->view('custom/crud/filter');
+        $filter = new Menu(name: 'sku', field: 'sku')->view('custom/crud/filter');
         
         // empty as view does not exist, but we know that it is changable:
         $this->assertSame('', $filter->render(Factory::createView()));
