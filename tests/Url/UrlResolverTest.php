@@ -32,8 +32,8 @@ class UrlResolverTest extends TestCase
         $repository = Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('sku'),
+                new Column\Id(),
+                new Column\Text('sku'),
             ],
         );
 
@@ -49,11 +49,11 @@ class UrlResolverTest extends TestCase
             repository: $repository,
             resourceName: 'users',
             fields: [
-                //Field\Text::new('id'),
-                //Field\Text::new('email'),
+                //new Field\Text('id'),
+                //new Field\Text('email'),
             ],
             actions: [
-                //Action\Index::new('Users'),
+                //new Action\Index('Users'),
             ],
         );
     }
@@ -69,8 +69,8 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToUrl('url'),
-            action: Action\Create::new(),
+            button: new Button(label: 'label', group: 'group')->linkToUrl('url'),
+            action: new Action\Create(),
             entity: null,
         );
         
@@ -82,10 +82,10 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToUrl(function (EntityInterface $entity) {
+            button: new Button(label: 'label', group: 'group')->linkToUrl(function (EntityInterface $entity) {
                 return 'https://example.com/invoice/'.$entity->id();
             }),
-            action: Action\Edit::new(),
+            action: new Action\Edit(),
             entity: new Entity(['id' => 1]),
         );
         
@@ -97,10 +97,10 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToUrl(function (EntityInterface $entity) {
+            button: new Button(label: 'label', group: 'group')->linkToUrl(function (EntityInterface $entity) {
                 return 'https://example.com/invoice/'.$entity->id();
             }),
-            action: Action\Create::new(),
+            action: new Action\Create(),
             entity: null,
         );
         
@@ -113,14 +113,14 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         $controller = $this->getController();
         $router->resource($controller->resourceName(), $controller);
-        $action = Action\Create::new()
+        $action = new Action\Create()
             ->setController($controller)
             ->setActions(new Action\Actions(
-                Action\Edit::new()->setController($controller),
+                new Action\Edit()->setController($controller),
             ));
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToAction('edit'),
+            button: new Button(label: 'label', group: 'group')->linkToAction('edit'),
             action: $action,
             entity: new Entity(['id' => 1]),
         );
@@ -133,8 +133,8 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToAction('edit'),
-            action: Action\Edit::new(),
+            button: new Button(label: 'label', group: 'group')->linkToAction('edit'),
+            action: new Action\Edit(),
             entity: new Entity(['id' => 1]),
         );
         
@@ -148,8 +148,8 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToRoute('viewInvoice', ['id' => 5]),
-            action: Action\Create::new()->setController($this->getController()),
+            button: new Button(label: 'label', group: 'group')->linkToRoute('viewInvoice', ['id' => 5]),
+            action: new Action\Create()->setController($this->getController()),
             entity: new Entity(['id' => 1]),
         );
         
@@ -163,10 +163,10 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToRoute('viewInvoice', function (EntityInterface $entity) {
+            button: new Button(label: 'label', group: 'group')->linkToRoute('viewInvoice', function (EntityInterface $entity) {
                 return ['id' => $entity->id()];
             }),
-            action: Action\Edit::new()->setController($this->getController()),
+            action: new Action\Edit()->setController($this->getController()),
             entity: new Entity(['id' => 3]),
         );
         
@@ -180,10 +180,10 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToRoute('viewInvoice', function (EntityInterface $entity) {
+            button: new Button(label: 'label', group: 'group')->linkToRoute('viewInvoice', function (EntityInterface $entity) {
                 return null;
             }),
-            action: Action\Edit::new()->setController($this->getController()),
+            action: new Action\Edit()->setController($this->getController()),
             entity: new Entity(['id' => 3]),
         );
         
@@ -197,8 +197,8 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveButtonUrl(
-            button: Button::new(label: 'label', group: 'group')->linkToRoute('viewInvoice', ['id' => 5]),
-            action: Action\Create::new()->setController($this->getController()),
+            button: new Button(label: 'label', group: 'group')->linkToRoute('viewInvoice', ['id' => 5]),
+            action: new Action\Create()->setController($this->getController()),
             entity: new Entity(['id' => 1]),
         );
         
@@ -210,7 +210,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveActionLinkToUrl(
-            action: Action\Create::new()->linkToUrl('url'),
+            action: new Action\Create()->linkToUrl('url'),
             entity: null,
         );
         
@@ -222,7 +222,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveActionLinkToUrl(
-            action: Action\Edit::new()->linkToUrl(function (EntityInterface $entity) {
+            action: new Action\Edit()->linkToUrl(function (EntityInterface $entity) {
                 return 'https://example.com/invoice/'.$entity->id();
             }),
             entity: new Entity(['id' => 1]),
@@ -236,7 +236,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveActionLinkToUrl(
-            action: Action\Edit::new()->linkToUrl(function (EntityInterface $entity) {
+            action: new Action\Edit()->linkToUrl(function (EntityInterface $entity) {
                 return 'https://example.com/invoice/'.$entity->id();
             }),
             entity: null,
@@ -251,10 +251,10 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         $controller = $this->getController();
         $router->resource($controller->resourceName(), $controller);
-        $action = Action\Create::new()
+        $action = new Action\Create()
             ->setController($controller)
             ->setActions(new Action\Actions(
-                Action\Edit::new()->setController($controller),
+                new Action\Edit()->setController($controller),
             ));
         
         $url = $ur->resolveActionLinkToUrl(
@@ -270,7 +270,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveActionLinkToUrl(
-            action: Action\Edit::new()->linkToAction('edit'),
+            action: new Action\Edit()->linkToAction('edit'),
             entity: new Entity(['id' => 1]),
         );
         
@@ -284,7 +284,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveActionLinkToUrl(
-            action: CustomAction::new()
+            action: new CustomAction()
                 ->linkToRoute('viewInvoice', ['id' => 5])
                 ->setController($this->getController()),
             entity: new Entity(['id' => 1]),
@@ -300,7 +300,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveActionLinkToUrl(
-            action: CustomAction::new()->linkToRoute('viewInvoice', function (EntityInterface $entity) {
+            action: new CustomAction()->linkToRoute('viewInvoice', function (EntityInterface $entity) {
                 return ['id' => $entity->id()];
             })->setController($this->getController()),
             entity: new Entity(['id' => 3]),
@@ -314,7 +314,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveActionUrl(
-            action: Action\Create::new()->url('url'),
+            action: new Action\Create()->url('url'),
             entity: null,
         );
         
@@ -326,7 +326,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: Factory::createRouter());
         
         $url = $ur->resolveActionUrl(
-            action: Action\Edit::new()->url(function (EntityInterface $entity) {
+            action: new Action\Edit()->url(function (EntityInterface $entity) {
                 return 'https://example.com/edit/'.$entity->id();
             }),
             entity: new Entity(['id' => 3]),
@@ -342,7 +342,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveActionUrl(
-            action: CustomAction::new()->setRoute('viewInvoice', function (EntityInterface $entity) {
+            action: new CustomAction()->setRoute('viewInvoice', function (EntityInterface $entity) {
                 return ['id' => $entity->id()];
             })->setController($this->getController()),
             entity: new Entity(['id' => 3]),
@@ -358,7 +358,7 @@ class UrlResolverTest extends TestCase
         $ur = new UrlResolver(router: $router);
         
         $url = $ur->resolveActionUrl(
-            action: CustomAction::new()->setRoute('viewInvoice', ['id' => 5])->setController($this->getController()),
+            action: new CustomAction()->setRoute('viewInvoice', ['id' => 5])->setController($this->getController()),
             entity: new Entity(['id' => 3]),
         );
         
