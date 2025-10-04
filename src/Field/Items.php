@@ -150,7 +150,7 @@ class Items extends AbstractField implements FieldsAwareInterface
     /**
      * Set the default items number to display.
      *
-     * @param bool $open
+     * @param int $num
      * @return static $this
      */
     public function defaultItems(int $num): static

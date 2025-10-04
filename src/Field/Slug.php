@@ -96,7 +96,7 @@ class Slug extends AbstractField
     /**
      * Sets if to use unique slugs.
      *
-     * @param string $name
+     * @param bool $unique
      * @return static $this
      */
     public function uniqueSlugs(bool $unique = true): static
