@@ -123,7 +123,7 @@ composer require tobento/app-crud
 
 ## Requirements
 
-- PHP 8.0 or greater
+- PHP 8.4 or greater
 
 # Documentation
 
@@ -143,7 +143,7 @@ The crud boot does the following:
 ```php
 use Tobento\App\AppFactory;
 
-$app = (new AppFactory())->createApp();
+$app = new AppFactory()->createApp();
 
 // Add directories:
 $app->dirs()
@@ -222,8 +222,8 @@ class ProductsController extends AbstractCrudController
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
         return [
-            Field\PrimaryId::new('id'),
-            Field\Text::new('sku'),
+            new Field\PrimaryId('id'),
+            new Field\Text('sku'),
             //...
         ];
     }
@@ -236,7 +236,7 @@ class ProductsController extends AbstractCrudController
     protected function configureActions(): iterable|ActionsInterface
     {
         return [
-            Action\Index::new(title: 'Products'),
+            new Action\Index(title: 'Products'),
             //...
         ];
     }
@@ -250,7 +250,7 @@ class ProductsController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         return [
-            Filter\Columns::new()->open(false),
+            new Filter\Columns()->open(false),
             //...
         ];
     }
@@ -445,8 +445,8 @@ class ProductsController extends AbstractCrudController
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
         return [
-            Field\PrimaryId::new('id'),
-            Field\Text::new(name: 'sku'),
+            new Field\PrimaryId('id'),
+            new Field\Text(name: 'sku'),
             //...
         ];
     }
@@ -473,16 +473,16 @@ class ProductsController extends AbstractCrudController
     protected function configureActions(): iterable|ActionsInterface
     {
         return [
-            Action\Index::new(title: 'Products'),
-            Action\Create::new(title: 'New product'),
-            Action\Store::new(),
-            Action\Edit::new(title: 'Edit product'),
-            Action\Update::new(),
-            Action\Copy::new(title: 'Copy product'),
-            Action\Show::new(),
-            Action\Delete::new(),
-            Action\BulkDelete::new(),
-            Action\BulkEdit::new(),
+            new Action\Index(title: 'Products'),
+            new Action\Create(title: 'New product'),
+            new Action\Store(),
+            new Action\Edit(title: 'Edit product'),
+            new Action\Update(),
+            new Action\Copy(title: 'Copy product'),
+            new Action\Show(),
+            new Action\Delete(),
+            new Action\BulkDelete(),
+            new Action\BulkEdit(),
         ];
     }
 }
@@ -510,16 +510,16 @@ class ProductsController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         return [
-            Filter\Columns::new()->open(false),
-            Filter\FieldsSortOrder::new(),
-            ...Filter\Fields::new()
+            new Filter\Columns()->open(false),
+            new Filter\FieldsSortOrder(),
+            ...new Filter\Fields()
                ->group('field')
                ->fields($action->fields())
                ->toFilters(),
-            Filter\PaginationItemsPerPage::new()->open(false),
+            new Filter\PaginationItemsPerPage()->open(false),
             
             // must be added last!
-            Filter\Pagination::new(),
+            new Filter\Pagination(),
         ];
     }
 }
@@ -538,10 +538,10 @@ use Tobento\App\Crud\Filter;
 
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
-    yield Filter\Columns::new()->open(false);
+    yield new Filter\Columns()->open(false);
 
     if (in_array($action->name(), ['custom'])) {
-        yield Filter\FieldsSortOrder::new();
+        yield new Filter\FieldsSortOrder();
     }
 }
 ```
@@ -558,9 +558,9 @@ use Tobento\App\Crud\Filter;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->setFilters(new Filter\Filters(
-                Filter\Columns::new()->open(false),
+                new Filter\Columns()->open(false),
             )),
     ];
 }
@@ -743,7 +743,7 @@ The checkboxes field displays a list of checkboxes using the specified options.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Checkboxes::new(
+new Field\Checkboxes(
     name: 'colors',
     // you may set a label, otherwise name is used:
     label: 'Colors',
@@ -755,7 +755,7 @@ Field\Checkboxes::new(
 Use the ```options``` method to define the options to choose:
 
 ```php
-Field\Checkboxes::new('colors')
+new Field\Checkboxes('colors')
     // specify the options using an array:
     ->options(['blue' => 'Blue', 'red' => 'Red'])
     
@@ -768,7 +768,7 @@ Field\Checkboxes::new('colors')
 Use the ```emptyOption``` method to change the empty option value needed when no option is selected:
 
 ```php
-Field\Checkboxes::new('colors')
+new Field\Checkboxes('colors')
     ->emptyOption(value: '_none');
 ```
 
@@ -781,7 +781,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
 
-Field\Checkboxes::new('colors')
+new Field\Checkboxes('colors')
     ->selected(value: ['blue', 'red'], action: 'create')
     
     // or using a closure (additional parameters are resolved by autowiring):
@@ -801,7 +801,7 @@ You may set HTML attributes assigned to each input element using the ```attribut
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Checkboxes::new('colors')->attributes(['class' => 'name']);
+new Field\Checkboxes('colors')->attributes(['class' => 'name']);
 ```
 
 **Validation**
@@ -809,7 +809,7 @@ Field\Checkboxes::new('colors')->attributes(['class' => 'name']);
 Data are being validated using the defined options. You may define additional rules though:
 
 ```php
-Field\Checkboxes::new('colors')
+new Field\Checkboxes('colors')
     ->validate('required|minItems:2|maxItems:10');
 ```
 
@@ -822,7 +822,7 @@ The file field enables you to upload a single file using the [FileSource Field](
 ```php
 use Tobento\App\Crud\Field;
 
-Field\File::new(
+new Field\File(
     name: 'file',
     // you may set a label, otherwise name is used:
     label: 'File',
@@ -834,10 +834,10 @@ Field\File::new(
 ```php
 use Tobento\App\Crud\Field;
 
-Field\File::new(name: 'file')
+new Field\File(name: 'file')
     ->fields(
-        Field\Text::new('alt', 'Alternative Text')->translatable(),
-        Field\Radios::new('buyable', 'Buyable')->displayInline()->options(['no', 'yes']),
+        new Field\Text('alt', 'Alternative Text')->translatable(),
+        new Field\Radios('buyable', 'Buyable')->displayInline()->options(['no', 'yes']),
     );
 ```
 
@@ -848,7 +848,7 @@ Use the ```translatable``` method if you want to have translatable files.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\File::new(name: 'file')
+new Field\File(name: 'file')
     ->translatable();
 ```
 
@@ -859,7 +859,7 @@ Use the ```fileSource``` method to customize the [FileSource Field](#filesource-
 ```php
 use Tobento\App\Crud\Field;
 
-Field\File::new(name: 'file')
+new Field\File(name: 'file')
     ->fileSource(function(Field\FileSource $fs): void {
         $fs->storage('uploads')
            ->allowedExtensions('jpg', 'png')
@@ -874,9 +874,9 @@ You may use the ```storeFilenameTo``` method to store the filenames to a certain
 ```php
 use Tobento\App\Crud\Field;
 
-Field\File::new(name: 'file')
+new Field\File(name: 'file')
     ->fields(
-        Field\Text::new('name', 'Filename')->translatable(),
+        new Field\Text('name', 'Filename')->translatable(),
     )
     ->storeFilenameTo(field: 'name');
     
@@ -893,7 +893,7 @@ The files field enables you to upload multiple files using the [FileSource Field
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Files::new(
+new Field\Files(
     name: 'files',
     // you may set a label, otherwise name is used:
     label: 'Files',
@@ -905,10 +905,10 @@ Field\Files::new(
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Files::new(name: 'files')
+new Field\Files(name: 'files')
     ->fields(
-        Field\Text::new('alt', 'Alternative Text')->translatable(),
-        Field\Radios::new('buyable', 'Buyable')->displayInline()->options(['no', 'yes']),
+        new Field\Text('alt', 'Alternative Text')->translatable(),
+        new Field\Radios('buyable', 'Buyable')->displayInline()->options(['no', 'yes']),
     );
 ```
 
@@ -919,7 +919,7 @@ Use the ```file``` method to customize the [File Field](#file-field).
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Files::new(name: 'files')
+new Field\Files(name: 'files')
     ->file(function(Field\File $file): void {
         $file->translatable();
         $file->fileSource(function(Field\FileSource $fs): void {
@@ -933,7 +933,7 @@ If you want translatable files, makes sure to set it on both the files and file 
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Files::new(name: 'files')
+new Field\Files(name: 'files')
     ->translatable()
     ->file(function(Field\File $file): void {
         $file->translatable();
@@ -950,7 +950,7 @@ Use the ```numberOfFiles``` method to set the ```min``` and/or ```max``` allowed
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Files::new(name: 'files')
+new Field\Files(name: 'files')
     // min only;
     ->numberOfFiles(min: 1)
     // or max only:
@@ -966,7 +966,7 @@ The file source field enables you to upload a single file, storing the file path
 ```php
 use Tobento\App\Crud\Field;
 
-Field\FileSource::new(
+new Field\FileSource(
     name: 'file',
     // you may set a label, otherwise name is used:
     label: 'File',
@@ -978,7 +978,7 @@ Field\FileSource::new(
 Use the ```storage``` method to change the storage name where to store the file. By default the ```uploads``` storage is used. Make sure your defined storage is outside the webroot such as the default configured uploads storage.
 
 ```php
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->storage(name: 'custom-uploads');
 ```
 
@@ -991,7 +991,7 @@ Check out the [App File Storage](https://github.com/tobento-ch/app-file-storage)
 Use the ```folder``` method to define a folder path.
 
 ```php
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->folder(path: 'shop/products')
     
     // or using a callable:
@@ -1005,7 +1005,7 @@ Field\FileSource::new('image')
 Use the ```allowedExtensions``` method to define the allowed file extensions. By default, only ```jpg```, ```png```, ```gif``` and ```webp``` are allowed.
 
 ```php
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->allowedExtensions('jpg', 'png')
     
     // you may set max file size in KB:
@@ -1018,7 +1018,7 @@ If you need more control validating files, use the ```validator``` method:
 use Tobento\App\Media\Upload\ValidatorInterface;
 use Tobento\App\Media\Upload\Validator;
 
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->validator(static function(): ValidatorInterface {
         return new Validator(
             allowedExtensions: ['jpg'],
@@ -1044,7 +1044,7 @@ use Tobento\App\Media\FileStorage\Writer;
 use Tobento\App\Media\Image\ImageProcessor;
 use Tobento\Service\FileStorage\StorageInterface;
 
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->fileWriter(static function(StorageInterface $storage): FileWriterInterface {
         return new FileWriter(
             storage: $storage,
@@ -1076,7 +1076,7 @@ Use the ```modifyInputValue``` method if you want support other files to be uplo
 ```php
 use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
 
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->modifyInputValue(
         modifier: function(mixed $value, Field\FileSource $field, UploadedFileFactoryInterface $uploadedFileFactory): mixed {
             if (is_string($value)) {
@@ -1097,7 +1097,7 @@ By default, images get displayed on the index and edit page using the [Media Pic
 use Tobento\Service\Picture\DefinitionInterface;
 use Tobento\Service\Picture\Definition\ArrayDefinition;
 
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->picture(definition: [
         'img' => [
             'src' => [120],
@@ -1141,7 +1141,7 @@ Field\FileSource::new('image')
 You may define an image editor template using the ```imageEditor``` method. Once defined, images can be edited using the [Image Editor Feature](https://github.com/tobento-ch/app-media#image-editor-feature) by clicking the edit button on the file. Make sure the feature is installed and the template is defined.
 
 ```php
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->imageEditor(template: 'crud');
 ```
 
@@ -1163,7 +1163,7 @@ You will need to define an event listener in the ```app/config/event.php``` file
 You may define a picture using the ```pictureEditor``` method. Once defined, images can be edited using the [Picture Editor Feature](https://github.com/tobento-ch/app-media#picture-editor-feature) by clicking the edit picture button on the file. Make sure the feature is installed and the template is defined.
 
 ```php
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->pictureEditor(template: 'default', definitions: ['product-main', 'product-list']);
 ```
 
@@ -1172,7 +1172,7 @@ Field\FileSource::new('image')
 Use the ```displayMessages``` method to define the messages to be displayed.
 
 ```php
-Field\FileSource::new('image')
+new Field\FileSource('image')
     ->displayMessages('error', 'success', 'info', 'notice');
 ```
 
@@ -1206,11 +1206,11 @@ The group field may be used if you want to group fields.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Group::new(name: 'seo')
+new Field\Group(name: 'seo')
     // define the fields:
     ->fields(
-        Field\Text::new('meta_title', 'Meta Title')->translatable(),
-        Field\Text::new('meta_desc', 'Meta Description')->translatable(),
+        new Field\Text('meta_title', 'Meta Title')->translatable(),
+        new Field\Text('meta_desc', 'Meta Description')->translatable(),
     )
     // you may group the fields, otherwise groups from the defined fields are used:
     ->group('SEO')
@@ -1248,8 +1248,8 @@ class SeoFields extends Field\Group
     public function fields(FieldInterface ...$fields): static
     {
         $this->fields = [
-            Field\Text::new('meta_title', 'Meta Title')->translatable(),
-            Field\Text::new('meta_desc', 'Meta Description')->translatable(),
+            new Field\Text('meta_title', 'Meta Title')->translatable(),
+            new Field\Text('meta_desc', 'Meta Description')->translatable(),
         ];
         
         return $this;
@@ -1264,7 +1264,7 @@ use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 
-SeoFields::new(name: 'seo')
+new SeoFields(name: 'seo')
     // you may rename fields:
     ->renameFields(['meta_desc' => 'meta_description'])
     
@@ -1290,7 +1290,7 @@ The html field may be used if you want to set HTML content.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Html::new(
+new Field\Html(
     name: 'title',
     // you may set a label, otherwise name is used:
     label: 'TITLE',
@@ -1304,7 +1304,7 @@ Use the ```content``` method to set the HTML. Make sure any html you set is bein
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Html::new(name: 'title')->content(html: '<p>Lorem</p>');
+new Field\Html(name: 'title')->content(html: '<p>Lorem</p>');
 ```
 
 In addition, you may pass a callable being resolved by autowiring:
@@ -1313,7 +1313,7 @@ In addition, you may pass a callable being resolved by autowiring:
 use Tobento\App\Crud\Field;
 use Tobento\Service\View\ViewInterface;
 
-Field\Html::new(name: 'title')->content(function (Field\Html $field, ViewInterface $view): string {
+new Field\Html(name: 'title')->content(function (Field\Html $field, ViewInterface $view): string {
     return $view->render('about', []);
 });
 ```
@@ -1323,7 +1323,7 @@ Field\Html::new(name: 'title')->content(function (Field\Html $field, ViewInterfa
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Html::new(name: 'title')
+new Field\Html(name: 'title')
     ->content(html: '<p>Lorem</p>')
     ->indexable(true) // default false
     ->showable(true); // default false
@@ -1336,17 +1336,17 @@ The items field displays a collection of items allowing you to add, edit and del
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Items::new('prices')
+new Field\Items('prices')
     // you may group the fields
     ->group('Prices') // set before defining fields!
     
     // define the fields per item:
     ->fields(
-        Field\Text::new('price_net', 'Price Net')
+        new Field\Text('price_net', 'Price Net')
             ->type('number')
             ->attributes(['step' => 'any'])
             ->validate('decimal'),
-        Field\Text::new('price_gross', 'Price Gross')
+        new Field\Text('price_gross', 'Price Gross')
             ->type('number')
             ->attributes(['step' => 'any'])
             ->validate('decimal'),
@@ -1375,7 +1375,7 @@ The options field displays searchable options to choose from using the defined r
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Options::new(
+new Field\Options(
     name: 'categories',
     // you may set a label, otherwise name is used:
     label: 'Categories',
@@ -1389,7 +1389,7 @@ Use the ```repository``` method to define the repository implementing the [Repos
 ```php
 use Tobento\Service\Repository\RepositoryInterface;
 
-Field\Options::new('categories')
+new Field\Options('categories')
     ->repository(CategoriesRepository::class) // class-string|RepositoryInterface
     
     // you may add base where queries:
@@ -1413,7 +1413,7 @@ Use the ```toOption``` method to create options from the repository items:
 use Tobento\App\Crud\Field;
 use Tobento\Service\View\ViewInterface;
 
-Field\Options::new('categories')
+new Field\Options('categories')
     ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
         return new Field\Option(
             value: (string)$item->get('id'),
@@ -1428,7 +1428,7 @@ Or using option methods:
 use Tobento\App\Crud\Field;
 use Tobento\Service\View\ViewInterface;
 
-Field\Options::new('categories')
+new Field\Options('categories')
     ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {
         return (new Field\Option(value: (string)$item->get('id')))
             ->text((string)$item->get('title'))
@@ -1446,7 +1446,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
 
-Field\Options::new('categories')
+new Field\Options('categories')
     ->selected(value: ['2', '5'], action: 'create')
     
     // or using a closure (additional parameters are resolved by autowiring):
@@ -1464,7 +1464,7 @@ Field\Options::new('categories')
 Use the ```placeholder``` method to define a placeholder text for the serach input element:
 
 ```php
-Field\Options::new('categories')
+new Field\Options('categories')
     ->placeholder(text: 'Search categories');
 ```
 
@@ -1473,7 +1473,7 @@ Field\Options::new('categories')
 Use the ```emptyOption``` method to change the empty option value needed when no option is selected:
 
 ```php
-Field\Options::new('categories')
+new Field\Options('categories')
     ->emptyOption(value: '_none');
 ```
 
@@ -1482,7 +1482,7 @@ Field\Options::new('categories')
 Data are being validated using the repository to query the options. You may define additional rules though:
 
 ```php
-Field\Options::new('categories')
+new Field\Options('categories')
     ->validate('required|minItems:2|maxItems:10');
 ```
 
@@ -1495,7 +1495,7 @@ The primary id field will not be displayed on the ```create```, ```edit``` and `
 ```php
 use Tobento\App\Crud\Field;
 
-Field\PrimaryId::new(name: 'id', label: 'ID');
+new Field\PrimaryId(name: 'id', label: 'ID');
 ```
 
 #### Radios Field
@@ -1505,7 +1505,7 @@ The radios field displays a list of radios using the specified options.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Radios::new(
+new Field\Radios(
     name: 'colors',
     // you may set a label, otherwise name is used:
     label: 'Colors',
@@ -1517,7 +1517,7 @@ Field\Radios::new(
 Use the ```options``` method to define the options to choose:
 
 ```php
-Field\Radios::new('colors')
+new Field\Radios('colors')
     // specify the options using an array:
     ->options(['blue' => 'Blue', 'red' => 'Red'])
     
@@ -1534,7 +1534,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
 
-Field\Radios::new('colors')
+new Field\Radios('colors')
     ->selected(value: 'blue', action: 'create')
     
     // or using a closure (additional parameters are resolved by autowiring):
@@ -1554,7 +1554,7 @@ You may set HTML attributes assigned to each radio element using the ```attribut
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Radios::new('colors')->attributes(['class' => 'name']);
+new Field\Radios('colors')->attributes(['class' => 'name']);
 ```
 
 **Display Inline**
@@ -1562,7 +1562,7 @@ Field\Radios::new('colors')->attributes(['class' => 'name']);
 Use the ```displayInline``` method for the radio options to be displayed inline:
 
 ```php
-Field\Radios::new('colors')
+new Field\Radios('colors')
     ->displayInline();
 ```
 
@@ -1571,7 +1571,7 @@ Field\Radios::new('colors')
 Data are being validated using the defined options. You may define additional rules though:
 
 ```php
-Field\Radios::new('colors')
+new Field\Radios('colors')
     ->validate('required');
 ```
 
@@ -1584,7 +1584,7 @@ The select field will be rendered as a HTML ```select``` element.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Select::new(
+new Field\Select(
     name: 'colors',
     // you may set a label, otherwise name is used:
     label: 'Colors',
@@ -1596,7 +1596,7 @@ Field\Select::new(
 Use the ```options``` method to define the options to select:
 
 ```php
-Field\Select::new('colors')
+new Field\Select('colors')
     // specify the options using an array:
     ->options(['blue' => 'Blue', 'red' => 'Red'])
     
@@ -1607,7 +1607,7 @@ Field\Select::new('colors')
 You may define options as groups:
 
 ```php
-Field\Select::new('roles')
+new Field\Select('roles')
     ->options([
         'Frontend' => [
             'guest' => 'Guest',
@@ -1625,7 +1625,7 @@ Field\Select::new('roles')
 Use the ```emptyOption``` method to define an empty option which will not be saved when selected:
 
 ```php
-Field\Select::new('colors')
+new Field\Select('colors')
     // specify the options using an array:
     ->options(['blue' => 'Blue', 'red' => 'Red'])
     ->emptyOption(value: 'none', label: '---');
@@ -1640,7 +1640,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
 
-Field\Select::new('colors')
+new Field\Select('colors')
     ->selected(value: 'value', action: 'create')
     
     // or using a closure (additional parameters are resolved by autowiring):
@@ -1661,16 +1661,16 @@ You may set additional HTML select attributes using the ```attributes``` method:
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Select::new('colors')->attributes(['multiple', 'size' => '10']);
+new Field\Select('colors')->attributes(['multiple', 'size' => '10']);
 
-Field\Select::new('colors')->optionAttributes([
+new Field\Select('colors')->optionAttributes([
     // all options using wildcard:
     '*' => ['data-foo' => 'value'],
     // specific option using option value:
     'blue' => ['data-bar' => 'value'],
 ]);
 
-Field\Select::new('colors')->optgroupAttributes(['data-foo' => 'value']);
+new Field\Select('colors')->optgroupAttributes(['data-foo' => 'value']);
 ```
 
 **Validation**
@@ -1678,11 +1678,11 @@ Field\Select::new('colors')->optgroupAttributes(['data-foo' => 'value']);
 Data are being validated using the defined options. You may define additional rules though:
 
 ```php
-Field\Select::new('colors')
+new Field\Select('colors')
     ->validate('required')
 
 // rules example if allowing multiple selection:
-Field\Select::new('colors')
+new Field\Select('colors')
     ->attributes(['multiple', 'size' => '10'])
     ->validate('required|minItems:2|maxItems:10')
 ```
@@ -1696,7 +1696,7 @@ The slug field generates slugs based on the provided input. For example, the inp
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Slug::new(
+new Field\Slug(
     name: 'slug',
     // you may set a label, otherwise name is used:
     label: 'SLUG',
@@ -1710,7 +1710,7 @@ You may define a field to generate the slug from when no input from the slug fie
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Slug::new('slug')->fromField('title');
+new Field\Slug('slug')->fromField('title');
 ```
 
 **Slugifier**
@@ -1723,14 +1723,14 @@ use Tobento\Service\Slugifier\SlugifierInterface;
 use Tobento\Service\Slugifier\SlugifiersInterface;
 
 // using slugifier name:
-Field\Slug::new('slug')->slugifier('crud'); 
+new Field\Slug('slug')->slugifier('crud'); 
 // 'crud' is set as default but fallsback to default as not defined in slugging config
 
 // using object:
-Field\Slug::new('slug')->slugifier(new Slugifier());
+new Field\Slug('slug')->slugifier(new Slugifier());
 
 // using closure:
-Field\Slug::new('slug')
+new Field\Slug('slug')
     ->slugifier(function (SlugifiersInterface $slugifiers): SlugifierInterface {
         return $slugifiers->get('custom');
     });
@@ -1751,7 +1751,7 @@ You may disable unique slugs by using the ```uniqueSlugs``` method if you want t
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Slug::new('slug')->uniqueSlugs(false);
+new Field\Slug('slug')->uniqueSlugs(false);
 ```
 
 **Attributes**
@@ -1761,7 +1761,7 @@ You may set additional HTML input attributes using the ```attributes``` method:
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Slug::new(name: 'title')->attributes(['data-foo' => 'value']);
+new Field\Slug(name: 'title')->attributes(['data-foo' => 'value']);
 ```
 
 **Example With Readonly**
@@ -1769,7 +1769,7 @@ Field\Slug::new(name: 'title')->attributes(['data-foo' => 'value']);
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Slug::new('slug')
+new Field\Slug('slug')
     ->fromField('title')
     ->translatable()
     ->readonly(true, action: 'edit|update');
@@ -1782,7 +1782,7 @@ The text field will be rendered as an ```input``` element of the type ```text```
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(
+new Field\Text(
     name: 'title',
     // you may set a label, otherwise name is used:
     label: 'TITLE',
@@ -1796,7 +1796,7 @@ You may set another HTML input type as the default ```text``` type using the ```
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'email')->type('email');
+new Field\Text(name: 'email')->type('email');
 ```
 
 **Value**
@@ -1806,10 +1806,10 @@ You may set a value using the ```value``` method.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'title')->value('Lorem');
+new Field\Text(name: 'title')->value('Lorem');
 
 // you may pass an array of values if your field is translatable:
-Field\Text::new(name: 'title')
+new Field\Text(name: 'title')
     ->translatable()
     ->value(['en' => 'Lorem', 'de' => 'Lorem ipsum']);
 ```
@@ -1821,10 +1821,10 @@ You may set a default value using the ```defaultValue``` method:
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'title')->defaultValue('Lorem');
+new Field\Text(name: 'title')->defaultValue('Lorem');
 
 // you may pass an array of values if your field is translatable:
-Field\Text::new(name: 'title')
+new Field\Text(name: 'title')
     ->translatable()
     ->defaultValue(['en' => 'Lorem', 'de' => 'Lorem ipsum']);
 ```
@@ -1836,7 +1836,7 @@ You may set additional HTML input attributes using the ```attributes``` method:
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'title')->attributes(['data-foo' => 'value']);
+new Field\Text(name: 'title')->attributes(['data-foo' => 'value']);
 ```
 
 #### Textarea Field
@@ -1846,7 +1846,7 @@ The textarea field will be rendered as an ```textarea``` element.
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Textarea::new(
+new Field\Textarea(
     name: 'title',
     // you may set a label, otherwise name is used:
     label: 'TITLE',
@@ -1860,7 +1860,7 @@ You may set additional HTML textarea attributes using the ```attributes``` metho
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Textarea::new(name: 'title')->attributes(['rows' => '5']);
+new Field\Textarea(name: 'title')->attributes(['rows' => '5']);
 ```
 
 #### TextEditor Field
@@ -1870,7 +1870,7 @@ This field creates a JavaScript-based WYSIWYG editor using the [JS Editor](https
 ```php
 use Tobento\App\Crud\Field;
 
-Field\TextEditor::new(
+new Field\TextEditor(
     name: 'desc',
     // you may set a label, otherwise name is used:
     label: 'Description',
@@ -1884,7 +1884,7 @@ This method allows you to pass a PHP array of the configuration options to set p
 ```php
 use Tobento\App\Crud\Field;
 
-Field\TextEditor::new(name: 'desc')
+new Field\TextEditor(name: 'desc')
     ->editorConfig([
         'toolbar' => [
             'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -1914,7 +1914,7 @@ class ExampleRepository extends StorageRepository
     {
         return [
             // ...
-            Column\Text::new('desc', type: 'text')
+            new Column\Text('desc', type: 'text')
                 // as there might be data stored before, we clean the html on reading:
                 ->read(fn (string $value): string => sanitizeHtml($value))
                 
@@ -1939,7 +1939,7 @@ The value field may be used if you want to set the value directly on the field. 
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Value::new(
+new Field\Value(
     name: 'title',
     // you may set a label, otherwise name is used:
     label: 'TITLE',
@@ -1953,7 +1953,7 @@ Use the ```value``` method to set the value for the field:
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Value::new(name: 'title')->value('Lorem');
+new Field\Value(name: 'title')->value('Lorem');
 ```
 
 **Defaults**
@@ -1961,7 +1961,7 @@ Field\Value::new(name: 'title')->value('Lorem');
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Value::new(name: 'title')
+new Field\Value(name: 'title')
     ->value('Lorem')
     ->indexable(true) // default false
     ->showable(true); // default false
@@ -1983,7 +1983,7 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
     return [
         //...
 
-        Field\Text::new(name: 'sku')
+        new Field\Text(name: 'sku')
 
             // disabled on index action:
             ->indexable(false)
@@ -2013,13 +2013,13 @@ use Tobento\App\Crud\Field;
 
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
-    yield Field\PrimaryId::new('id');
+    yield new Field\PrimaryId('id');
 
     if (in_array($action->name(), ['create', 'store'])) {
-        yield Field\Text::new(name: 'sku');
+        yield new Field\Text(name: 'sku');
     }
 
-    yield Field\Text::new(name: 'title');
+    yield new Field\Text(name: 'title');
 }
 ```
 
@@ -2035,10 +2035,10 @@ use Tobento\App\Crud\Field;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->setFields(new Field\Fields(
-                Field\PrimaryId::new('id'),
-                Field\Text::new(name: 'sku'),
+                new Field\PrimaryId('id'),
+                new Field\Text(name: 'sku'),
             )),
     ];
 }
@@ -2054,7 +2054,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'sku')
+        new Field\Text(name: 'sku')
         
             // used for all actions:
             ->validate('required|alnum')
@@ -2082,7 +2082,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'sku')
+        new Field\Text(name: 'sku')
             ->validate('required|alnum')
             ->applyValidationAttributes(false)
             ->attributes(['required']),
@@ -2100,7 +2100,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'title')
+        new Field\Text(name: 'title')
             ->translatable(),
     ];
 }
@@ -2116,7 +2116,7 @@ protected function configureColumns(): iterable|ColumnsInterface
 {
     return [
         //...
-        Column\Translatable::new(name: 'title'),
+        new Column\Translatable(name: 'title'),
     ];
 }
 ```
@@ -2137,7 +2137,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->storable(false),
     ];
 }
@@ -2156,7 +2156,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->readonly()
             
             // or you may set only for specific actions:
@@ -2201,7 +2201,7 @@ use Tobento\Service\Support\Str;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             // format value using a closure as formatter:
             ->formatValue(
                 formatter: fn (mixed $value, Field\Text $field): string => strtoupper((string)$value),
@@ -2239,7 +2239,7 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Select::new('status')
+new Field\Select('status')
     ->options(['active' => 'Active', 'inactive' => 'Inactive'])
     
     ->formatValue(
@@ -2260,7 +2260,7 @@ Field\Select::new('status')
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'foo')
+new Field\Text(name: 'foo')
     ->formatValue(
         formatter: new Field\Formatter\CssClass('float-right text-700')
     );
@@ -2271,7 +2271,7 @@ Field\Text::new(name: 'foo')
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'foo')
+new Field\Text(name: 'foo')
     ->formatValue(
         formatter: new Field\Formatter\Date(
             format: 'EE, dd. MMMM yyyy, HH:mm',
@@ -2284,7 +2284,7 @@ Field\Text::new(name: 'foo')
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'foo')
+new Field\Text(name: 'foo')
     ->formatValue(
         formatter: new Field\Formatter\Formatters(
             new Field\Formatter\Date(),
@@ -2298,7 +2298,7 @@ Field\Text::new(name: 'foo')
 ```php
 use Tobento\App\Crud\Field;
 
-Field\Text::new(name: 'foo')
+new Field\Text(name: 'foo')
     ->formatValue(
         formatter: new Field\Formatter\Str(
             // you may trim the width:
@@ -2328,10 +2328,10 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')->group('Name'),
-        Field\Text::new(name: 'bar')->group('Name'),
+        new Field\Text(name: 'foo')->group('Name'),
+        new Field\Text(name: 'bar')->group('Name'),
         
-        Field\Text::new(name: 'baz')->group('Another Name'),
+        new Field\Text(name: 'baz')->group('Another Name'),
     ];
 }
 ```
@@ -2350,7 +2350,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->requiredText('Required because of ...')
             // same as:
             ->requiredText(text: 'Required because of ...', action: 'create|edit')
@@ -2373,7 +2373,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->optionalText('optional ...')
             // same as:
             ->optionalText(text: 'optional ...', action: 'create|edit')
@@ -2397,7 +2397,7 @@ use Tobento\Service\Support\HtmlString;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->infoText('Some info ...')
             // same as:
             ->infoText(text: 'Some info ...', action: 'create|edit')
@@ -2425,7 +2425,7 @@ use Tobento\App\Crud\Field;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->resolve(
                 // you may define additional parameters being resolved by autowiring!
                 resolve: function (ActionInterface $action, FieldInterface $field): void {
@@ -2460,7 +2460,7 @@ use Tobento\Service\Support\Str;
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
-        Field\Text::new(name: 'foo')
+        new Field\Text(name: 'foo')
             ->process(
                 action: 'index',
                 // you may define additional parameters being resolved by autowiring!
@@ -2537,7 +2537,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             
             // you may set a custom view:
             ->view('custom/crud/index')
@@ -2556,7 +2556,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->removeButton('delete', 'show'),
     ];
 }
@@ -2573,7 +2573,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Create::new(title: 'New product')
+        new Action\Create(title: 'New product')
         
             // you may set a custom view:
             ->view('custom/crud/create')
@@ -2592,7 +2592,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Create::new(title: 'New product')
+        new Action\Create(title: 'New product')
             ->removeButton('create', 'edit'),
     ];
 }
@@ -2609,7 +2609,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Store::new(),
+        new Action\Store(),
     ];
 }
 ```
@@ -2624,10 +2624,10 @@ use Tobento\App\Crud\Entity\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Edit::new(title: 'Edit product'),
+        new Action\Edit(title: 'Edit product'),
         
         // or using the entity:
-        Action\Edit::new(fn (EntityInterface $entity): string => 'Edit Product: '.$entity->get('sku'))
+        new Action\Edit(fn (EntityInterface $entity): string => 'Edit Product: '.$entity->get('sku'))
         
             // you may set a custom view:
             ->view('custom/crud/edit')
@@ -2646,7 +2646,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Edit::new(title: 'Edit product')
+        new Action\Edit(title: 'Edit product')
             ->removeButton('copy', 'new'),
     ];
 }
@@ -2661,7 +2661,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Update::new(),
+        new Action\Update(),
     ];
 }
 ```
@@ -2678,7 +2678,7 @@ use Tobento\App\Crud\Entity\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Update::new()
+        new Action\Update()
             // by entity ids using an array:
             ->unupdatable(ids: [12, 13], reason: 'Unupdatable because of...')
             
@@ -2686,7 +2686,7 @@ protected function configureActions(): iterable|ActionsInterface
             ->unupdatable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar'])),
             
         // In addition, you may not display the edit button for those entities:
-        Action\Index::new('Products')
+        new Action\Index('Products')
             ->displayButtonIf('edit', fn (EntityInterface $entity): bool => !in_array($entity->get('sku'), ['foo', 'bar']))
     ];
 }
@@ -2702,10 +2702,10 @@ use Tobento\App\Crud\Entity\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Copy::new(title: 'Copy product'),
+        new Action\Copy(title: 'Copy product'),
         
         // or using the entity:
-        Action\Copy::new(fn (EntityInterface $entity): string => 'Copy Product: '.$entity->get('sku'))
+        new Action\Copy(fn (EntityInterface $entity): string => 'Copy Product: '.$entity->get('sku'))
         
             // you may set a custom view:
             ->view('custom/crud/copy')
@@ -2725,7 +2725,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Copy::new(title: 'Copy product')
+        new Action\Copy(title: 'Copy product')
             ->removeButton('copy', 'new'),
     ];
 }
@@ -2741,12 +2741,12 @@ use Tobento\App\Crud\Entity\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Show::new(title: 'Show product'),
+        new Action\Show(title: 'Show product'),
         
         // or using the entity:
-        Action\Show::new(fn (EntityInterface $entity): string => 'Product: '.$entity->get('sku')),
+        new Action\Show(fn (EntityInterface $entity): string => 'Product: '.$entity->get('sku')),
         
-        Action\Show::new(title: 'Show product')
+        new Action\Show(title: 'Show product')
             // you may set a custom view:
             ->view('custom/crud/show')
     ];
@@ -2764,7 +2764,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Show::new(title: 'Show product')
+        new Action\Show(title: 'Show product')
             ->removeButton('back'),
     ];
 }
@@ -2780,7 +2780,7 @@ use Tobento\App\Crud\Entity\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\ShowJson::new(),
+        new Action\ShowJson(),
     ];
 }
 ```
@@ -2794,7 +2794,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Delete::new(),
+        new Action\Delete(),
     ];
 }
 ```
@@ -2811,7 +2811,7 @@ use Tobento\App\Crud\Entity\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Delete::new()
+        new Action\Delete()
             // by entity ids using an array:
             ->undeletable(ids: [12, 13], reason: 'Undeletable because of...')
             
@@ -2819,7 +2819,7 @@ protected function configureActions(): iterable|ActionsInterface
             ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar'])),
             
         // In addition, you may not display the delete button for those entities:
-        Action\Index::new('Products')
+        new Action\Index('Products')
             ->displayButtonIf('delete', fn (EntityInterface $entity): bool => !in_array($entity->get('sku'), ['foo', 'bar']))
     ];
 }
@@ -2834,7 +2834,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\BulkDelete::new(),
+        new Action\BulkDelete(),
     ];
 }
 ```
@@ -2850,10 +2850,10 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\BulkEdit::new(name: 'edit-status', title: 'Edit Status')
+        new Action\BulkEdit(name: 'edit-status', title: 'Edit Status')
             ->field('status'),
         
-        Action\BulkEdit::new(name: 'edit-multiple', title: 'Edit Multiple Fields')
+        new Action\BulkEdit(name: 'edit-multiple', title: 'Edit Multiple Fields')
             ->field('fieldname', 'another-fieldname'),
     ];
 }
@@ -2880,9 +2880,9 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new()->view('crud/index-tree'),
+        new Action\Index()->view('crud/index-tree'),
         
-        Action\BulkTreeUpdate::new()
+        new Action\BulkTreeUpdate()
             // you may change the field names:
             ->mapping(id: 'id', parentId: 'parent_id', sortorder: 'sortorder'), // defaults
     ];
@@ -2902,18 +2902,18 @@ You may view the action ```buttons``` method to see its configuration such as th
 **Available Buttons**
 
 ```php
-$link = Button\Link::new(label: 'Label', group: 'entity');
+$link = new Button\Link(label: 'Label', group: 'entity');
 // renders an <a> element
 
-$button = Button\Button::new(label: 'Label', group: 'entity');
+$button = new Button\Button(label: 'Label', group: 'entity');
 // renders a <button> element
 
-$delete = Button\Delete::new(label: 'Label', group: 'entity');
+$delete = new Button\Delete(label: 'Label', group: 'entity');
 // renders a <form> element to delete an entity
 
-$dropdown = Button\Dropdown::new(label: 'Label', group: 'entity');
+$dropdown = new Button\Dropdown(label: 'Label', group: 'entity');
 
-$form = Button\Form::new(label: 'Label', group: 'entity')->method('POST');
+$form = new Button\Form(label: 'Label', group: 'entity')->method('POST');
 // renders a <form> element with the entity id as hidden input.
 ```
 
@@ -2924,7 +2924,7 @@ use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\Service\Tag\AttributesInterface;
 use Tobento\Service\View\ViewInterface;
 
-$html = Button\Html::new(group: 'entity')
+$html = new Button\Html(group: 'entity')
     ->html('<button>Label</button>');
     
     // Or:
@@ -2939,7 +2939,7 @@ $html = Button\Html::new(group: 'entity')
 **Linking Methods**
 
 ```php
-$link = Button\Link::new(label: 'View invoice', group: 'entity')
+$link = new Button\Link(label: 'View invoice', group: 'entity')
     // link to an existing action:
     ->linkToAction('viewInvoice')
 
@@ -2971,7 +2971,7 @@ $link = Button\Link::new(label: 'View invoice', group: 'entity')
 **General Methods**
 
 ```php
-$link = Button\Link::new(label: 'View invoice', group: 'entity')
+$link = new Button\Link(label: 'View invoice', group: 'entity')
     // You may define a name:
     ->name('viewInvoice')
     // You modify the label:
@@ -3014,12 +3014,12 @@ use Tobento\App\Crud\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    $button = Button\Link::new(label: 'View invoice', group: 'entity')
+    $button = new Button\Link(label: 'View invoice', group: 'entity')
         ->name('viewInvoice')
         ->linkToAction('viewInvoice');
         
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->addButton($button),
     ];
 }
@@ -3034,7 +3034,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->removeButton('create', 'edit'),
     ];
 }
@@ -3049,7 +3049,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->reorderButtons('edit', 'delete'),
     ];
 }
@@ -3066,7 +3066,7 @@ use Tobento\App\Crud\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->modifyButton('edit', function(ButtonInterface $button, EntityInterface $entity): void {
                 $button
                     ->label('')
@@ -3090,7 +3090,7 @@ use Tobento\App\Crud\Button;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->groupButtons(
                 except: ['edit'],
                 //only: ['show', 'delete'],
@@ -3106,7 +3106,7 @@ protected function configureActions(): iterable|ActionsInterface
             // or you may define a custom button:
             ->groupButtons(
                 only: ['show', 'delete'],
-                button: Button\Dropdown::new(label: '', icon: 'dots', group: 'entity')
+                button: new Button\Dropdown(label: '', icon: 'dots', group: 'entity')
                     ->name('anotherGroup')
                     ->raw(),
             ),
@@ -3124,7 +3124,7 @@ use Tobento\App\Crud\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->displayButtonIf('viewInvoice', fn (EntityInterface $entity): bool => $entity->get('isPaid'))
             
             // or with bool:
@@ -3145,7 +3145,7 @@ use Tobento\App\Crud\EntityInterface;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             // asking to confirm the action using inline buttons:
             ->confirmButtonAction('delete')
             
@@ -3174,7 +3174,7 @@ use Tobento\App\Crud\Action;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             // using ajax:
             ->ajaxButtonAction('delete')
             
@@ -3204,9 +3204,9 @@ use Tobento\App\Crud\Button;
 protected function configureActions(): iterable|ActionsInterface
 {
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->setButtons(
-                Button\Link::new(label: 'Create New', group: 'global')
+                new Button\Link(label: 'Create New', group: 'global')
                     ->name('create')
                     ->linkToAction('create'),
             ),
@@ -3227,7 +3227,7 @@ use Tobento\App\Crud\Button;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    $viewInvoiceBtn = Button\Link::new(label: 'View Invoice', group: 'entity')
+    $viewInvoiceBtn = new Button\Link(label: 'View Invoice', group: 'entity')
         ->name('viewInvoice')
         // link to an action:
         ->linkToAction('viewInvoice')
@@ -3237,7 +3237,7 @@ protected function configureActions(): iterable|ActionsInterface
         });
         
     return [
-        Action\Index::new(title: 'Products')
+        new Action\Index(title: 'Products')
             ->addButton($viewInvoiceBtn),
         //...
     ];
@@ -3283,7 +3283,7 @@ final class ViewInvoice extends AbstractAction
         }
         
         $this->buttons = new Buttons(
-            Button\Link::new(label: $this->trans('Back to index'), group: 'entity')
+            new Button\Link(label: $this->trans('Back to index'), group: 'entity')
                 ->name('back')
                 ->linkToAction('index'),
         );
@@ -3344,7 +3344,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Checkboxes::new(name: 'colors', field: 'color')
+        new Filter\Checkboxes(name: 'colors', field: 'color')
             // specify the options using an array:
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             
@@ -3390,7 +3390,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
         
         // you may use dot notation for the name and
         // use -> for the field (JSON) if your repository supports it:
-        Filter\Checkboxes::new(name: 'options.color', field: 'options->color')
+        new Filter\Checkboxes(name: 'options.color', field: 'options->color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('contains'),
     ];
@@ -3409,7 +3409,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Checkboxes::new(name: 'categories') // no field defined!
+        new Filter\Checkboxes(name: 'categories') // no field defined!
             // specify the options using an array:
             ->options(['1' => 'Foo Category', '3' => 'Bar Category'])
             
@@ -3444,7 +3444,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\ClearButton::new()
+        new Filter\ClearButton()
         
             // hide on default:
             ->open(false)
@@ -3468,7 +3468,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->attributes(['data-foo' => 'value']),
         
         // or clear specific filter by its names:
-        Filter\ClearButton::new(
+        new Filter\ClearButton(
             filters: ['foo', 'bar'],
             name: 'unique-filter-name', // only if multiple clear button filters
         )->label('Clear foo and bar filters'),
@@ -3488,7 +3488,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Columns::new()
+        new Filter\Columns()
             // you may set the default active columns,
             // otherwise the first 5 fields and actions will be used.
             ->default('title', 'date', 'actions')
@@ -3538,7 +3538,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Datalist::new(name: 'list-titles')
+        new Filter\Datalist(name: 'list-titles')
             // specify the options using an array:
             ->options(['foo', 'bar'])
             
@@ -3546,7 +3546,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->options(fn(ProductRepository $repo): array => $repo->findAllTitles()),
         
         // set the list attributes on the filter you want the datalist to be displayed:
-        Filter\Input::new(name: 'data', field: 'title')
+        new Filter\Input(name: 'data', field: 'title')
             ->attributes(['list' => 'list-titles']),
     ];
 }
@@ -3565,14 +3565,14 @@ use Tobento\Service\Repository\Storage\StorageRepository;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Datalist::new(name: 'list-titles')
+        new Filter\Datalist(name: 'list-titles')
             ->optionsFromField(field: 'title', limit: 50),
             
             // or specify fromInput parameters, applying a where like query:
             ->optionsFromField(field: 'title', fromInput: 'data', limit: 50),
         
         // set the list attributes on the filter you want the datalist to be displayed:
-        Filter\Input::new(name: 'data', field: 'title')
+        new Filter\Input(name: 'data', field: 'title')
             ->attributes(['list' => 'list-titles']),
     ];
 }
@@ -3589,7 +3589,7 @@ use Tobento\App\Crud\InputInterface;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Datalist::new(name: 'list-titles')
+        new Filter\Datalist(name: 'list-titles')
             
             // $input, $action and $filter parameters will always be available,
             // any other parameters are resolved by autowiring:
@@ -3630,7 +3630,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\EditableColumns::new('sku', 'title') // define the editable columns
+        new Filter\EditableColumns('sku', 'title') // define the editable columns
         
             // hide on default:
             ->open(false)
@@ -3678,7 +3678,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        ...Filter\Fields::new()
+        ...new Filter\Fields()
             
             // set the fields from the action:
             ->fields($action->fields())
@@ -3704,12 +3704,12 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        ...Filter\Fields::new()
+        ...new Filter\Fields()
             ->fields($action->fields())
             ->except('sku')
             ->toFilters(),
         // custom sku filter:
-        Filter\Input::new(name: 'sku', field: 'sku')
+        new Filter\Input(name: 'sku', field: 'sku')
             ->group('field'),
     ];
 }
@@ -3727,7 +3727,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\FieldsSortOrder::new()
+        new Filter\FieldsSortOrder()
         
             // display only specific:
             ->only('sku', 'title')
@@ -3756,7 +3756,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Group::new(name: 'group-key')
+        new Filter\Group(name: 'group-key')
             // display in modal:
             ->group('modal')
             
@@ -3773,10 +3773,10 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->view('custom/crud/filter/group'),
             
         // Next, assign filters to the group:
-        Filter\Columns::new()->group('group-key'),
+        new Filter\Columns()->group('group-key'),
         
         // The modal button to open filters:
-        Filter\ModalButton::new(),
+        new Filter\ModalButton(),
     ];
 }
 ```
@@ -3793,7 +3793,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Input::new(name: 'foo', field: 'email')
+        new Filter\Input(name: 'foo', field: 'email')
             // you may change the type:
             ->type('email') // text (default)
             
@@ -3833,7 +3833,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
         
         // you may use dot notation for the name and
         // use -> for the field (JSON) if your repository supports it:
-        Filter\Input::new(name: 'options.color', field: 'options->color')
+        new Filter\Input(name: 'options.color', field: 'options->color')
             ->comparison('contains'),
     ];
 }
@@ -3851,7 +3851,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Input::new(name: 'colors') // no field defined!
+        new Filter\Input(name: 'colors') // no field defined!
             // you may use the after method to set the filters where parameters:
             ->after(function(Filter\Input $filter, FiltersInterface $filters): void {
                 if (!is_string($filter->getSearchValue())) {
@@ -3877,7 +3877,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
 {
     return [
         // should be added as the first filter!
-        Filter\Locale::new()
+        new Filter\Locale()
             // hide on default:
             ->open(false)
             
@@ -3917,7 +3917,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Menu::new(name: 'categories', field: 'category_id')
+        new Filter\Menu(name: 'categories', field: 'category_id')
             // specify the menu items using an array:
             ->items([
                 ['id' => 'foo', 'name' => 'Foo', 'parent' => null],
@@ -3970,7 +3970,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Menu::new(name: 'categories') // no field defined!
+        new Filter\Menu(name: 'categories') // no field defined!
             // specify the menu items using an array:
             ->items([
                 ['id' => 'foo', 'name' => 'Foo', 'parent' => null],
@@ -4008,7 +4008,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\ModalButton::new()
+        new Filter\ModalButton()
         
             // hide on default:
             ->open(false)
@@ -4029,7 +4029,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->attributes(['data-foo' => 'value']),
         
         // or
-        Filter\ModalButton::new(
+        new Filter\ModalButton(
             name: 'unique-filter-name', // only if multiple clear button filters
         ),
     ];
@@ -4050,7 +4050,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
     return [
         // ...
         // must be the last filter added!
-        Filter\Pagination::new()
+        new Filter\Pagination()
         
             // you may set a label:
             ->label('Current Page')
@@ -4077,7 +4077,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->view('custom/crud/filter'),
         
         // Or:
-        Filter\Pagination::new(
+        new Filter\Pagination(
             // Specify the default items to show per page:
             show: 100,
             
@@ -4100,7 +4100,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\PaginationItemsPerPage::new()
+        new Filter\PaginationItemsPerPage()
         
             // you may unset the default label:
             ->label('')
@@ -4127,13 +4127,13 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             ->view('custom/crud/filter'),
         
         // Or:
-        Filter\PaginationItemsPerPage::new(
+        new Filter\PaginationItemsPerPage(
             // Specify the default items to show per page:
             show: 50, // default 100
         ),
         
         // required filter, otherwise the above filter is not displayed at all.
-        Filter\Pagination::new(),
+        new Filter\Pagination(),
     ];
 }
 ```
@@ -4150,7 +4150,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Radios::new(name: 'status', field: 'status')
+        new Filter\Radios(name: 'status', field: 'status')
             // specify the options using an array:
             ->options(['_none' => 'None', 'pending' => 'Pending', 'paid' => 'Paid'])
             // you may set a value to '_none' which skips filtering if selected!
@@ -4197,7 +4197,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
         
         // you may use dot notation for the name and
         // use -> for the field (JSON) if your repository supports it:
-        Filter\Radios::new(name: 'options.color', field: 'options->color')
+        new Filter\Radios(name: 'options.color', field: 'options->color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('contains'),
     ];
@@ -4216,7 +4216,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Radios::new(name: 'colors') // no field defined!
+        new Filter\Radios(name: 'colors') // no field defined!
             // specify the options using an array:
             ->options(['1' => 'Foo Category', '3' => 'Bar Category'])
             
@@ -4251,7 +4251,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Select::new(name: 'colors', field: 'color')
+        new Filter\Select(name: 'colors', field: 'color')
             // specify the options using an array:
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             
@@ -4303,7 +4303,7 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
         
         // you may use dot notation for the name and
         // use -> for the field (JSON) if your repository supports it:
-        Filter\Select::new(name: 'options.color', field: 'options->color')
+        new Filter\Select(name: 'options.color', field: 'options->color')
             ->options(['blue' => 'Blue', 'red' => 'Red'])
             ->comparison('contains'),
     ];
@@ -4322,7 +4322,7 @@ use Tobento\App\Crud\Filter;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Select::new(name: 'colors') // no field defined!
+        new Filter\Select(name: 'colors') // no field defined!
             // specify the options using an array:
             ->options(['1' => 'Foo Category', '3' => 'Bar Category'])
             
@@ -4364,7 +4364,7 @@ use Tobento\App\Crud\Input\Input;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Views::new()
+        new Filter\Views()
             // specify the views to switch:
             ->addView(id: 'default', view: 'crud/index', label: 'Table')
             ->addView(id: 'tree', view: 'crud/index-tree', label: 'Tree')
@@ -4441,7 +4441,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Input::new(name: 'foo', field: 'title')
+        new Filter\Input(name: 'foo', field: 'title')
         
             // display above table (default):
             ->group('header')
@@ -4466,7 +4466,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
 {
     return [
-        Filter\Input::new(name: 'foo', field: 'title')
+        new Filter\Input(name: 'foo', field: 'title')
             ->displayIf(function(FiltersInterface $filters, FilterInterface $filter, ActionInterface $action): bool {
                 // your condition
                 return true;
@@ -4561,12 +4561,12 @@ class BlogArticleType implements ResourceTypeInterface
      */
     public function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
-        yield Field\PrimaryId::new('id');
+        yield new Field\PrimaryId('id');
         
-        yield Field\Text::new('title');
+        yield new Field\Text('title');
         
         if (in_array($action->name(), ['create', 'store'])) {
-            yield Field\Text::new(name: 'type')
+            yield new Field\Text(name: 'type')
                 ->type('hidden')
                 ->value($this->name())
                 ->validate(store: sprintf('required|in:%s', $this->name()));
@@ -4584,7 +4584,7 @@ class BlogArticleType implements ResourceTypeInterface
         // add create button on index action:
         if ($indexAction = $actions->get('index')) {
             $indexAction->addButton(
-                Button\Link::new(label: 'Blog Article', group: 'global')
+                new Button\Link(label: 'Blog Article', group: 'global')
                     ->name('create.blog')
                     ->linkToRoute('articles.create', function(EntityInterface $entity): array {
                         return ['type' => $this->name()];
@@ -4641,9 +4641,9 @@ class ArticleController extends AbstractCrudController
         // return the fields for the index action:
         if  ($action->name() === 'index') {
             return [
-                Field\PrimaryId::new('id'),
-                Field\Select::new(name: 'type', label: 'Type')->options($this->types->titles()),
-                Field\Text::new('sku'),
+                new Field\PrimaryId('id'),
+                new Field\Select(name: 'type', label: 'Type')->options($this->types->titles()),
+                new Field\Text('sku'),
                 //...
             ];
         }
@@ -4670,10 +4670,10 @@ class ArticleController extends AbstractCrudController
     protected function configureActions(): iterable|ActionsInterface
     {
         $actions = new Action\Actions(
-            Action\Index::new(title: 'Articles')
+            new Action\Index(title: 'Articles')
                 ->removeButton('create')
                 ->groupButtons(
-                    button: Button\Dropdown::new(label: 'Create New', icon: '', group: 'global')->name('create.list'),
+                    button: new Button\Dropdown(label: 'Create New', icon: '', group: 'global')->name('create.list'),
                 ),
             //...
         );
@@ -4695,7 +4695,7 @@ class ArticleController extends AbstractCrudController
     protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
     {
         return [
-            Filter\Columns::new()->open(false),
+            new Filter\Columns()->open(false),
             //...
         ];
     }
