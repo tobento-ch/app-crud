@@ -76,7 +76,7 @@ class ClearButton extends AbstractFilter
         $attributes->add('href', $href);
         $attributes->add('data-filter', $this->name());
         
-        $html = '<a'.$attributes.'>';
+        $html = '<a'.(string)$attributes.'>';
         $html .= $view->esc($this->label);
         $html .= '</a>';
         return $html;
