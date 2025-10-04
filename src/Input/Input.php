@@ -76,7 +76,7 @@ final class Input implements InputInterface
     /**
      * Delete an item from the collection.
      *
-     * @param string|int $key The key.
+     * @param string|int $name
      * @return static $this
      */
     public function delete(string|int $name): static
