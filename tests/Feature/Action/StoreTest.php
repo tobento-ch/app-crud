@@ -39,10 +39,10 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('email'),
-                Column\Text::new('firstname'),
-                Column\Text::new('lastname'),
+                new Column\Id(),
+                new Column\Text('email'),
+                new Column\Text('firstname'),
+                new Column\Text('lastname'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -54,15 +54,15 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\PrimaryId::new('id'),
-                Field\Text::new('email')->validate('string|email'),
-                Field\Text::new('firstname')->validate('string'),
-                Field\Text::new('lastname')->validate('string'),
+                new Field\PrimaryId('id'),
+                new Field\Text('email')->validate('string|email'),
+                new Field\Text('firstname')->validate('string'),
+                new Field\Text('lastname')->validate('string'),
             ],
             actions: [
-                Action\Store::new(),
-                Action\Create::new(),
-                Action\Index::new(),
+                new Action\Store(),
+                new Action\Create(),
+                new Action\Index(),
             ],
         );
     }
@@ -74,7 +74,7 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [],
-                actions: [Action\Index::new()],
+                actions: [new Action\Index()],
             );
         });
         

@@ -43,9 +43,9 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('email'),
-                Column\Text::new('firstname'),
+                new Column\Id(),
+                new Column\Text('email'),
+                new Column\Text('firstname'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -57,11 +57,11 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\PrimaryId::new('id'),
-                Field\Text::new('email')->validate('string|email'),
+                new Field\PrimaryId('id'),
+                new Field\Text('email')->validate('string|email'),
             ],
             actions: [
-                Action\Index::new('Users'),
+                new Action\Index('Users'),
             ],
         );
     }
@@ -114,8 +114,8 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [],
                 actions: [
-                    Action\Index::new('Users'),
-                    Action\Create::new(),
+                    new Action\Index('Users'),
+                    new Action\Create(),
                 ],
             );
         });
@@ -135,12 +135,12 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [],
-                actions: [Action\Index::new('Users')],
+                actions: [new Action\Index('Users')],
                 filters: [
-                    Filter\Columns::new()->group('header'),
-                    Filter\Select::new('colors')->group('footer')->options(['blue' => 'Blue']),
-                    Filter\Select::new('roles')->group('aside')->options(['admin' => 'Admin']),
-                    Filter\Select::new('cars')->group('modal')->options(['bmw' => 'Bmw']),
+                    new Filter\Columns()->group('header'),
+                    new Filter\Select('colors')->group('footer')->options(['blue' => 'Blue']),
+                    new Filter\Select('roles')->group('aside')->options(['admin' => 'Admin']),
+                    new Filter\Select('cars')->group('modal')->options(['bmw' => 'Bmw']),
                 ],
             );
         });
@@ -163,11 +163,11 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [],
-                actions: [Action\Index::new('Users')],
+                actions: [new Action\Index('Users')],
                 filters: [
-                    Filter\Select::new('colors')->options(['blue' => 'Blue']),
-                    Filter\Select::new('roles')->options(['admin' => 'Admin'])->displayIf(false),
-                    Filter\Select::new('cars')->options(['bmw' => 'Bmw'])
+                    new Filter\Select('colors')->options(['blue' => 'Blue']),
+                    new Filter\Select('roles')->options(['admin' => 'Admin'])->displayIf(false),
+                    new Filter\Select('cars')->options(['bmw' => 'Bmw'])
                         ->displayIf(fn (FiltersInterface $filters, FilterInterface $filter, ActionInterface $action): bool => false),
                 ],
             );
@@ -187,16 +187,16 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
     {
         $this->withCrudController(function (AppInterface $app) {
             $fields = new Field\Fields(
-                Field\Text::new('id'),
-                Field\Text::new('email')->validate('string|email'),
+                new Field\Text('id'),
+                new Field\Text('email')->validate('string|email'),
             );
             return Factory::createCrudController(
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: $fields->all(),
-                actions: [Action\Index::new('Users')],
+                actions: [new Action\Index('Users')],
                 filters: [
-                    ...Filter\Fields::new()->fields($fields)->toFilters(),
+                    ...new Filter\Fields()->fields($fields)->toFilters(),
                 ],
             );
         });
@@ -223,12 +223,12 @@ class IndexTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 repository: $this->createRepository($app),
                 resourceName: $this->getCrudControllerResourceName(),
                 fields: [
-                    Field\Text::new('id'),
-                    Field\Text::new('email')->validate('string|email'),
+                    new Field\Text('id'),
+                    new Field\Text('email')->validate('string|email'),
                 ],
-                actions: [Action\Index::new('Users')],
+                actions: [new Action\Index('Users')],
                 filters: [
-                    Filter\EditableColumns::new('email'),
+                    new Filter\EditableColumns('email'),
                 ],
             );
         });

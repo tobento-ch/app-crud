@@ -39,10 +39,10 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('email'),
-                Column\Text::new('firstname'),
-                Column\Text::new('lastname'),
+                new Column\Id(),
+                new Column\Text('email'),
+                new Column\Text('firstname'),
+                new Column\Text('lastname'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -54,17 +54,17 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\PrimaryId::new('id'),
-                Field\Text::new('email')->validate('string|email'),
-                Field\Text::new('firstname')->validate('string'),
-                Field\Text::new('lastname')->validate('string'),
+                new Field\PrimaryId('id'),
+                new Field\Text('email')->validate('string|email'),
+                new Field\Text('firstname')->validate('string'),
+                new Field\Text('lastname')->validate('string'),
             ],
             actions: [
-                Action\Index::new('Users'),
-                Action\BulkEdit::new(name: 'bulk-email')->field('email'),
-                Action\BulkEdit::new(name: 'bulk-name')->field('firstname', 'lastname'),
-                Action\Create::new(),
-                Action\Update::new()->unupdatable([3]),
+                new Action\Index('Users'),
+                new Action\BulkEdit(name: 'bulk-email')->field('email'),
+                new Action\BulkEdit(name: 'bulk-name')->field('firstname', 'lastname'),
+                new Action\Create(),
+                new Action\Update()->unupdatable([3]),
             ],
         );
     }

@@ -39,9 +39,9 @@ class BulkTreeUpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'categories',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('parent_id'),
-                Column\Text::new('sortorder'),
+                new Column\Id(),
+                new Column\Text('parent_id'),
+                new Column\Text('sortorder'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -53,15 +53,15 @@ class BulkTreeUpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\PrimaryId::new('id'),
-                Field\Text::new('parent_id'),
-                Field\Text::new('sortorder'),
+                new Field\PrimaryId('id'),
+                new Field\Text('parent_id'),
+                new Field\Text('sortorder'),
             ],
             actions: [
-                Action\Index::new('Categories')->view('crud/index-tree'),
-                Action\BulkTreeUpdate::new(),
-                Action\Create::new(),
-                Action\Update::new(),
+                new Action\Index('Categories')->view('crud/index-tree'),
+                new Action\BulkTreeUpdate(),
+                new Action\Create(),
+                new Action\Update(),
             ],
         );
     }

@@ -39,8 +39,8 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
         return Factory::createStorageRepository(
             table: 'users',
             columns: [
-                Column\Id::new(),
-                Column\Text::new('email'),
+                new Column\Id(),
+                new Column\Text('email'),
             ],
             storage: $app->get(StorageInterface::class)->new(),
         );
@@ -52,13 +52,13 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
             repository: $this->createRepository($app),
             resourceName: $this->getCrudControllerResourceName(),
             fields: [
-                Field\PrimaryId::new('id'),
-                Field\Text::new('email')->validate('string|email'),
+                new Field\PrimaryId('id'),
+                new Field\Text('email')->validate('string|email'),
             ],
             actions: [
-                Action\Index::new('Users'),
-                Action\BulkDelete::new(),
-                Action\Delete::new()->undeletable([3]),
+                new Action\Index('Users'),
+                new Action\BulkDelete(),
+                new Action\Delete()->undeletable([3]),
             ],
         );
     }
