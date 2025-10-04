@@ -40,6 +40,10 @@ class ValidationException extends ActionProcessException
         int $code = 0,
         null|Throwable $previous = null
     ) {
+        if ($message === '') {
+            $message = (string)$validation->errors()->first()?->message();
+        }
+        
         parent::__construct($action, $message, $code, $previous);
     }
     
