@@ -50,7 +50,7 @@ final class Dropdown extends AbstractButton implements ButtonsAwareInterface
     /**
      * Sets the buttons.
      *
-     * @param ButtonInterface $button
+     * @param ButtonInterface $buttons
      * @return static $this
      */
     public function buttons(ButtonInterface ...$buttons): static
