@@ -90,7 +90,7 @@ class ModalButton extends AbstractFilter
             $attributes->add('class', 'button text-xs');
         }
         
-        $html = '<div'.$attributes.'>';
+        $html = '<div'.(string)$attributes.'>';
         $html .= $view->esc($this->label);
         $html .= '</div>';
         return $html;
