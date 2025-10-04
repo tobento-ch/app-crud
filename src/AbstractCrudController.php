@@ -145,6 +145,7 @@ abstract class AbstractCrudController
      * @param ActionProcessorInterface $actionProcessor
      * @param FilterProcessorInterface $filterProcessor
      * @return ResponseInterface
+     * @psalm-suppress UndefinedInterfaceMethod
      */
     public function index(
         ActionProcessorInterface $actionProcessor,
