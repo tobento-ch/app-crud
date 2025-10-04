@@ -39,18 +39,6 @@ final class Show extends AbstractAction
         
         $this->view('crud/show');
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param null|string|Closure $title
-     * @return static
-     */
-    public static function new(
-        null|string|Closure $title = null,
-    ): static {
-        return new static($title);
-    }
     
     /**
      * Returns the name.

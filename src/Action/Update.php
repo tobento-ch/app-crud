@@ -46,16 +46,6 @@ final class Update extends AbstractAction
     }
     
     /**
-     * Create a new instance.
-     *
-     * @return static
-     */
-    public static function new(): static
-    {
-        return new static();
-    }
-    
-    /**
      * Returns the name.
      *
      * @return string

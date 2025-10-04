@@ -36,17 +36,6 @@ final class ShowJson extends AbstractAction
             return ['id' => $entity->id(), 'type' => 'json'];
         });
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param null|string|Closure $title
-     * @return static
-     */
-    public static function new(null|string|Closure $title = null): static
-    {
-        return new static($title);
-    }
     
     /**
      * Returns the name.

@@ -54,18 +54,6 @@ final class BulkTreeUpdate extends AbstractAction implements BulkActionInterface
     }
     
     /**
-     * Create a new instance.
-     *
-     * @param null|string $title
-     * @return static
-     */
-    public static function new(
-        null|string $title = null
-    ): static {
-        return new static($title);
-    }
-    
-    /**
      * Sets the field mapping.
      *
      * @param string ...$names

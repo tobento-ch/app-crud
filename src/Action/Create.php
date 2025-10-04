@@ -36,17 +36,6 @@ final class Create extends AbstractAction
         $this->linkToAction('store');
         $this->view('crud/create');
     }
-
-    /**
-     * Create a new instance.
-     *
-     * @param null|string|Closure $title
-     * @return static
-     */
-    public static function new(null|string|Closure $title = null): static
-    {
-        return new static($title);
-    }
     
     /**
      * Returns the name.

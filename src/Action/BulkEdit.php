@@ -62,20 +62,6 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     }
     
     /**
-     * Create a new instance.
-     *
-     * @param string $name Must be sluggable and only of [a-z-] characters.
-     * @param null|string $title
-     * @return static
-     */
-    public static function new(
-        string $name,
-        null|string $title = null
-    ): static {
-        return new static($name, $title);
-    }
-    
-    /**
      * Returns the name. Must be sluggable and only of [a-z-] characters.
      *
      * @return string
