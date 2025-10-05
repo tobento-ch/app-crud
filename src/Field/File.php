@@ -290,10 +290,24 @@ class File extends AbstractField implements FieldsAwareInterface
         ResponserInterface $responser,
     ): void {
         // delete file if file src is deleted:
-        if (empty($input->get($field->name().'.src'))) {
-            $input->set($field->name(), []);
-            $field->storable(true);
-            return;
+        if ($field->isTranslatable()) {
+            $isEmpty = true;
+            foreach($input->get($field->name().'.src', []) as $src) {
+                if ($src !== '') {
+                    $isEmpty = false;
+                }
+            }
+            
+            if ($isEmpty) {
+                $input->set($field->name(), []);
+                $field->storable(true);
+            }
+        } else {
+            if (empty($input->get($field->name().'.src'))) {
+                $input->set($field->name(), []);
+                $field->storable(true);
+                return;
+            }
         }
         
         if (is_null($this->storeFilenameToField)) {
