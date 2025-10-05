@@ -535,7 +535,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame('f-bar-de.jpg', $this->getCrudRepository()->findById(1)->get('file.src.de'));
         $this->assertSame(null, $this->getCrudRepository()->findById(1)->get('file.src.invalid'));
         $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('file.storage'));
-    }    
+    }
     
     public function testUpdateActionDeletesFileIfSrcIsEmpty()
     {
@@ -554,6 +554,29 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $this->assertSame([], $this->getCrudRepository()->findById(1)->get('file'));
         $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'f-readme.txt'));
+    }
+    
+    public function testUpdateActionDeletesFileIfSrcIsEmptyTranslatable()
+    {
+        $this->withFile(function () {
+            return new Field\File('file')->translatable();
+        });
+        
+        $fileStorage = $this->fakeFileStorage();
+        $http = $this->fakeHttp();
+        $http->request(method: 'PATCH', uri: $this->generateUpdateUri(id: 1))->body([
+            'file' => ['src' => ['en' => '']],
+        ]);
+        
+        $this->getSeedFactory(['file' => ['src' => ['en' => 'ft-readme.txt']]])->times(1)->create();
+        $fileStorage->storage(name: 'uploads')->write(path: 'ft-readme.txt', content: 'content');
+        
+        $this->assertTrue($fileStorage->storage(name: 'uploads')->exists(path: 'ft-readme.txt'));
+        
+        $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
+        
+        $this->assertSame([], $this->getCrudRepository()->findById(1)->get('file'));
+        $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'ft-readme.txt'));
     }
     
     public function testDeleteActionDeletesFile()
