@@ -33,19 +33,19 @@ class ItemsTest extends TestCase
         $this->assertSame('fr', $items->locale());
     }
     
-    public function testFallbackLocaleMethods()
+    public function testLocaleFallbacksMethods()
     {
         $items = new Items(items: []);
-        $itemsNew = $items->withFallbackLocale('de');
+        $itemsNew = $items->withLocaleFallbacks(['en' => 'de']);
         
         $this->assertFalse($items === $itemsNew);
-        $this->assertSame(null, $items->fallbackLocale());
-        $this->assertSame('de', $itemsNew->fallbackLocale());
+        $this->assertSame([], $items->localeFallbacks());
+        $this->assertSame(['en' => 'de'], $itemsNew->localeFallbacks());
         
-        $items = new Items(items: [], fallbackLocale: 'fr');
+        $items = new Items(items: [], localeFallbacks: ['en' => 'de']);
         
-        $this->assertSame('fr', $items->fallbackLocale());
-        $this->assertSame(null, $items->withFallbackLocale(null)->fallbackLocale());
+        $this->assertSame(['en' => 'de'], $items->localeFallbacks());
+        $this->assertSame([], $items->withLocaleFallbacks([])->localeFallbacks());
     }
     
     public function testCountMethod()
@@ -63,10 +63,10 @@ class ItemsTest extends TestCase
     
     public function testLocalesArePassedToItem()
     {
-        $items = new Items(items: [['foo' => 'Foo']], locale: 'fr', fallbackLocale: 'es');
+        $items = new Items(items: [['foo' => 'Foo']], locale: 'fr', localeFallbacks: ['es' => 'en']);
         
         $this->assertSame('fr', $items->all()[0]->locale());
-        $this->assertSame('es', $items->all()[0]->fallbackLocale());
+        $this->assertSame(['es' => 'en'], $items->all()[0]->localeFallbacks());
     }
 
     public function testConstructMethodWithPassingItem()

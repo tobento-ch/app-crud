@@ -32,19 +32,19 @@ class ItemTest extends TestCase
         $this->assertSame('fr', $item->locale());
     }
     
-    public function testFallbackLocaleMethods()
+    public function testLocaleFallbacksMethods()
     {
         $item = new Item(attributes: ['key' => 'value']);
-        $itemNew = $item->withFallbackLocale('de');
+        $itemNew = $item->withLocaleFallbacks(['en' => 'de']);
         
         $this->assertFalse($item === $itemNew);
-        $this->assertSame(null, $item->fallbackLocale());
-        $this->assertSame('de', $itemNew->fallbackLocale());
+        $this->assertSame([], $item->localeFallbacks());
+        $this->assertSame(['en' => 'de'], $itemNew->localeFallbacks());
         
-        $item = new Item(attributes: ['key' => 'value'], fallbackLocale: 'fr');
+        $item = new Item(attributes: ['key' => 'value'], localeFallbacks: ['en' => 'de']);
         
-        $this->assertSame('fr', $item->fallbackLocale());
-        $this->assertSame(null, $item->withFallbackLocale(null)->fallbackLocale());
+        $this->assertSame(['en' => 'de'], $item->localeFallbacks());
+        $this->assertSame([], $item->withLocaleFallbacks([])->localeFallbacks());
     }
     
     public function testGetMethod()
@@ -64,8 +64,15 @@ class ItemTest extends TestCase
         $this->assertSame('Foo', $item->get('name'));
         $this->assertSame(['en' => 'Foo'], $item->withLocale('de')->get('name'));
         $this->assertSame('default', $item->withLocale('de')->get('name', 'default'));
-        $this->assertSame('Foo', $item->withLocale('de')->withFallbackLocale('en')->get('name'));
+        $this->assertSame('Foo', $item->withLocale('de')->withLocaleFallbacks(['de' => 'en'])->get('name'));
         $this->assertSame(null, $item->get('foo'));
+    }
+    
+    public function testGetMethodIfEmptyTranslationFallbackShouldBeUsed()
+    {
+        $item = new Item(attributes: ['name' => ['en' => 'Foo', 'de' => '']], locale: 'de', localeFallbacks: ['de' => 'en']);
+        
+        $this->assertSame('Foo', $item->get('name'));
     }
     
     public function testHasMethod()
@@ -82,7 +89,7 @@ class ItemTest extends TestCase
         
         $this->assertTrue($item->has('name'));
         $this->assertTrue($item->withLocale('de')->has('name'));
-        $this->assertTrue($item->withLocale('de')->withFallbackLocale('en')->has('name'));
+        $this->assertTrue($item->withLocale('de')->withLocaleFallbacks(['de' => 'en'])->has('name'));
         $this->assertFalse($item->has('foo'));
     }
     
