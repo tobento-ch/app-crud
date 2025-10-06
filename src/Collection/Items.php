@@ -29,12 +29,12 @@ class Items implements IteratorAggregate, Arrayable, Countable
      *
      * @param array<array-key, array<array-key, mixed>> $items
      * @param string $locale
-     * @param null|string $fallbackLocale
+     * @param array<string, string> $localeFallbacks
      */
     public function __construct(
         protected readonly array $items = [],
         protected readonly string $locale = 'en',
-        protected readonly null|string $fallbackLocale = null,
+        protected readonly array $localeFallbacks = [],
     ) {}
     
     /**
@@ -55,28 +55,28 @@ class Items implements IteratorAggregate, Arrayable, Countable
      */
     public function withLocale(string $locale): static
     {
-        return new static($this->items, $locale, $this->fallbackLocale);
+        return new static($this->items, $locale, $this->localeFallbacks);
     }
     
     /**
-     * Returns the fallback locale.
+     * Returns the locale fallbacks.
      *
-     * @return null|string
+     * @return array<string, string>
      */
-    public function fallbackLocale(): null|string
+    public function localeFallbacks(): array
     {
-        return $this->fallbackLocale;
+        return $this->localeFallbacks;
     }
     
     /**
-     * Returns a new instance with the given fallback locale.
+     * Returns a new instance with the given locale fallbacks.
      *
-     * @param null|string $locale
+     * @param array<string, string> $fallbacks
      * @return static
      */
-    public function withFallbackLocale(null|string $locale): static
+    public function withLocaleFallbacks(array $fallbacks): static
     {
-        return new static($this->items, $this->locale, $locale);
+        return new static($this->items, $this->locale, $fallbacks);
     }
     
     /**
@@ -114,7 +114,11 @@ class Items implements IteratorAggregate, Arrayable, Countable
                     $value = [$value];
                 }
 
-                yield $key => new Item(attributes: $value, locale: $this->locale(), fallbackLocale: $this->fallbackLocale());                
+                yield $key => new Item(
+                    attributes: $value,
+                    locale: $this->locale(),
+                    localeFallbacks: $this->localeFallbacks()
+                );
             }
         }
     }

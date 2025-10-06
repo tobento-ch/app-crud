@@ -24,12 +24,12 @@ class Item implements Arrayable, Countable
      *
      * @param array<array-key, mixed> $attributes
      * @param string $locale
-     * @param null|string $fallbackLocale
+     * @param array<string, string> $localeFallbacks
      */
     final public function __construct(
         protected readonly array $attributes,
         protected readonly string $locale = 'en',
-        protected readonly null|string $fallbackLocale = null,
+        protected readonly array $localeFallbacks = [],
     ) {}
 
     /**
@@ -50,28 +50,28 @@ class Item implements Arrayable, Countable
      */
     public function withLocale(string $locale): static
     {
-        return new static($this->attributes, $locale, $this->fallbackLocale);
+        return new static($this->attributes, $locale, $this->localeFallbacks);
     }
     
     /**
-     * Returns the fallback locale.
+     * Returns the locale fallbacks.
      *
-     * @return null|string
+     * @return array<string, string>
      */
-    public function fallbackLocale(): null|string
+    public function localeFallbacks(): array
     {
-        return $this->fallbackLocale;
+        return $this->localeFallbacks;
     }
     
     /**
-     * Returns a new instance with the given fallback locale.
+     * Returns a new instance with the given locale fallbacks.
      *
-     * @param null|string $locale
+     * @param array<string, string> $fallbacks
      * @return static
      */
-    public function withFallbackLocale(null|string $locale): static
+    public function withLocaleFallbacks(array $fallbacks): static
     {
-        return new static($this->attributes, $this->locale, $locale);
+        return new static($this->attributes, $this->locale, $fallbacks);
     }
     
     /**
@@ -84,12 +84,17 @@ class Item implements Arrayable, Countable
     public function get(string $name, mixed $default = null): mixed
     {
         if (Arr::has($this->attributes, $name.'.'.$this->locale)) {
-            return $this->ensureType(Arr::get($this->attributes, $name.'.'.$this->locale), $default);
+            $value = Arr::get($this->attributes, $name.'.'.$this->locale);
+            if (!empty($value)) {
+                return $this->ensureType($value, $default);
+            }
         }
         
-        if (!is_null($this->fallbackLocale) && $this->locale !== $this->fallbackLocale) {
-            if (Arr::has($this->attributes, $name.'.'.$this->fallbackLocale)) {
-                return $this->ensureType(Arr::get($this->attributes, $name.'.'.$this->fallbackLocale), $default);
+        $locale = $this->localeFallbacks[$this->locale] ?? $this->locale;
+        
+        if ($this->locale !== $locale) {
+            if (Arr::has($this->attributes, $name.'.'.$locale)) {
+                return $this->ensureType(Arr::get($this->attributes, $name.'.'.$locale), $default);
             }
         }
 
