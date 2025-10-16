@@ -97,14 +97,6 @@ const button = (function(window, document) {
                     formErrorEl.scrollIntoView({behavior: 'smooth'});
                 }
                 
-                if (el.getAttribute('data-button-ajax') !== '') {
-                    notifier.send({
-                        status: 'success',
-                        text: el.getAttribute('data-button-ajax')
-                    });
-                    return;
-                }
-                
                 const messages = doc.querySelectorAll('[data-message]');
                 
                 messages.forEach(el => {
@@ -113,6 +105,13 @@ const button = (function(window, document) {
                         text: el.textContent
                     });
                 });
+                
+                if (messages.length === 0 && el.getAttribute('data-button-ajax') !== '') {
+                    notifier.send({
+                        status: 'success',
+                        text: el.getAttribute('data-button-ajax')
+                    });
+                }
             });
         },
         unhideElement: function(el) {
