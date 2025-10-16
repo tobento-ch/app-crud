@@ -83,10 +83,17 @@ const fieldOptions = (function(window, document) {
             const fieldName = optionsEl.getAttribute('data-options');
             
             formData.append(toInputName('options-search.'+fieldName), e.target.value);
-
+            
             const queryString = new URLSearchParams(formData).toString();
             let [uri, hash] = window.location.href.split("#");
-            uri = uri+'?'+queryString;
+            let [baseUrl, existingQuery] = uri.split("?");
+            
+            const mergedParams = new URLSearchParams(existingQuery);
+            for (const [key, value] of new URLSearchParams(queryString)) {
+                mergedParams.set(key, value);
+            }
+            
+            uri = baseUrl+'?'+mergedParams.toString();
             
             fetch(uri, {
                 method: 'GET'
