@@ -19,6 +19,7 @@ use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
 use Closure;
 use Throwable;
@@ -108,12 +109,13 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     /**
      * Process bulk action.
      *
+     * @param ResponserInterface $responser
      * @return void
      * @throws ActionProcessException
      * @psalm-suppress RedundantCondition
      * @psalm-suppress NoValue
      */
-    public function processBulk(): void
+    public function processBulk(ResponserInterface $responser): void
     {
         $input = $this->getInput();
         $repository = $this->controller()->repository();
@@ -153,6 +155,11 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
 
             // Check if entity can be updated:
             if (! $updateAction->isUpdatable($updateAction->entity())) {
+                $responser->messages()->add(
+                    level: 'error',
+                    message: $updateAction->unupdatableReason($updateAction->entity()),
+                );
+                
                 continue;
             }
             
