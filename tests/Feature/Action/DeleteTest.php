@@ -17,6 +17,7 @@ use Tobento\App\AppInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
+use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
@@ -60,7 +61,10 @@ class DeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Field\Text('lastname')->validate('string'),
             ],
             actions: [
-                new Action\Delete()->undeletable([3]),
+                new Action\Delete()->undeletable(
+                    [3],
+                    fn (EntityInterface $entity): string => sprintf('ID %s undeletable because of...', $entity->id()),
+                ),
                 new Action\Index(),
             ],
         );
@@ -119,7 +123,7 @@ class DeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->followRedirects()
             ->assertStatus(200)
             ->assertCrudIndexEntityCount(3)
-            ->assertBodyContains('Record with the ID 3 is undeletable.');
+            ->assertBodyContains('ID 3 undeletable because of...');
 
         $this->assertSame(3, $this->getCrudRepository()->count());
     }
