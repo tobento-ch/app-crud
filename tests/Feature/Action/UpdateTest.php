@@ -17,6 +17,7 @@ use Tobento\App\AppInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
+use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
@@ -62,7 +63,10 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Field\Text('options.color'),
             ],
             actions: [
-                new Action\Update(),
+                new Action\Update()->unupdatable(
+                    [3],
+                    fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id())
+                ),
                 new Action\Edit(),
                 new Action\Index(),
             ],
@@ -143,5 +147,22 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->followRedirects()->assertStatus(200)->assertCrudIndexEntityCount(1);
 
         $this->assertSame(['color' => 'blue'], $this->getCrudRepository()->findById(1)->get('options'));
+    }
+    
+    public function testUnupdatableEntitiesCannotBeUpdated()
+    {
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateEditUri(id: 3));
+        $http->request(method: 'PUT', uri: $this->generateUpdateUri(id: 3))->body([
+            'email' => 'new@example.com',
+        ]);
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
+
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('ID 3 unupdatable because of...');
+
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
     }
 }
