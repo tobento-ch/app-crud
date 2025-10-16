@@ -40,7 +40,7 @@ class EntityUnupdatableException extends RuntimeException
         null|Throwable $previous = null
     ) {
         if ($message === '' && $action instanceof Update) {
-            $message = $action->unupdatableReason();
+            $message = $action->unupdatableReason($action->entity());
         }
         
         parent::__construct($message, $code, $previous);

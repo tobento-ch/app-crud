@@ -40,7 +40,7 @@ class EntityUndeletableException extends RuntimeException
         null|Throwable $previous = null
     ) {
         if ($message === '' && $action instanceof Delete) {
-            $message = $action->undeletableReason();
+            $message = $action->undeletableReason($action->entity());
         }
         
         parent::__construct($message, $code, $previous);
