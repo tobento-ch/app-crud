@@ -1430,7 +1430,7 @@ use Tobento\Service\View\ViewInterface;
 
 new Field\Options('categories')
     ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {
-        return (new Field\Option(value: (string)$item->get('id')))
+        return new Field\Option(value: (string)$item->get('id'))
             ->text((string)$item->get('title'))
             ->text((string)$item->get('sku'))
             ->html('html'); // must be escaped!
@@ -2683,7 +2683,10 @@ protected function configureActions(): iterable|ActionsInterface
             ->unupdatable(ids: [12, 13], reason: 'Unupdatable because of...')
             
             // or using a closure:
-            ->unupdatable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar'])),
+            ->unupdatable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar']))
+            
+            // or using a closure for the reason:
+            ->unupdatable([3], fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id())),
             
         // In addition, you may not display the edit button for those entities:
         new Action\Index('Products')
@@ -2816,7 +2819,10 @@ protected function configureActions(): iterable|ActionsInterface
             ->undeletable(ids: [12, 13], reason: 'Undeletable because of...')
             
             // or using a closure:
-            ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar'])),
+            ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar']))
+            
+            // or using a closure for the reason:
+            ->undeletable([3], fn (EntityInterface $entity): string => sprintf('ID %s undeletable because of...', $entity->id())),
             
         // In addition, you may not display the delete button for those entities:
         new Action\Index('Products')
