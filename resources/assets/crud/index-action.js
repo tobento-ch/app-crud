@@ -22,10 +22,15 @@ const indexAction = (function(window, document) {
             }
         }
         handleSaveAction(event) {
-            const form = event.target.closest('form');
+            let form = event.target.closest('form');
+            
+            if (!form) {
+                form = document.querySelector('form[name="'+this.name+'"]');
+            }
+            
             const formData = new FormData(form);
             
-            if (form.checkValidity() === false) {
+            if (form.reportValidity() === false) {
                 return;
             }
             
