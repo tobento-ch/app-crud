@@ -29,9 +29,9 @@ final class Update extends AbstractAction
     private $unupdatable = null;
     
     /**
-     * @var string
+     * @var callable|string
      */
-    private string $unupdatableReason = '';
+    private $unupdatableReason = '';
     
     /**
      * Create a new Update.
@@ -78,10 +78,10 @@ final class Update extends AbstractAction
      * Sets the unupdatable ids or using a callback returning whether the entity is unupdatable.
      *
      * @param callable(EntityInterface):bool|array<array-key, int|string> $ids
-     * @param string $reason
+     * @param callable|string $reason
      * @return static $this
      */
-    public function unupdatable(callable|array $ids, string $reason = ''): static
+    public function unupdatable(callable|array $ids, callable|string $reason = ''): static
     {
         $this->unupdatable = $ids;
         $this->unupdatableReason = $reason;
@@ -91,11 +91,16 @@ final class Update extends AbstractAction
     /**
      * Returns the unupdatable reason.
      *
+     * @param EntityInterface $entity
      * @return string
      */
-    public function unupdatableReason(): string
+    public function unupdatableReason(EntityInterface $entity): string
     {
-        return $this->unupdatableReason;
+        if (is_string($this->unupdatableReason)) {
+            return $this->unupdatableReason;
+        }
+        
+        return ($this->unupdatableReason)($entity);
     }
     
     /**
