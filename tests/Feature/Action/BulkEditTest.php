@@ -17,6 +17,7 @@ use Tobento\App\AppInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
+use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
@@ -64,7 +65,10 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Action\BulkEdit(name: 'bulk-email')->field('email'),
                 new Action\BulkEdit(name: 'bulk-name')->field('firstname', 'lastname'),
                 new Action\Create(),
-                new Action\Update()->unupdatable([3]),
+                new Action\Update()->unupdatable(
+                    [3],
+                    fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id())
+                ),
             ],
         );
     }
@@ -113,8 +117,10 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         );
         
         $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
-        
-        $http->followRedirects()->assertStatus(200)->assertCrudIndexEntityCount(3);
+
+        $http->followRedirects()->assertStatus(200)
+            ->assertBodyContains('ID 3 unupdatable because of...')
+            ->assertCrudIndexEntityCount(3);
         
         $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(2)->get('email'));
