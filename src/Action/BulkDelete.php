@@ -16,6 +16,7 @@ namespace Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
+use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
 
 /**
@@ -65,12 +66,13 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     /**
      * Process bulk action.
      *
+     * @param ResponserInterface $responser
      * @return void
      * @throws ActionProcessException
      * @psalm-suppress RedundantCondition
      * @psalm-suppress NoValue
      */
-    public function processBulk(): void
+    public function processBulk(ResponserInterface $responser): void
     {
         $input = $this->getInput();
         $repository = $this->controller()->repository();
@@ -100,6 +102,11 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
             
             // Check if entity can be deleted:
             if (! $deleteAction->isDeletable($deleteAction->entity())) {
+                $responser->messages()->add(
+                    level: 'error',
+                    message: $deleteAction->undeletableReason($deleteAction->entity()),
+                );
+                
                 continue;
             }
             
