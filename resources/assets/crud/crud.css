@@ -153,6 +153,73 @@ body.crud {max-width: 100%;}
 .crud-option img {
   max-width: 50px;
 }
+
+/* Select Input */
+.crud-select-input-btn {
+  width: 100%;
+  font-family: var(--font-input);
+  font-size: var(--text-input);
+  border: 1px dotted var(--color-gray-900);
+  background: var(--color-white);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  position: relative;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: left;
+  line-height: var(--text-input-lh);
+  min-height: 3rem;
+}
+.crud-select-input-btn:hover {border-style: solid; border-color: var(--color-hover);}
+.crud-select-input-dropdown {
+  position: absolute;
+  z-index: 39;
+  display: flex;
+  visibility: hidden;
+  flex-direction: column;
+  border: 1px solid var(--color-gray-300, whitesmoke);
+  width: fit-content;
+  min-width: 250px;
+  max-height: 400px;
+  overflow: hidden;
+  -ms-overflow-y: visible;
+  pointer-events: auto;
+  background-color: var(--color-white);
+  box-shadow: 0px 1px 6px 0px var(--color-shadow);
+}
+.crud-select-input-dropdown.active {visibility: visible;}
+.crud-select-input-dropdown-body {
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--color-white, white);
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: auto;
+}
+.crud-select-search {padding: .5rem;}
+.crud-select-options {
+  display: flex;
+  flex-direction: column;
+}
+.crud-select-option:not(:first-of-type) {
+  border-top: 1px solid var(--color-gray-100, whitesmoke);
+}
+.crud-select-option {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem;
+}
+.crud-select-option img {
+  max-width: 50px;
+}
+.crud-select-option:hover {background-color: var(--color-gray-100, whitesmoke);}
+.crud-select-input-dropdown .crud-select-option-remove-btn, .modal .crud-select-option-remove-btn {display: none;}
+.crud-select-input-btn .crud-select-option:hover {background-color: transparent;}
+.crud-select-option-remove-btn, .crud-select-option-remove-btn svg {display: block;}
+
 .crud .editor-textarea {background: var(--color-white);}
 .overflow-visible {
   overflow: visible;
