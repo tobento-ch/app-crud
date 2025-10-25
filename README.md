@@ -32,6 +32,7 @@ A simple app CRUD.
             - [PrimaryId Field](#primaryid-field)
             - [Radios Field](#radios-field)
             - [Select Field](#select-field)
+            - [Single Options Field](#single-options-field)
             - [Slug Field](#slug-field)
             - [Text Field](#text-field)
             - [Textarea Field](#textarea-field)
@@ -1370,7 +1371,7 @@ new Field\Items('prices')
 
 #### Options Field
 
-The options field displays searchable options to choose from using the defined repository. If you have only a few options, you may consider using the [Checkboxes Field](#checkboxes-field) instead.
+The options field displays searchable options to choose from using the defined repository. If you have only a few options, you may consider using the [Checkboxes Field](#checkboxes-field) instead. If you want to select only one option, you may consider using the [Single Options Field](#single-options-field) instead.
 
 ```php
 use Tobento\App\Crud\Field;
@@ -1433,7 +1434,11 @@ new Field\Options('categories')
         return new Field\Option(value: (string)$item->get('id'))
             ->text((string)$item->get('title'))
             ->text((string)$item->get('sku'))
-            ->html('html'); // must be escaped!
+            ->html('html') // must be escaped!
+            ->image(
+                image: $item->get('image', []),
+                view: $view,
+            );
     });
 ```
 
@@ -1685,6 +1690,130 @@ new Field\Select('colors')
 new Field\Select('colors')
     ->attributes(['multiple', 'size' => '10'])
     ->validate('required|minItems:2|maxItems:10')
+```
+
+You may check out the [Validate Field](#validate-field) section for more detail.
+
+#### Single Options Field
+
+The single options field displays searchable options to choose a single option from using the defined repository. If you have only a few options, you may consider using the [Select Field](#select-field) instead. If you want to select mutliple options consider using the [Options Field](#options-field) instead.
+
+```php
+use Tobento\App\Crud\Field;
+
+new Field\SingleOptions(
+    name: 'category',
+    // you may set a label, otherwise name is used:
+    label: 'Category',
+);
+```
+
+**Repository** (required)
+
+Use the ```repository``` method to define the repository implementing the [Repository Interface](https://github.com/tobento-ch/service-repository#repository-interface):
+
+```php
+use Tobento\Service\Repository\RepositoryInterface;
+
+new Field\SingleOptions('category')
+    ->repository(CategoriesRepository::class) // class-string|RepositoryInterface
+    
+    // you may add base where queries:
+    ->baseWhere(['type' => 'blog'])
+    
+    // you may change the limit of the searchable options to be displayed:
+    ->limit(15) // default is 25
+
+    // you may change the column value to be stored:
+    ->storeColumn('sku') // 'id' is default
+    
+    // you may change the search columns:
+    ->searchColumns('title', 'sku'); // 'title' is default
+```
+
+**toOption** (required)
+
+Use the ```toOption``` method to create options from the repository items:
+
+```php
+use Tobento\App\Crud\Field;
+use Tobento\Service\View\ViewInterface;
+
+new Field\SingleOptions('category')
+    ->toOption(function(object $item, ViewInterface $view, Field\SingleOptions $options): Field\Option {        
+        return new Field\Option(
+            value: (string)$item->get('id'),
+            text: (string)$item->get('title'),
+        );
+    });
+```
+
+Or using option methods:
+
+```php
+use Tobento\App\Crud\Field;
+use Tobento\Service\View\ViewInterface;
+
+new Field\SingleOptions('category')
+    ->toOption(function(object $item, ViewInterface $view, Field\SingleOptions $options): Field\Option {
+        return new Field\Option(value: (string)$item->get('id'))
+            ->text((string)$item->get('title'))
+            ->text((string)$item->get('sku'))
+            ->html('html') // must be escaped!
+            ->image(
+                image: $item->get('image', []),
+                view: $view,
+            );
+    });
+```
+
+**Selected Options**
+
+You may use the ```selected``` method to define the selected value:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Field\FieldInterface;
+
+new Field\SingleOptions('category')
+    ->selected(value: '2', action: 'create')
+    
+    // or using a closure (additional parameters are resolved by autowiring):
+    ->selected(
+        value: function (ActionInterface $action, FieldInterface $field): null|string {
+            return '2';
+            //return null; // if none is selected
+        },
+        action: 'edit',
+    )
+```
+
+**Placeholder**
+
+Use the ```placeholder``` method to define a placeholder text for the serach input element:
+
+```php
+new Field\SingleOptions('category')
+    ->placeholder(text: 'Search categories');
+```
+
+**Display As Modal**
+
+Use the ```displayAsModal``` method if you want to display a modal with the searchable options, otherwise a dropdown is displayed:
+
+```php
+new Field\SingleOptions('categories')
+    ->displayAsModal();
+```
+
+**Validation**
+
+Data are being validated using the repository to query the options. You may define additional rules though:
+
+```php
+new Field\SingleOptions('category')
+    ->validate('required');
 ```
 
 You may check out the [Validate Field](#validate-field) section for more detail.
