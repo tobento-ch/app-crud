@@ -13,11 +13,10 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field;
 
+use Tobento\Service\Picture\Definition\ArrayDefinition;
 use Tobento\Service\Support\Str;
+use Tobento\Service\View\ViewInterface;
 
-/**
- * Option
- */
 class Option
 {
     /**
@@ -71,6 +70,42 @@ class Option
     public function html(string $html): static
     {
         $this->html .= '<span>'.$html.'</span>';
+        return $this;
+    }
+    
+    /**
+     * Adds an image.
+     *
+     * @param array $image
+     * @param ViewInterface $view
+     * @return static $this
+     */
+    public function image(array $image, ViewInterface $view): static
+    {
+        if (empty($image['src'])) {
+            return $this;
+        }
+        
+        $this->html .= (string)$view->picture(
+            path: $image['src'],
+            resource: $image['storage'] ?? 'uploads',
+            definition: new ArrayDefinition('crud-option-image', [
+                'img' => [
+                    'src' => [64, 64],
+                    'loading' => 'lazy',
+                ],
+                'sources' => [
+                    [
+                        'srcset' => [
+                            '' => [64, 64],
+                        ],
+                        'type' => 'image/webp',
+                    ],
+                ],
+            ]),
+            queue: false,
+        )->imgAttr('alt', basename($image['src']));
+
         return $this;
     }
     
