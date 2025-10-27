@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Test;
 
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\ActionProcessor;
@@ -28,6 +29,8 @@ use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\StorageRepository;
 use Tobento\Service\Repository\Storage\StorageEntityFactoryInterface;
 use Tobento\Service\Repository\Storage\Column\ColumnsInterface;
+use Tobento\Service\Requester\Requester;
+use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Routing;
 use Tobento\Service\Storage\StorageInterface;
 use Tobento\Service\Storage\InMemoryStorage;
@@ -238,6 +241,7 @@ class Factory
         $router = $router ?: static::createRouter(container: $container);
         $container->set(Routing\RouterInterface::class, $router);
         $container->set(Validation\ValidatorInterface::class, static::createValidator(container: $container));
+        $container->set(RequesterInterface::class, static::createRequester());
         
         $actionProcessor = new ActionProcessor(
             container: $container,
@@ -249,5 +253,18 @@ class Factory
         $container->set(ActionProcessorInterface::class, $actionProcessor);
         
         return $actionProcessor;
+    }
+    
+    /**
+     * Returns the created requester.
+     */
+    public static function createRequester(string $method = 'GET', string $uri = 'https://example.com'): RequesterInterface
+    {
+        return new Requester(
+            new Psr17Factory()->createServerRequest(
+                method: $method,
+                uri: $uri,
+            ),        
+        );
     }
 }
