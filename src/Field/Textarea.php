@@ -23,9 +23,10 @@ use Tobento\Service\View\ViewInterface;
 /**
  * Textarea
  */
-class Textarea extends AbstractField
+class Textarea extends AbstractField implements LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Live;
     
     /**
      * Create a new Textarea.
@@ -69,6 +70,8 @@ class Textarea extends AbstractField
             ),
             $field->getAttributes(),
         );
+        
+        $attributes = $this->assignLiveAttributes($action->name(), $attributes);
         
         $field->html($view->render(
             view: 'crud/field/textarea',

@@ -28,9 +28,10 @@ use InvalidArgumentException;
 /**
  * Checkboxes
  */
-class Checkboxes extends AbstractField implements OptionsAwareInterface
+class Checkboxes extends AbstractField implements OptionsAwareInterface, LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Live;
     
     /**
      * @var iterable
@@ -280,6 +281,7 @@ class Checkboxes extends AbstractField implements OptionsAwareInterface
         $form = $view->form();        
         $attributes = $field->getAttributes();
         $attributes['id'] ??= $form->nameToId($field->name());
+        $attributes = $this->assignLiveAttributes($action->name(), $attributes);
         $name = $form->nameToArray($field->name());
 
         $body = $form->checkboxes(

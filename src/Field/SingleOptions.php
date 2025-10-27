@@ -32,8 +32,10 @@ use Tobento\Service\View\ViewInterface;
 /**
  * Allows you to select only a single option.
  */
-class SingleOptions extends AbstractField
+class SingleOptions extends AbstractField implements LiveAwareInterface
 {
+    use Traits\Live;
+    
     /**
      * @var null|class-string|RepositoryInterface
      */

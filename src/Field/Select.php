@@ -28,9 +28,10 @@ use InvalidArgumentException;
 /**
  * Select
  */
-class Select extends AbstractField implements OptionsAwareInterface
+class Select extends AbstractField implements OptionsAwareInterface, LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Live;
     
     /**
      * @var iterable
@@ -326,6 +327,8 @@ class Select extends AbstractField implements OptionsAwareInterface
             ),
             $attributes,
         );
+        
+        $attributes = $this->assignLiveAttributes($action->name(), $attributes);
         
         $name = $form->nameToArray($field->name());
         

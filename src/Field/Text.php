@@ -20,12 +20,10 @@ use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Support\Str;
 use Tobento\Service\View\ViewInterface;
 
-/**
- * Text
- */
-class Text extends AbstractField
+class Text extends AbstractField implements LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Live;
     
     /**
      * @var string
@@ -184,6 +182,8 @@ class Text extends AbstractField
             ),
             $field->getAttributes(),
         );
+        
+        $attributes = $this->assignLiveAttributes($action->name(), $attributes);
         
         $field->html($view->render(
             view: 'crud/field/text',

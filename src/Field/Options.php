@@ -31,8 +31,10 @@ use Tobento\Service\View\ViewInterface;
 /**
  * Options
  */
-class Options extends AbstractField
+class Options extends AbstractField implements LiveAwareInterface
 {
+    use Traits\Live;
+    
     /**
      * @var null|class-string|RepositoryInterface
      */

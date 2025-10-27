@@ -28,9 +28,10 @@ use InvalidArgumentException;
 /**
  * Radios
  */
-class Radios extends AbstractField implements OptionsAwareInterface
+class Radios extends AbstractField implements OptionsAwareInterface, LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Live;
     
     /**
      * @var iterable
@@ -279,6 +280,7 @@ class Radios extends AbstractField implements OptionsAwareInterface
         $form = $view->form();        
         $attributes = $field->getAttributes();
         $attributes['id'] ??= $form->nameToId($field->name());
+        $attributes = $this->assignLiveAttributes($action->name(), $attributes);
         $name = $form->nameToArray($field->name());
         
         $selected = $field->entity()->get($field->name(), $field->getSelected());
