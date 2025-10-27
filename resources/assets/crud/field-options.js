@@ -57,7 +57,10 @@ const fieldOptions = (function(window, document) {
                     e.preventDefault();
                     actionEl.setAttribute('data-options-action', 'remove');
                     setTimeout(() => {
-                        actionEl.querySelector('input[type="checkbox"]').checked = true;
+                        const inpEl = actionEl.querySelector('input[type="checkbox"]');
+                        inpEl.checked = true;
+                        // dispatch event for live.js
+                        inpEl.dispatchEvent(new Event('change', { bubbles: true }));
                         selectedEl.appendChild(actionEl);
                     }, 10);
                     break;
@@ -65,7 +68,10 @@ const fieldOptions = (function(window, document) {
                     e.preventDefault();
                     actionEl.setAttribute('data-options-action', 'add');
                     setTimeout(() => {
-                        actionEl.querySelector('input[type="checkbox"]').checked = false;
+                        const inpEl = actionEl.querySelector('input[type="checkbox"]');
+                        inpEl.checked = false;
+                        // dispatch event for live.js
+                        inpEl.dispatchEvent(new Event('change', { bubbles: true }));
                         unselectedEl.prepend(actionEl);
                     }, 10);
                     break;

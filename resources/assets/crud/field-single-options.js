@@ -82,6 +82,9 @@ const fieldSingleOptions = (function(window, document) {
                     const fieldInputEl = optionsEl.querySelector('[data-field-input]');
                     fieldInputEl.value = actionEl.getAttribute('data-value');
                     
+                    // dispatch event for live.js
+                    fieldInputEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    
                     const selected = actionEl.cloneNode(true);
                     selected.removeAttribute('data-single-options-action');
                     selectedEl.innerHTML = selected.outerHTML;
@@ -94,9 +97,14 @@ const fieldSingleOptions = (function(window, document) {
                     options.fire('option.added', [selectedEl, actionEl, optionsEl]);
                     break;
                 case 'remove':
-                    optionsEl.querySelector('[data-field-input]').value = '';
+                    const fiEl = optionsEl.querySelector('[data-field-input]');
+                    fiEl.value = '';
                     selectedEl.innerHTML = '';
                     options.fire('option.removed', [selectedEl, actionEl, optionsEl]);
+                    
+                    // dispatch event for live.js
+                    fiEl.dispatchEvent(new Event('change', { bubbles: true }));
+                    
                     break;
             }
         },
