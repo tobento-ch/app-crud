@@ -79,6 +79,7 @@ class Option
      * @param array $image
      * @param ViewInterface $view
      * @return static $this
+     * @psalm-suppress UndefinedInterfaceMethod
      */
     public function image(array $image, ViewInterface $view): static
     {
