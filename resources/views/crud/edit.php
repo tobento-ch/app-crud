@@ -12,6 +12,7 @@
         $view->asset('assets/crud/confirm.js')->attr('type', 'module');
         $view->asset('assets/crud/dropdowns.js')->attr('async');
         $view->asset('assets/crud/button.js')->attr('type', 'module');
+        $view->asset('assets/crud/live.js')->attr('type', 'module');
         $view->asset('assets/modal/modals.css');
         $view->asset('assets/modal/modals.js')->attr('type', 'module');
         $view->asset('assets/js-notifier/notifier.css');
