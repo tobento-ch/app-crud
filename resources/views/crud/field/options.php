@@ -16,12 +16,21 @@ $name = $form->nameToArray($field->name().'.');
     <div class="field-body" data-options="<?= $view->esc($field->name()) ?>">
         <div class="crud-options" data-selected="<?= $view->esc($field->name()) ?>">
             <?php foreach($selectedOptions as $item) { ?>
-                <?php $option = $field->createOption($item, $view, $field); ?>
+                <?php
+                $option = $field->createOption($item, $view, $field);
+
+                $inputAttributes = new \Tobento\Service\Tag\Attributes($field->assignLiveAttributes(
+                    action: $actionName,
+                    attributes: [
+                        'name' => $name,
+                        'type' => 'checkbox',
+                        'value' => $option->value(),
+                        'checked',
+                    ],
+                ));
+                ?>
                 <div class="crud-option" data-options-action="remove">
-                    <label>
-                        <input name="<?= $view->esc($name) ?>" type="checkbox" value="<?= $view->esc($option->value()) ?>" checked>
-                        <?= $option->getHtml() ?>
-                    </label>
+                    <label><input<?= (string)$inputAttributes ?>></label>
                 </div>
             <?php } ?>
         </div>
@@ -43,10 +52,21 @@ $name = $form->nameToArray($field->name().'.');
         <div class="crud-options" data-unselected="<?= $view->esc($field->name()) ?>">
             <?= $form->getMessage($form->nameToArray($field->name())) ?>
             <?php foreach($unselectedOptions as $item) { ?>
-                <?php $option = $field->createOption($item, $view, $field); ?>
+                <?php
+                $option = $field->createOption($item, $view, $field);
+                
+                $inputAttributes = new \Tobento\Service\Tag\Attributes($field->assignLiveAttributes(
+                    action: $actionName,
+                    attributes: [
+                        'name' => $name,
+                        'type' => 'checkbox',
+                        'value' => $option->value(),
+                    ],
+                ));
+                ?>
                 <div class="crud-option" data-options-action="add">
                     <label>
-                        <input name="<?= $view->esc($name) ?>" type="checkbox" value="<?= $view->esc($option->value()) ?>">
+                        <input<?= (string)$inputAttributes ?>>
                         <?= $option->getHtml() ?>
                     </label>
                 </div>

@@ -51,15 +51,18 @@ $form = $view->form();
                 </div>
             <?php } ?>
         </div>
-        <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs mt-xs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-        <?php } ?>
         <?= $form->input(
             name: $field->name(),
             type: 'hidden',
             value: (string)$selectedOption?->value(),
-            attributes: ['id' => null, 'data-field-input' => ''],
+            attributes: $field->assignLiveAttributes(
+                action: $actionName,
+                attributes: ['id' => null, 'data-field-input' => ''],
+            ),
         ) ?>
+        <?php if ($field->getInfoText(action: $actionName)) { ?>
+            <p class="text-xxs mt-xs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
+        <?php } ?>
         
         <?php if ($displayAsModal) { ?>
             <div class="modal top" data-modal='{"id": "<?= $view->esc($field->name()) ?>"}'>
