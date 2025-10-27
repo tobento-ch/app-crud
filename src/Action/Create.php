@@ -13,16 +13,19 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Closure;
+use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Button\ButtonsInterface;
 use Tobento\App\Crud\Button\Buttons;
 use Tobento\App\Crud\Button;
-use Closure;
+use Tobento\App\Crud\Field\LiveAwareInterface;
+use Tobento\App\Crud\InteractsWithRequestTrait;
+use Tobento\Service\Requester\RequesterInterface;
 
-/**
- * Create
- */
 final class Create extends AbstractAction
 {
+    use InteractsWithRequestTrait;
+    
     /**
      * Create a new Create.
      *
@@ -91,5 +94,51 @@ final class Create extends AbstractAction
         );
         
         return $this->applyButtonsConfig($this->buttons);
+    }
+    
+    /**
+     * Returns the fields actions.
+     *
+     * @return array<string, callable>
+     */
+    public function getFieldsActions(): array
+    {
+        return [
+            'afterLiveUpdate' => [$this, 'processAfterLiveUpdate'],
+        ];
+    }
+    
+    /**
+     * Processes live update.
+     *
+     * @param ActionInterface $action
+     * @param ActionProcessorInterface $actionProcessor
+     * @param RequesterInterface $requester
+     * @return void
+     */
+    public function processAfterLiveUpdate(
+        ActionInterface $action,
+        ActionProcessorInterface $actionProcessor,
+        RequesterInterface $requester,
+    ): void {
+        if (! $this->isLiveRequest($requester)) {
+            return;
+        }
+        
+        $fields = $this->filterRequestedFieldsOnly($requester, $action->fields());
+        
+        foreach($fields as $field) {
+            if (! $field instanceof LiveAwareInterface) {
+                continue;
+            }
+            
+            if ($callable = $field->getAfterLiveHandler(action: $action->name())) {
+                $actionProcessor->call($callable, [
+                    'action' => $action,
+                    'field' => $field,
+                    'input' => $action->getInput(),
+                ]);
+            }
+        }
     }
 }
