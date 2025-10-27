@@ -44,6 +44,7 @@ A simple app CRUD.
         - [Unstorable Field](#unstorable-field)
         - [Readonly And Disabled Field](#readonly-and-disabled-field)
         - [Formatting Field Value](#formatting-field-value)
+        - [Live Field](#live-field)
         - [Field Grouping](#field-grouping)
         - [Field Texts](#field-texts)
         - [Field Resolving](#field-resolving)
@@ -2444,6 +2445,157 @@ new Field\Text(name: 'foo')
         )
     );
 ```
+
+### Live Field
+
+Use the ```live``` method if you wish to rerender specified fields after the user has interacted with a field. By default, the field will update on the JavaScript ```change``` event if not set otherwise on the ```live``` method. Only the [create](#create-action), [edit](#edit-action) and [copy](#copy-action) actions supports this live feature.
+
+In the following example, the title field will rerender after the field has changed and will display the error message if validation fails:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Text(name: 'title')
+        ->validate('required|htmlclean')
+        ->live();
+}
+```
+
+**Debounce**
+
+You may consider debouncing for text fields as it will prevent a network request from being sent until a user has finished typing for a certain period of time.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Text(name: 'title')
+        ->live(debounce: 300);
+}
+```
+
+**On Blur**
+
+In Addition of debouncing, you may consider using the ```onBlur``` parameter with the value ```true``` for fields as it will update the field only after the user has finished interacted with, when it becomes out of focus.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Text(name: 'title')
+        ->live(onBlur: true);
+}
+```
+
+**Rerender Fields**
+
+Use the ```fields``` parameter to define the fields being rerendered.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Select(name: 'status')
+        ->options(['draft' => 'Draft', 'published' => 'Published'])
+        ->live(
+            fields: ['title'],
+            after: function(ActionInterface $action, Field\Select $field): void {
+                $action->fields()->get('title')->value('Lorem');
+            },
+        );
+        
+    yield new Field\Text(name: 'title');
+}
+```
+
+**Rerender Selectors**
+
+In addition, of rerender fields, you may define JavaScript query selectors using the ```selectors``` parameter which content will be rerendered as well.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Text(name: 'title')
+        ->live(selectors: ['.some-class']);
+}
+```
+
+**After Handler**
+
+You may use the ```after``` parameter to define a callable which will be excuted after the field is updated.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Select(name: 'status')
+        ->options(['draft' => 'Draft', 'published' => 'Published'])
+        ->live(
+            fields: ['title'],
+            after: function(ActionInterface $action, Field\Select $field): void {
+                $action->fields()->get('title')->value('Lorem');
+            },
+        );
+        
+    yield new Field\Text(name: 'title');
+}
+```
+
+**Specific Actions**
+
+You may use the ```action``` parameter to define the action(s) to perform the live events.
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Text(name: 'title')
+        ->live(
+            action: 'create|edit',
+            // action: 'create|edit|copy', // default
+            debounce: 300,
+        )
+        ->live(
+            action: 'copy',
+            debounce: 500,
+        );
+}
+```
+
+**Supported Fields**
+
+The live method is supported by the following fields:
+
+* [Checkboxes Field](#checkboxes-field)
+* [Options Field](#options-field)
+* [Radios Field](#radios-field)
+* [Select Field](#select-field)
+* [Single Options Field](#single-options-field)
+* [Text Field](#text-field)
+* [Textarea Field](#textarea-field)
 
 ### Field Grouping
 
