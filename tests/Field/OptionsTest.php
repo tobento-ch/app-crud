@@ -387,4 +387,34 @@ class OptionsTest extends AbstractField
         $this->assertSame('required|minItems:2|maxItems:10', $rules['color'][0] ?? null);
         $this->assertInstanceof(Rule\Passes::class, $rules['color'][1] ?? null);
     }
+    
+    public function testLiveFeature()
+    {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'foo', 'type' => 'tag']);
+        
+        $field = new Field\Options(name: 'name')
+            ->repository($repo)
+            ->live()
+            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
+                return new Field\Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('name'),
+                );
+            })
+            ->setEntity(new Entity(['name' => ['1']]));
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertStringContainsString(
+            '<input name="name[]" type="checkbox" value="1" checked data-live=\'{&quot;fields&quot;:[],&quot;selectors&quot;:[],&quot;blur&quot;:false,&quot;debounce&quot;:0}\'>',
+            $field->render()
+        );
+        
+        $this->assertInstanceof(\Tobento\App\Crud\Field\LiveAwareInterface::class, $field);
+    }    
 }

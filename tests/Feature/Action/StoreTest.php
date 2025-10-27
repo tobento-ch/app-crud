@@ -19,6 +19,7 @@ use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
+use Tobento\App\Testing\Http\AssertableJson;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
 use Tobento\Service\Storage\StorageInterface;
@@ -110,6 +111,27 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->followRedirects()
             ->assertStatus(200)
             ->assertCrudFormFieldExists(field: 'email', errorText: 'The email must be a string.');
+
+        $this->assertSame(0, $this->getCrudRepository()->count());
+    }
+    
+    public function testLive()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateStoreUri(),
+            headers: ['X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json', 'X-Crud-Live' => '1'],
+            body: ['email' => 'tom@example.com'],
+        );
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertContentType('application/json')
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has(key: 'status', value: 200)
+                     ->has(key: 'html')
+            );
 
         $this->assertSame(0, $this->getCrudRepository()->count());
     }

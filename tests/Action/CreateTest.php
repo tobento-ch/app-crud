@@ -44,7 +44,7 @@ class CreateTest extends AbstractAction
         $this->assertSame('create', $action->name());
         $this->assertSame(['{name}.create', []], $action->getRoute());
         $this->assertSame('crud/create', $action->getView());
-        $this->assertSame([], $action->getFieldsActions());
+        $this->assertSame(['afterLiveUpdate'], array_keys($action->getFieldsActions()));
         $this->assertSame('store', $action->getLinkToAction());
         $this->assertSame(['cancel', 'save', 'close', 'copy', 'new'], $action->buttons()->names());
     }

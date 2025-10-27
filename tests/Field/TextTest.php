@@ -167,4 +167,12 @@ class TextTest extends AbstractField
         $field->processIndexAction(action: new Action\Index(), field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Foo</span>', $field->render());
     }
+    
+    public function testLiveFeature()
+    {
+        $field = new Field\Text(name: 'name')->live();
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<input data-live=\'{&quot;fields&quot;:[],&quot;selectors&quot;:[],&quot;blur&quot;:false,&quot;debounce&quot;:0}\' name="name" id="name" type="text" value>', $field->render());
+        $this->assertInstanceof(\Tobento\App\Crud\Field\LiveAwareInterface::class, $field);
+    }
 }

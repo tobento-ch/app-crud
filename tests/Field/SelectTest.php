@@ -517,6 +517,26 @@ class SelectTest extends AbstractField
         $field->processShow(field: $field, view: Factory::createView());
         $this->assertStringContainsString('<span class="text-700">Red</span>', $field->render());
     }
+    
+    public function testLiveFeature()
+    {
+        $field = new Field\Select(name: 'name')
+            ->options(['blue' => 'Blue', 'red' => 'Red'])
+            ->live();
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertStringContainsString(
+            '<select id="name" data-live=\'{&quot;fields&quot;:[],&quot;selectors&quot;:[],&quot;blur&quot;:false,&quot;debounce&quot;:0}\' name="name">',
+            $field->render()
+        );
+        
+        $this->assertInstanceof(\Tobento\App\Crud\Field\LiveAwareInterface::class, $field);
+    }
 }
 
 class ColorRepo

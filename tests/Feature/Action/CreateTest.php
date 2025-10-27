@@ -16,6 +16,7 @@ namespace Tobento\App\Crud\Test\Feature\Action;
 use Tobento\App\AppInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
@@ -92,5 +93,41 @@ class CreateTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertBodyContains('New User')
             ->assertBodyContains('<form action="http://localhost/users" enctype="multipart/form-data" method="POST">')
             ->assertCrudFormFieldExists(field: 'email');
+    }
+    
+    public function testLiveAfterHandlerIsCalled()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\PrimaryId('id'),
+                    new Field\Text('firstname')
+                        ->live(
+                            after: function(ActionInterface $action, Field\Text $field): void {
+                                $action->fields()->get('lastname')->value('Lorem');
+                            },
+                        ),
+                    new Field\Text('lastname')
+                ],
+                actions: [
+                    new Action\Create('New User'),
+                    new Action\Store(),
+                ],
+            );
+        });
+        
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'GET',
+            uri: $this->generateCreateUri(),
+            headers: ['X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json', 'X-Crud-Live' => '1'],
+            body: ['firstname' => 'john'],
+        );
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertBodyContains('<input name="lastname" id="lastname" type="text" value="Lorem">');
     }
 }

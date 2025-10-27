@@ -44,7 +44,7 @@ class CopyTest extends AbstractAction
         $this->assertSame('copy', $action->name());
         $this->assertSame('{name}.copy', $action->getRoute()[0] ?? null);
         $this->assertSame('crud/create', $action->getView());
-        $this->assertSame([], $action->getFieldsActions());
+        $this->assertSame(['afterLiveUpdate'], array_keys($action->getFieldsActions()));
         $this->assertSame('store', $action->getLinkToAction());
         $this->assertSame(['cancel', 'save', 'close', 'copy', 'new'], $action->buttons()->names());
     }

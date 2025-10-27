@@ -377,4 +377,24 @@ class SingleOptionsTest extends AbstractField
         $this->assertSame('required', $rules['color'][0] ?? null);
         $this->assertInstanceof(Rule\Passes::class, $rules['color'][1] ?? null);
     }
+    
+    public function testLiveFeature()
+    {
+        $field = new Field\SingleOptions(name: 'foo.bar')
+            ->repository($this->createRepository())
+            ->live();
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertStringContainsString(
+            'data-live=\'{&quot;fields&quot;:[],&quot;selectors&quot;:[],&quot;blur&quot;:false,&quot;debounce&quot;:0}\'',
+            $field->render()
+        );
+        
+        $this->assertInstanceof(\Tobento\App\Crud\Field\LiveAwareInterface::class, $field);
+    }
 }

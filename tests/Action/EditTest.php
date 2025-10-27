@@ -44,7 +44,7 @@ class EditTest extends AbstractAction
         $this->assertSame('edit', $action->name());
         $this->assertSame('{name}.edit', $action->getRoute()[0] ?? null);
         $this->assertSame('crud/edit', $action->getView());
-        $this->assertSame([], $action->getFieldsActions());
+        $this->assertSame(['afterLiveUpdate'], array_keys($action->getFieldsActions()));
         $this->assertSame('update', $action->getLinkToAction());
         $this->assertSame(['cancel', 'save', 'close', 'copy', 'new'], $action->buttons()->names());
     }

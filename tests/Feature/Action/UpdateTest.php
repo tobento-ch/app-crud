@@ -20,6 +20,7 @@ use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
+use Tobento\App\Testing\Http\AssertableJson;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
 use Tobento\Service\Storage\StorageInterface;
@@ -164,5 +165,28 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertBodyContains('ID 3 unupdatable because of...');
 
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+    }
+    
+    public function testLive()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'PUT',
+            uri: $this->generateUpdateUri(id: 1),
+            headers: ['X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json', 'X-Crud-Live' => '1'],
+            body: ['email' => 'tom@example.com'],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(1)->create();
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertContentType('application/json')
+            ->assertJson(fn (AssertableJson $json) =>
+                $json->has(key: 'status', value: 200)
+                     ->has(key: 'html')
+            );
+
+        $this->assertSame(1, $this->getCrudRepository()->count());
     }
 }
