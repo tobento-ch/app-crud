@@ -25,7 +25,6 @@ use Tobento\App\Crud\Action\BulkActionInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Fields;
-use Tobento\App\Crud\Field\ParentFieldsAwareInterface;
 use Tobento\App\Crud\Filter\FilterInterface;
 use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Filter\Filters;
@@ -46,6 +45,8 @@ use Tobento\Service\Support\Arrayable;
  */
 abstract class AbstractCrudController
 {
+    use InteractsWithRequestTrait;
+    
     /**
      * @var RepositoryInterface
      */
@@ -298,7 +299,7 @@ abstract class AbstractCrudController
         if ($action->fields()->empty()) {
             $action->setFields($this->getConfiguredFields(action: $action));
         }
-        
+
         $action->setFields($action->fields()->creatable());
         
         // Process action:
@@ -341,16 +342,35 @@ abstract class AbstractCrudController
         $action->setInput(new Input(
             array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
         ));
-
+        
         // Set the configured fields if none specified:
         if ($action->fields()->empty()) {
             $action->setFields($this->getConfiguredFields(action: $action));
         }
         
-        $action->setFields($action->fields()->creatable());
+        $fields = $action->fields()->creatable();
+        
+        if ($this->isLiveRequest($requester)) {
+            $fields = $this->filterRequestedFieldsOnly($requester, $fields);
+        }
+        
+        $action->setFields($fields);
         
         // Process action:
         $actionProcessor->processAction(action: $action);
+        
+        if ($this->isLiveRequest($requester)) {
+            $response = $this->create(
+                actionProcessor: $actionProcessor,
+                requester: $requester,
+                responser: $responser,
+            );
+            
+            return $responser->json([
+                'status' => $response->getStatusCode(),
+                'html' => (string)$response->getBody(),
+            ]);
+        }
         
         // Create entity:
         $attributes = $action->getInput()
@@ -484,13 +504,8 @@ abstract class AbstractCrudController
         
         $fields = $action->fields()->editable();
         
-        if ($requester->isAjax()) {
-            $inputKeys = $requester->input()->keys()->all();
-            $inputKeys = array_merge($inputKeys, array_keys($requester->request()->getUploadedFiles()));
-            $fields = $fields->filter(
-                fn (FieldInterface $f): bool
-                => $f instanceof ParentFieldsAwareInterface || in_array(explode('.', $f->name())[0], $inputKeys)
-            );
+        if ($requester->isAjax() || $this->isLiveRequest($requester)) {
+            $fields = $this->filterRequestedFieldsOnly($requester, $fields);
         }
 
         $action->setFields($fields);
@@ -498,6 +513,20 @@ abstract class AbstractCrudController
         // Process action:
         $actionProcessor->processAction(action: $action);
 
+        if ($this->isLiveRequest($requester)) {
+            $response = $this->edit(
+                id: $id,
+                actionProcessor: $actionProcessor,
+                requester: $requester,
+                responser: $responser,
+            );
+            
+            return $responser->json([
+                'status' => $response->getStatusCode(),
+                'html' => (string)$response->getBody(),
+            ]);
+        }
+        
         // Update entity:
         $attributes = $action->getInput()
             ->collection()
