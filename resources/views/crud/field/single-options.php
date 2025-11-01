@@ -65,7 +65,7 @@ $form = $view->form();
         <?php } ?>
         
         <?php if ($displayAsModal) { ?>
-            <div class="modal top" data-modal='{"id": "<?= $view->esc($field->name()) ?>"}'>
+            <div class="modal modal-single-options top" data-modal='{"id": "<?= $view->esc($field->name()) ?>"}'>
                 <div class="modal-background"></div>
                 <div class="modal-content modal-m">
                     <div class="modal-head crud-select-search">
