@@ -30,7 +30,10 @@ $name = $form->nameToArray($field->name().'.');
                 ));
                 ?>
                 <div class="crud-option" data-options-action="remove">
-                    <label><input<?= (string)$inputAttributes ?>></label>
+                    <label>
+                        <input<?= (string)$inputAttributes ?>>
+                        <?= $option->getHtml() ?>
+                    </label>
                 </div>
             <?php } ?>
         </div>
