@@ -155,6 +155,7 @@ body.crud {max-width: 100%;}
 }
 
 /* Select Input */
+.crud-select-input-ctn {position: relative;}
 .crud-select-input-btn {
   width: 100%;
   font-family: var(--font-input);
@@ -216,7 +217,7 @@ body.crud {max-width: 100%;}
   max-width: 50px;
 }
 .crud-select-option:hover {background-color: var(--color-gray-100, whitesmoke);}
-.crud-select-input-dropdown .crud-select-option-remove-btn, .modal .crud-select-option-remove-btn {display: none;}
+.crud-select-input-dropdown .crud-select-option-remove-btn, .modal-single-options .crud-select-option-remove-btn {display: none;}
 .crud-select-input-btn .crud-select-option:hover {background-color: transparent;}
 .crud-select-option-remove-btn, .crud-select-option-remove-btn svg {display: block;}
 
