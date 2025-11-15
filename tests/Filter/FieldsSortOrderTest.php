@@ -51,17 +51,18 @@ class FieldsSortOrderTest extends TestCase
         $filter = new FieldsSortOrder();
         
         $filter->apply(
-            input: new Input(['sort' => ['sku' => 'asc', 'title' => 'desc']]),
+            input: new Input(['sort' => ['sku' => 'asc', 'title' => 'desc', 'meta.color' => 'asc']]),
             filters: new Filters(),
             action: new Index()->setFields(new Fields(
                 new Field\Text(name: 'id'),
                 new Field\Text(name: 'sku'),
                 new Field\Text(name: 'title'),
+                new Field\Text(name: 'meta.color'),
             )),
         );
         
-        $this->assertSame(['sort' => ['sku' => 'asc', 'title' => 'desc']], $filter->getAppliedParameters());
-        $this->assertSame(['sku' => 'asc', 'title' => 'desc'], $filter->getOrderByParameters());
+        $this->assertSame(['sort' => ['sku' => 'asc', 'title' => 'desc', 'meta.color' => 'asc']], $filter->getAppliedParameters());
+        $this->assertSame(['sku' => 'asc', 'title' => 'desc', 'meta->color' => 'asc'], $filter->getOrderByParameters());
         $this->assertSame('asc', $filter->getValueFor('sku'));
         $this->assertSame('desc', $filter->getValueFor('title'));
         $this->assertSame(null, $filter->getValueFor('foo'));
