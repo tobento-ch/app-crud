@@ -153,5 +153,40 @@ class FieldsTest extends TestCase
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<select aria-label="LABEL" id="filter_field_color" name="filter[field][color]">', $rendered);
-    }    
+    }
+    
+    public function testUsesContainsComparisonIfSelectFieldMultiple()
+    {
+        $fields = new Fields()
+            ->fields(new Field\Fields(
+                new Field\Select(name: 'color', label: 'LABEL')
+                    ->attributes(['multiple'])
+                    ->options(['blue' => 'Blue', 'red' => 'Red']),
+            ));
+        
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+        
+        $this->assertSame('contains', $filter->getComparison());
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringContainsString('<select aria-label="LABEL" id="filter_field_color" name="filter[field][color]">', $rendered);
+    }
+    
+    public function testUsesContainsComparisonIfCheckboxesField()
+    {
+        $fields = new Fields()
+            ->fields(new Field\Fields(
+                new Field\Checkboxes(name: 'color', label: 'LABEL')
+                    ->options(['blue' => 'Blue', 'red' => 'Red']),
+            ));
+        
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+        
+        $this->assertSame('contains', $filter->getComparison());
+        
+        $rendered = $filter->render(Factory::createView());
+        $this->assertStringContainsString('<select aria-label="LABEL" id="filter_field_color" name="filter[field][color]">', $rendered);
+    }
 }
