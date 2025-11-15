@@ -141,11 +141,16 @@ class FieldsSortOrder extends AbstractFilter
             $input->set($this->name(), []);
         }
         
-        if ($this->resort && !$input->has($this->name().'.'.$this->resort)) {
-            $input->set($this->name().'.'.$this->resort, null);
-        }        
+        $inputData = $input->get($this->name());
         
-        foreach($input->get($this->name()) as $name => $value) {
+        if ($this->resort && !array_key_exists($this->resort, $inputData)) {
+            $inputData[$this->resort] = null;
+            $input->set($this->name(), $inputData);
+        }
+        
+        $inputValues = Arr::dot($input->get($this->name()));
+        
+        foreach($inputValues as $name => $value) {
             // check if field is sortable:
             if (!$this->isSortable($name)) {
                 continue;
@@ -226,7 +231,12 @@ class FieldsSortOrder extends AbstractFilter
      */
     public function getOrderByParameters(): array
     {
-        return $this->sorted;
+        $sorted = array_combine(
+            array_map(fn($key) => str_replace('.', '->', $key), array_keys($this->sorted)),
+            array_values($this->sorted)
+        );
+        
+        return $sorted;
     }
     
     /**
