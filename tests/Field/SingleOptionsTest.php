@@ -149,7 +149,7 @@ class SingleOptionsTest extends AbstractField
         );
         
         $this->assertStringContainsString(
-            '<div class="modal top" data-modal=\'{"id": "color"}\'>',
+            '<div class="modal modal-single-options top" data-modal=\'{"id": "color"}\'>',
             $field->render()
         );
         
