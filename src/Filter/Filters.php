@@ -138,10 +138,17 @@ class Filters implements FiltersInterface
      * @return static
      */
     public function field(string $name): static
-    {        
-        return $this->filter(
-            fn(FilterInterface $f): bool => $f->fieldName() === $name
-        );
+    {
+        return $this->filter(static function(FilterInterface $f) use ($name): bool {
+            $fieldName = $f->fieldName();
+            
+            if (str_contains($fieldName, '->')) {
+                $parts = explode('->', $fieldName);
+                $fieldName = implode('.', $parts);
+            }
+            
+            return $fieldName === $name;
+        });
     }
     
     /**
