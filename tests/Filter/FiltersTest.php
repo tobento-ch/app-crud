@@ -184,6 +184,20 @@ class FiltersTest extends TestCase
         $this->assertSame(1, $filtersNew->count());
     }
     
+    public function testFieldMethodWithJsonSyntax()
+    {
+        $filters = new Filters(
+            new Filter\Input(name: 'meta.color', field: 'meta->color'),
+            new Filter\Input(name: 'meta.roles', field: 'meta->roles'),
+        );
+        
+        $filtersNew = $filters->field(name: 'meta.color');
+        
+        $this->assertFalse($filters === $filtersNew);
+        $this->assertSame(2, $filters->count());
+        $this->assertSame(1, $filtersNew->count());
+    }
+    
     public function testOpenMethod()
     {
         $filters = new Filters(
