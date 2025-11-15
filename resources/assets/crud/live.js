@@ -35,6 +35,8 @@ const live = (function(window, document) {
             
             const formData = dotNotationToObject(toDotNotation(el.getAttribute('name')), value);
             const inputMethod = form.querySelector('input[name="_method"]');
+            const queryParams = new URLSearchParams(window.location.search);
+            const queryData = Object.fromEntries(queryParams.entries());
             
             fetch(form.getAttribute('action'), {
                 method: inputMethod ? inputMethod.value : form.getAttribute('method'),
@@ -45,7 +47,7 @@ const live = (function(window, document) {
                     "X-Crud-Live": "1",
                     "Accept": "application/json"
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({...formData, ...queryData})
             })
             .then(response => response.json())
             .then(data => {
