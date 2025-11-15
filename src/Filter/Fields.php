@@ -186,7 +186,7 @@ class Fields
             ($field instanceof Field\Select && !$field->isMultipleSelection())
             || $field instanceof Field\Radios
         ) {
-            return new Select(name: 'field.'.$name, field: $name)
+            return new Select(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
                 ->group($this->group)
                 ->options($field->getOptions())
                 ->comparison('=')
@@ -194,11 +194,35 @@ class Fields
                 ->open($this->open);
         }
         
-        return new Input(name: 'field.'.$name, field: $name)
+        if (
+            ($field instanceof Field\Select && $field->isMultipleSelection())
+            || $field instanceof Field\Checkboxes
+        ) {
+            return new Select(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
+                ->group($this->group)
+                ->options($field->getOptions())
+                ->comparison('contains')
+                ->attributes(['aria-label' => $label])
+                ->open($this->open);
+        }
+        
+        return new Input(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
             ->group($this->group)
             ->type('search')
             ->comparison('like')
             ->attributes(['aria-label' => $label])
             ->open($this->open);
+    }
+    
+    /**
+     * Converts dots to JSON syntax.
+     *
+     * @param string $string
+     * @return string
+     */
+    public function dotToJsonSyntax(string $string): string
+    {
+        $parts = explode('.', $string);
+        return implode('->', $parts);
     }
 }
