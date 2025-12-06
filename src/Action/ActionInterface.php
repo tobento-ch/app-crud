@@ -269,6 +269,15 @@ interface ActionInterface extends Linkable
     public function getInput(): InputInterface;
     
     /**
+     * Returns the field value from input when set; if not, uses the entity’s value, or defaults.
+     *
+     * @param string $field
+     * @param mixed $default
+     * @return mixed
+     */
+    public function value(string $field, mixed $default = null): mixed;
+    
+    /**
      * Sets the translator.
      *
      * @param TranslatorInterface $translator

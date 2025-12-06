@@ -539,6 +539,30 @@ abstract class AbstractAction implements ActionInterface
     }
     
     /**
+     * Returns the field value from input when set; if not, uses the entity’s value, or defaults.
+     *
+     * @param string $field
+     * @param mixed $default
+     * @return mixed
+     */
+    public function value(string $field, mixed $default = null): mixed
+    {
+        $input = $this->getInput();
+        
+        if ($input->has($field)) {
+            return $input->get($field);
+        }
+        
+        $fieldObj = $this->fields()->get($field);
+        
+        if ($fieldObj) {
+            return $fieldObj->entity()->get(name: $field, default: $default);
+        }
+        
+        return $default;
+    }
+    
+    /**
      * Sets the translator.
      *
      * @param TranslatorInterface $translator
