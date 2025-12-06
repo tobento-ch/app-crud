@@ -31,6 +31,7 @@ use Tobento\Service\Slugifier\SlugifiersInterface;
 class Slug extends AbstractField
 {
     use Traits\HasValueFormatter;
+    use Traits\Hidden;
     
     /**
      * @var null|string
@@ -293,6 +294,11 @@ class Slug extends AbstractField
         Slug $field,
         ViewInterface $view
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $field->html($view->render(
             view: 'crud/field/text',
             data: [

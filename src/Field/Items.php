@@ -31,6 +31,8 @@ use LogicException;
  */
 class Items extends AbstractField implements FieldsAwareInterface
 {
+    use Traits\Hidden;
+    
     /**
      * @var null|FieldsInterface
      */
@@ -285,16 +287,21 @@ class Items extends AbstractField implements FieldsAwareInterface
      *
      * @param ActionProcessorInterface $actionProcessor
      * @param ActionInterface $action
-     * @param FieldInterface $field
+     * @param Items $field
      * @param ViewInterface $view
      * @return void
      */
     public function processEdit(
         ActionProcessorInterface $actionProcessor,
         ActionInterface $action,
-        FieldInterface $field,
+        Items $field,
         ViewInterface $view
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         if (is_null($this->fields)) {
             throw new LogicException('You need to define the fields first!');
         }

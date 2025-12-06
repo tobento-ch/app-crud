@@ -23,6 +23,7 @@ use Tobento\Service\Iterable\Iter;
 use Tobento\Service\Collection\Collection;
 use Tobento\Service\HelperFunction\Functions;
 use Tobento\Service\Repository\RepositoryInterface;
+use Tobento\Service\Support\HtmlString;
 use Tobento\Service\Support\Str;
 use Tobento\Service\Validation\ValidatorInterface;
 use Tobento\Service\Validation\Rule\Passes;
@@ -33,6 +34,7 @@ use Tobento\Service\View\ViewInterface;
  */
 class Options extends AbstractField implements LiveAwareInterface
 {
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -81,6 +83,11 @@ class Options extends AbstractField implements LiveAwareInterface
     protected iterable $selected = [];
     
     /**
+     * @var null|array<array-key, array<array-key, Option>>
+     */
+    protected null|array $indexOptions = null;
+    
+    /**
      * Create a new Options.
      *
      * @param string $name
@@ -92,7 +99,7 @@ class Options extends AbstractField implements LiveAwareInterface
     ) {
         $this->name = $name;
         $this->label = $label;
-        $this->process('index', [$this, 'processIndex']);
+        $this->process('index', [$this, 'processIndexAction']);
         $this->process('show', [$this, 'processShow']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store:before|update:before', [$this, 'processBeforeSave']);
@@ -117,6 +124,20 @@ class Options extends AbstractField implements LiveAwareInterface
     }
     
     /**
+     * Returns the raw repository.
+     *
+     * @return class-string|RepositoryInterface $repository
+     */
+    public function rawRepository(): string|RepositoryInterface
+    {
+        if (!is_null($this->repository)) {
+            return $this->repository;
+        }
+        
+        throw new LogicException('You need to set a repository first');
+    }
+    
+    /**
      * Sets the base where parameters for fetching the options.
      *
      * @param array $where
@@ -126,6 +147,16 @@ class Options extends AbstractField implements LiveAwareInterface
     {
         $this->baseWhere = $where;
         return $this;
+    }
+    
+    /**
+     * Returns the base where parameters for fetching the options.
+     *
+     * @return array
+     */
+    public function getBaseWhere(): array
+    {
+        return $this->baseWhere;
     }
     
     /**
@@ -141,6 +172,16 @@ class Options extends AbstractField implements LiveAwareInterface
     }
     
     /**
+     * Returns the store column.
+     *
+     * @return string
+     */
+    public function getStoreColumn(): string
+    {
+        return $this->storeColumn;
+    }    
+    
+    /**
      * Sets the search columns.
      *
      * @param string ...$columns
@@ -153,6 +194,16 @@ class Options extends AbstractField implements LiveAwareInterface
     }
     
     /**
+     * Returns the search columns.
+     *
+     * @return array
+     */
+    public function getSearchColumns(): array
+    {
+        return $this->searchColumns;
+    }
+    
+    /**
      * Sets the limit.
      *
      * @param int $limit
@@ -162,6 +213,16 @@ class Options extends AbstractField implements LiveAwareInterface
     {
         $this->queryLimit = $limit;
         return $this;
+    }
+    
+    /**
+     * Returns the limit.
+     *
+     * @return int
+     */
+    public function getLimit(): int
+    {
+        return $this->queryLimit;
     }
     
     /**
@@ -343,7 +404,7 @@ class Options extends AbstractField implements LiveAwareInterface
      * @param Options $field
      * @return Option
      */
-    public function createOption(object $item, ViewInterface $view, Options $field): Option
+    public function createOption(object $item, ViewInterface $view, Options $field, string $action = ''): Option
     {
         if (is_callable($this->optionFactory)) {
             return call_user_func($this->optionFactory, $item, $view, $field);
@@ -384,11 +445,68 @@ class Options extends AbstractField implements LiveAwareInterface
     /**
      * Processes the index action.
      *
+     * @param ActionInterface $action
      * @param FieldInterface $field
+     * @param ViewInterface $view
      * @return void
      */
-    public function processIndex(FieldInterface $field): void
+    public function processIndexAction(ActionInterface $action, FieldInterface $field, ViewInterface $view): void
     {
+        if (is_null($this->indexOptions)) {
+            // collect all values:
+            $values = [];
+            $queryValues = [];
+            
+            foreach($action->entities() as $id => $entity) {
+                if (!empty($value = $entity->get($field->name(), []))) {
+                    $values[$id] = $value;
+                    
+                    foreach($value as $val) {
+                        $queryValues[] = $val;
+                    }
+                }
+            }
+            
+            // fetch all values from repository:
+            $items = $this->getRepository()->findAll(
+                where: [
+                    $this->storeColumn => ['in' => array_unique($queryValues)],
+                ],
+            );
+
+            $options = [];
+            
+            foreach($items as $item) {
+                $option = $this->createOption(item: $item, view: $view, field: $field, action: 'index');
+                $options[$option->value()] = $option;
+            }
+            
+            $this->indexOptions = [];
+            
+            foreach($values as $entityId => $value) {
+                foreach($value as $val) {
+                    if (isset($options[$val])) {
+                        $this->indexOptions[$entityId][] = $options[$val];
+                    }                    
+                }
+            }
+        }
+        
+        if (isset($this->indexOptions[$field->entity()->id()])) {
+            $options = $this->indexOptions[$field->entity()->id()];
+            
+            $html = '';
+            
+            foreach($options as $option) {
+                $html .= '<div class="crud-select-option unselectable-list">';
+                $html .= $option->getHtml();
+                $html .= '</div>';
+            }
+            
+            $field->html($html);
+            return;
+        }
+        
         $options = $field->entity()->get($field->name(), []);
         $options = implode(', ', $options);
         $options = mb_strimwidth($options, 0, 100, '...');
@@ -406,13 +524,14 @@ class Options extends AbstractField implements LiveAwareInterface
     {
         $options = $field->entity()->get($field->name(), []);
         $items = $this->getSelectedOptions(selected: $options);
-        $texts = [];
+        
+        $html = '';
         
         foreach($items as $item) {
-            $texts[] = strip_tags($this->createOption(item: $item, view: $view, field: $field)->getHtml());
+            $html .= '<div class="crud-select-option unselectable-list">';
+            $html .= $this->createOption(item: $item, view: $view, field: $field)->getHtml();
+            $html .= '</div>';            
         }
-        
-        $texts = implode(', ', $texts);
 
         $field->html($view->render(
             view: 'crud/field/show/field',
@@ -420,7 +539,7 @@ class Options extends AbstractField implements LiveAwareInterface
                 'field' => $field,
                 'entity' => $field->entity(),
                 'renderLabel' => true,
-                'text' => $texts,
+                'text' => new HtmlString($html),
             ],
         ));
     }
@@ -439,6 +558,11 @@ class Options extends AbstractField implements LiveAwareInterface
         FieldInterface $field,
         ViewInterface $view,
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $selectedIds = $field->entity()->get($field->name(), $field->getSelected());
         $selectedOptions = $this->getSelectedOptions($selectedIds);
         $searchValue = null;

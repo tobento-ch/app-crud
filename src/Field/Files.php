@@ -31,6 +31,8 @@ use Tobento\Service\View\ViewInterface;
  */
 class Files extends AbstractField implements FieldsAwareInterface
 {
+    use Traits\Hidden;
+    
     /**
      * @var null|callable
      */
@@ -339,6 +341,11 @@ class Files extends AbstractField implements FieldsAwareInterface
         Files $field,
         ViewInterface $view
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $files = $action->fields()->parent($field->name());
         
         // filter out empty src so as not to display:

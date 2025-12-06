@@ -31,6 +31,7 @@ use InvalidArgumentException;
 class Radios extends AbstractField implements OptionsAwareInterface, LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -277,6 +278,11 @@ class Radios extends AbstractField implements OptionsAwareInterface, LiveAwareIn
         Radios $field,
         ViewInterface $view,
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $form = $view->form();        
         $attributes = $field->getAttributes();
         $attributes['id'] ??= $form->nameToId($field->name());

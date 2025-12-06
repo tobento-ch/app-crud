@@ -34,6 +34,7 @@ use Tobento\Service\View\ViewInterface;
  */
 class SingleOptions extends AbstractField implements LiveAwareInterface
 {
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -82,6 +83,11 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     protected bool $displayAsModal = false;
     
     /**
+     * @var null|array<array-key, Option>
+     */
+    protected null|array $indexOptions = null;
+    
+    /**
      * Create a new Options.
      *
      * @param string $name
@@ -93,7 +99,7 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     ) {
         $this->name = $name;
         $this->label = $label;
-        $this->process('index', [$this, 'processIndex']);
+        $this->process('index', [$this, 'processIndexAction']);
         $this->process('show', [$this, 'processShow']);
         $this->process('create|edit|copy', [$this, 'processCreateEdit']);
         $this->process('store|update', [$this, 'processSave']);
@@ -117,6 +123,20 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     }
     
     /**
+     * Returns the raw repository.
+     *
+     * @return class-string|RepositoryInterface $repository
+     */
+    public function rawRepository(): string|RepositoryInterface
+    {
+        if (!is_null($this->repository)) {
+            return $this->repository;
+        }
+        
+        throw new LogicException('You need to set a repository first');
+    }
+    
+    /**
      * Sets the base where parameters for fetching the options.
      *
      * @param array $where
@@ -126,6 +146,16 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     {
         $this->baseWhere = $where;
         return $this;
+    }
+    
+    /**
+     * Returns the base where parameters for fetching the options.
+     *
+     * @return array
+     */
+    public function getBaseWhere(): array
+    {
+        return $this->baseWhere;
     }
     
     /**
@@ -141,6 +171,16 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     }
     
     /**
+     * Returns the store column.
+     *
+     * @return string
+     */
+    public function getStoreColumn(): string
+    {
+        return $this->storeColumn;
+    }
+    
+    /**
      * Sets the search columns.
      *
      * @param string ...$columns
@@ -153,6 +193,16 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     }
     
     /**
+     * Returns the search columns.
+     *
+     * @return array
+     */
+    public function getSearchColumns(): array
+    {
+        return $this->searchColumns;
+    }
+    
+    /**
      * Sets the limit.
      *
      * @param int $limit
@@ -162,6 +212,16 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     {
         $this->queryLimit = $limit;
         return $this;
+    }
+    
+    /**
+     * Returns the limit.
+     *
+     * @return int
+     */
+    public function getLimit(): int
+    {
+        return $this->queryLimit;
     }
     
     /**
@@ -337,7 +397,7 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
      * @param SingleOptions $field
      * @return Option
      */
-    public function createOption(object $item, ViewInterface $view, SingleOptions $field, $action = ''): Option
+    public function createOption(object $item, ViewInterface $view, SingleOptions $field, string $action = ''): Option
     {
         if (is_callable($this->optionFactory)) {
             $option = call_user_func($this->optionFactory, $item, $view, $field);
@@ -384,12 +444,54 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
     /**
      * Processes the index action.
      *
+     * @param ActionInterface $action
      * @param FieldInterface $field
+     * @param ViewInterface $view
      * @return void
      */
-    public function processIndex(FieldInterface $field): void
+    public function processIndexAction(ActionInterface $action, FieldInterface $field, ViewInterface $view): void
     {
+        if (is_null($this->indexOptions)) {
+            // collect all values:
+            $values = [];
+            
+            foreach($action->entities() as $id => $entity) {
+                if (!empty($value = $entity->get($field->name(), ''))) {
+                    $values[$id] = $value;
+                }
+            }
+            
+            // fetch all values from repository:
+            $items = $this->getRepository()->findAll(
+                where: [
+                    $this->storeColumn => ['in' => array_unique(array_values($values))],
+                ],
+            );
+            
+            $options = [];
+            
+            foreach($items as $item) {
+                $option = $this->createOption(item: $item, view: $view, field: $field, action: 'index');
+                $options[$option->value()] = $option;
+            }
+            
+            $this->indexOptions = [];
+            
+            foreach($values as $entityId => $value) {
+                if (isset($options[$value])) {
+                    $this->indexOptions[$entityId] = $options[$value];
+                }
+            }
+        }
+        
+        if (isset($this->indexOptions[$field->entity()->id()])) {
+            $option = $this->indexOptions[$field->entity()->id()];
+            $field->html('<div class="crud-select-option unselectable">'.$option->getHtml().'</div>');
+            return;
+        }
+        
         $option = $field->entity()->get($field->name(), '');
+        
         $field->html(Str::esc($option));
     }
     
@@ -406,7 +508,7 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
         $text = '';
         
         if ($item = $this->getSelectedOption(selected: $option)) {
-            $text = new HtmlString('<div class="crud-select-option">'.$this->createOption(item: $item, view: $view, field: $field, action: 'show')->getHtml().'</div>');
+            $text = new HtmlString('<div class="crud-select-option unselectable">'.$this->createOption(item: $item, view: $view, field: $field, action: 'show')->getHtml().'</div>');
         }
         
         $field->html($view->render(
@@ -434,6 +536,11 @@ class SingleOptions extends AbstractField implements LiveAwareInterface
         FieldInterface $field,
         ViewInterface $view,
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $selectedId = $field->entity()->get($field->name(), $field->getSelected());
         $selectedOption = $this->getSelectedOption($selectedId);
         

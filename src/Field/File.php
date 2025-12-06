@@ -28,6 +28,8 @@ use Tobento\Service\View\ViewInterface;
  */
 class File extends AbstractField implements FieldsAwareInterface
 {
+    use Traits\Hidden;
+    
     /**
      * @var array<int, FieldInterface>
      */
@@ -407,6 +409,11 @@ class File extends AbstractField implements FieldsAwareInterface
         ViewInterface $view,
         StoragesInterface $storages
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $fields = $action->fields()->parent($field->name());
         $pictureQueue = false;
         $picture = null;

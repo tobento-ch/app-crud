@@ -24,6 +24,8 @@ use Tobento\Service\View\ViewInterface;
  */
 class TextEditor extends AbstractField
 {
+    use Traits\Hidden;
+    
     /**
      * @var array
      */
@@ -94,6 +96,11 @@ class TextEditor extends AbstractField
         TextEditor $field,
         ViewInterface $view
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $attributes = $field->getAttributes();
         $attributes['data-editor'] = $field->getEditorConfig();
         $attributes = array_merge(

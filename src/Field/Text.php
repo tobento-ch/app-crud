@@ -23,6 +23,7 @@ use Tobento\Service\View\ViewInterface;
 class Text extends AbstractField implements LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -159,6 +160,11 @@ class Text extends AbstractField implements LiveAwareInterface
         Text $field,
         ViewInterface $view
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         if ($field->getType() === 'hidden') {
             $field->html($view->render(
                 view: 'crud/field/text-hidden',

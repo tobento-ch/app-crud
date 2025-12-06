@@ -53,6 +53,8 @@ use Tobento\Service\View\ViewInterface;
  */
 class FileSource extends AbstractField
 {
+    use Traits\Hidden;
+    
     /**
      * @var string
      */
@@ -764,6 +766,11 @@ class FileSource extends AbstractField
         StoragesInterface $storages,
         null|DefinitionsInterface $definitions = null,
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         // File:
         $file = null;
         $picture = null;

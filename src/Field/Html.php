@@ -23,6 +23,8 @@ use Tobento\App\Crud\Input\InputInterface;
  */
 class Html extends AbstractField
 {
+    use Traits\Hidden;
+    
     /**
      * @var callable|string
      */
@@ -75,6 +77,11 @@ class Html extends AbstractField
      */
     public function processRender(Html $field, AppInterface $app): void
     {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         if (is_callable($field->getContent())) {
             $field->html($app->call($field->getContent(), ['field' => $field]));
             return;

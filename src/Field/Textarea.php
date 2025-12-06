@@ -26,6 +26,7 @@ use Tobento\Service\View\ViewInterface;
 class Textarea extends AbstractField implements LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -62,6 +63,11 @@ class Textarea extends AbstractField implements LiveAwareInterface
         FieldInterface $field,
         ViewInterface $view
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $attributes = array_merge(
             $field->getHtmlValidationAttributes(
                 $action->name(),

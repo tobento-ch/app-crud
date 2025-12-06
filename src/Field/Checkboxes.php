@@ -31,6 +31,7 @@ use InvalidArgumentException;
 class Checkboxes extends AbstractField implements OptionsAwareInterface, LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -278,6 +279,11 @@ class Checkboxes extends AbstractField implements OptionsAwareInterface, LiveAwa
         FieldInterface $field,
         ViewInterface $view,
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $form = $view->form();        
         $attributes = $field->getAttributes();
         $attributes['id'] ??= $form->nameToId($field->name());

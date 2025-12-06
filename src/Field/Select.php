@@ -31,6 +31,7 @@ use InvalidArgumentException;
 class Select extends AbstractField implements OptionsAwareInterface, LiveAwareInterface
 {
     use Traits\HasValueFormatter;
+    use Traits\Hidden;
     use Traits\Live;
     
     /**
@@ -316,6 +317,11 @@ class Select extends AbstractField implements OptionsAwareInterface, LiveAwareIn
         Select $field,
         ViewInterface $view,
     ): void {
+        if ($field->isHidden()) {
+            $field->html('');
+            return;
+        }
+        
         $form = $view->form();        
         $attributes = $field->getAttributes();
         $attributes['id'] ??= $form->nameToId($field->name());
