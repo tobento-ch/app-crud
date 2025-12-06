@@ -170,4 +170,31 @@ abstract class AbstractAction extends TestCase
         $input = new Input();
         $this->assertSame($input, $action->setInput($input)->getInput());
     }
+    
+    public function valueTests(ActionInterface $action)
+    {
+        $this->assertSame(null, $action->value(field: 'foo'));
+        $this->assertSame(null, $action->value(field: 'bar.baz'));
+        $this->assertSame(null, $action->value(field: 'baz'));
+        $this->assertSame('default', $action->value(field: 'baz', default: 'default'));
+        
+        $action->setInput(new Input(['foo' => 'Foo', 'bar' => ['baz' => 'Baz']]));
+
+        $action->setFields(new Fields(
+            new Field\Text('foo')->setEntity(new Entity(['foo' => 'entity Foo', 'bar' => ['baz' => 'entity Baz']])),
+            new Field\Text('bar.baz')->setEntity(new Entity(['foo' => 'entity Foo', 'bar' => ['baz' => 'entity Baz']])),
+        ));
+        
+        $this->assertSame('Foo', $action->value(field: 'foo'));
+        $this->assertSame('Baz', $action->value(field: 'bar.baz'));
+        $this->assertSame(null, $action->value(field: 'baz'));
+        $this->assertSame('default', $action->value(field: 'baz', default: 'default'));
+        
+        $action->setInput(new Input());
+        
+        $this->assertSame('entity Foo', $action->value(field: 'foo'));
+        $this->assertSame('entity Baz', $action->value(field: 'bar.baz'));
+        $this->assertSame(null, $action->value(field: 'baz'));
+        $this->assertSame('default', $action->value(field: 'baz', default: 'default'));
+    }
 }
