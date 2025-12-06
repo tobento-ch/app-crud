@@ -18,6 +18,7 @@ use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
+use Throwable;
 
 /**
  * BulkDelete
@@ -100,11 +101,13 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
                 continue;
             }
             
-            // Check if entity can be deleted:
-            if (! $deleteAction->isDeletable($deleteAction->entity())) {
+            // Check if action is processable:
+            try {
+                $this->controller()->isActionProcessable($deleteAction);
+            } catch (Throwable $e) {
                 $responser->messages()->add(
                     level: 'error',
-                    message: $deleteAction->undeletableReason($deleteAction->entity()),
+                    message: $e->getMessage(),
                 );
                 
                 continue;

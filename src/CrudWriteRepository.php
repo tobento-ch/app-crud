@@ -188,6 +188,7 @@ class CrudWriteRepository implements WriteRepositoryInterface
         $this->modifyInput($action);
         
         // Process action:
+        $this->controller->isActionProcessable($action);
         $this->actionProcessor->processAction(action: $action);
         
         // Create entity:
@@ -261,11 +262,6 @@ class CrudWriteRepository implements WriteRepositoryInterface
         
         $action->setEntity($this->controller->createEntityFromObject($entity));
         
-        // Check if entity can be updated:
-        if ($action instanceof Action\Update && ! $action->isUpdatable($action->entity())) {
-            throw new EntityUnupdatableException($id, $action);
-        }
-        
         // Handle input:
         $action->setInput(new Input($attributes));
         
@@ -279,6 +275,7 @@ class CrudWriteRepository implements WriteRepositoryInterface
         $this->modifyInput($action);
         
         // Process action:
+        $this->controller->isActionProcessable($action);
         $this->actionProcessor->processAction(action: $action);
 
         // Update entity:
@@ -362,11 +359,6 @@ class CrudWriteRepository implements WriteRepositoryInterface
         }
         
         $action->setEntity($this->controller->createEntityFromObject($entity));
-        
-        // Check if entity can be deleted:
-        if ($action instanceof Action\Delete && ! $action->isDeletable($action->entity())) {
-            throw new EntityUndeletableException($id, $action);
-        }
 
         // Set the configured fields if none specified:
         if ($action->fields()->empty()) {
@@ -374,6 +366,7 @@ class CrudWriteRepository implements WriteRepositoryInterface
         }
         
         // Process action:
+        $this->controller->isActionProcessable($action);
         $this->actionProcessor->processAction(action: $action);
         
         // Delete entity:

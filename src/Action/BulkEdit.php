@@ -152,12 +152,14 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
             
             $entity = $this->controller()->createEntityFromObject($entity);
             $updateAction->setEntity($entity);
-
-            // Check if entity can be updated:
-            if (! $updateAction->isUpdatable($updateAction->entity())) {
+            
+            // Check if action is processable:
+            try {
+                $this->controller()->isActionProcessable($updateAction);
+            } catch (Throwable $e) {
                 $responser->messages()->add(
                     level: 'error',
-                    message: $updateAction->unupdatableReason($updateAction->entity()),
+                    message: $e->getMessage(),
                 );
                 
                 continue;
