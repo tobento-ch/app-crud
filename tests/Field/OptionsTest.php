@@ -17,6 +17,7 @@ use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Entity\Entities;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\Input;
@@ -73,12 +74,30 @@ class OptionsTest extends AbstractField
     
     public function testProcessIndex()
     {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'red']);
+        $repo->create(['name' => 'blue']);
+
         $field = new Field\Options(name: 'color')
-            ->setEntity(new Entity(['color' => ['red', 'blue']]));
+            ->repository($repo)
+            ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
+                return new Field\Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('name'),
+                );
+            })
+            ->setEntity(new Entity(['color' => ['1', '2']]));
         
-        $field->processIndex(field: $field);
+        $action = new Action\Index()->setEntities(new Entities([
+            new Entity(['id' => 1, 'color' => ['1', '2']]),
+            new Entity(['id' => 2, 'color' => []]),
+        ]));
         
-        $this->assertStringContainsString('red, blue', $field->render());
+        $field->processIndexAction(action: $action, field: $field, view: Factory::createView());
+        
+        $rendered = $field->render();
+        $this->assertStringContainsString('red', $rendered);
+        $this->assertStringContainsString('blue', $rendered);
     }
     
     public function testProcessShow()
@@ -98,7 +117,10 @@ class OptionsTest extends AbstractField
             ->setEntity(new Entity(['color' => ['1', '2']]));
 
         $field->processShow(field: $field, view: Factory::createView());
-        $this->assertStringContainsString('red, blue', $field->render());
+
+        $rendered = $field->render();
+        $this->assertStringContainsString('red', $rendered);
+        $this->assertStringContainsString('blue', $rendered);        
     }
     
     public function testProcessCreateEditRendersSearchInput()
