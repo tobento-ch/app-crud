@@ -187,6 +187,7 @@ abstract class AbstractCrudController
         $action->setEntities($entities);
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         // Bulks:
@@ -250,6 +251,7 @@ abstract class AbstractCrudController
         $action->setInput(new Input($requester->input()->all()));
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
 
         // Bulk process:
@@ -303,6 +305,7 @@ abstract class AbstractCrudController
         $action->setFields($action->fields()->creatable());
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         return $responser->render(
@@ -357,6 +360,7 @@ abstract class AbstractCrudController
         $action->setFields($fields);
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         if ($this->isLiveRequest($requester)) {
@@ -442,6 +446,7 @@ abstract class AbstractCrudController
         $action->setFields($action->fields()->editable());
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         return $responser->render(
@@ -487,11 +492,6 @@ abstract class AbstractCrudController
         
         $action->setEntity($this->createEntityFromObject($entity));
         
-        // Check if entity can be updated:
-        if ($action instanceof Action\Update && ! $action->isUpdatable($action->entity())) {
-            throw new EntityUnupdatableException($id, $action);
-        }
-        
         // Handle input:
         $action->setInput(new Input(
             array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
@@ -511,6 +511,7 @@ abstract class AbstractCrudController
         $action->setFields($fields);
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
 
         if ($this->isLiveRequest($requester)) {
@@ -603,6 +604,7 @@ abstract class AbstractCrudController
         $action->setFields($action->fields()->creatable());
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         return $responser->render(
@@ -651,6 +653,7 @@ abstract class AbstractCrudController
 
         // Show json:
         if ($requester->input()->get('type') === 'json') {
+            $this->isActionProcessable($action);
             return $responser->json(data: $action->entity()->toArray());
         }
         
@@ -662,6 +665,7 @@ abstract class AbstractCrudController
         $action->setFields($action->fields()->showable());
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         return $responser->render(
@@ -707,11 +711,6 @@ abstract class AbstractCrudController
         }
         
         $action->setEntity($this->createEntityFromObject($entity));
-        
-        // Check if entity can be deleted:
-        if ($action instanceof Action\Delete && ! $action->isDeletable($action->entity())) {
-            throw new EntityUndeletableException($id, $action);
-        }
 
         // Set the configured fields if none specified:
         if ($action->fields()->empty()) {
@@ -719,6 +718,7 @@ abstract class AbstractCrudController
         }
         
         // Process action:
+        $this->isActionProcessable($action);
         $actionProcessor->processAction(action: $action);
         
         // Delete entity:
@@ -837,6 +837,26 @@ abstract class AbstractCrudController
     public function deleteEntity(int|string $id, EntityInterface $entity): void
     {
         $this->repository()->deleteById(id: $id);
+    }
+    
+    /**
+     * Determines if action is processable.
+     *
+     * @param ActionInterface $action
+     * @return void
+     * @throws \Throwable
+     */
+    public function isActionProcessable(ActionInterface $action): void
+    {
+        // Check if entity can be updated:
+        if ($action instanceof Action\Update && ! $action->isUpdatable($action->entity())) {
+            throw new EntityUnupdatableException($action->entity()->id(), $action);
+        }
+        
+        // Check if entity can be deleted:
+        if ($action instanceof Action\Delete && ! $action->isDeletable($action->entity())) {
+            throw new EntityUndeletableException($action->entity()->id(), $action);
+        }
     }
     
     /**
