@@ -33,6 +33,7 @@ class ShowTest extends AbstractAction
         $this->controllerTests(new Action\Show());
         $this->actionsTests(new Action\Show());
         $this->inputTests(new Action\Show());
+        $this->valueTests(new Action\Show());
     }
     
     public function testDefaultAction()

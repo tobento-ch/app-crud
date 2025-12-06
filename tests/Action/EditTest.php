@@ -33,6 +33,7 @@ class EditTest extends AbstractAction
         $this->controllerTests(new Action\Edit());
         $this->actionsTests(new Action\Edit());
         $this->inputTests(new Action\Edit());
+        $this->valueTests(new Action\Edit());
     }
     
     public function testDefaultAction()

@@ -34,6 +34,7 @@ class BulkTreeUpdateTest extends AbstractAction
         $this->controllerTests(new Action\BulkTreeUpdate());
         $this->actionsTests(new Action\BulkTreeUpdate());
         $this->inputTests(new Action\BulkTreeUpdate());
+        $this->valueTests(new Action\BulkTreeUpdate());
         $this->assertFalse(new Action\BulkTreeUpdate()->displayButton());
     }
     

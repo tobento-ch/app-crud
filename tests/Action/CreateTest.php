@@ -33,6 +33,7 @@ class CreateTest extends AbstractAction
         $this->controllerTests(new Action\Create());
         $this->actionsTests(new Action\Create());
         $this->inputTests(new Action\Create());
+        $this->valueTests(new Action\Create());
     }
     
     public function testDefaultAction()

@@ -34,6 +34,7 @@ class IndexTest extends AbstractAction
         $this->controllerTests(new Action\Index());
         $this->actionsTests(new Action\Index());
         $this->inputTests(new Action\Index());
+        $this->valueTests(new Action\Index());
     }
     
     public function testDefaultAction()

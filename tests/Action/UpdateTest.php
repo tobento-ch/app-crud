@@ -33,6 +33,7 @@ class UpdateTest extends AbstractAction
         $this->controllerTests(new Action\Update());
         $this->actionsTests(new Action\Update());
         $this->inputTests(new Action\Update());
+        $this->valueTests(new Action\Update());
     }
     
     public function testDefaultAction()

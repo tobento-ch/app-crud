@@ -33,6 +33,7 @@ class StoreTest extends AbstractAction
         $this->controllerTests(new Action\Store());
         $this->actionsTests(new Action\Store());
         $this->inputTests(new Action\Store());
+        $this->valueTests(new Action\Store());
     }
     
     public function testDefaultAction()
