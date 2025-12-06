@@ -60,8 +60,23 @@ const live = (function(window, document) {
                     replaces.forEach(selector => {
                         const newEl = doc.querySelector(selector);
                         const oldEl = document.querySelector(selector);
+                        
                         if (newEl && oldEl) {
                             oldEl.parentNode.replaceChild(newEl, oldEl);
+                            return;
+                        }
+                        
+                        if (oldEl && newEl === null) {
+                            oldEl.remove();
+                            return;
+                        }
+                        
+                        if (newEl && oldEl === null) {
+                            if (newEl.previousElementSibling) {
+                                document.querySelector('[data-field="'+newEl.previousElementSibling.getAttribute('data-field')+'"]').after(newEl);
+                            } else if (newEl.nextElementSibling) {
+                                document.querySelector('[data-field="'+newEl.nextElementSibling.getAttribute('data-field')+'"]').before(newEl);
+                            }
                         }
                     });
                     
