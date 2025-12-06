@@ -13,13 +13,17 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Filter;
 
+use Psr\Container\ContainerInterface;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action\Index;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
+use Tobento\Service\Autowire\Autowire;
 use Tobento\Service\Collection\Arr;
+use Tobento\Service\HelperFunction\Functions;
+use Tobento\Service\View\ViewInterface;
 
 /**
  * Fields filter factory
@@ -163,7 +167,7 @@ class Fields
                 continue;
             }
             
-            if ($filter = $this->createFilterForField($field)) {
+            if ($filter = $this->createFilterForField($field, action: $action)) {
                 $filters[] = $filter;
             }
         }
@@ -175,9 +179,11 @@ class Fields
      * Returns the created filter for the given field.
      *
      * @param FieldInterface $field
+     * @param ActionInterface $action
      * @return null|FilterInterface
+     * @psalm-suppress UndefinedInterfaceMethod
      */
-    protected function createFilterForField(FieldInterface $field): null|FilterInterface
+    protected function createFilterForField(FieldInterface $field, ActionInterface $action): null|FilterInterface
     {
         $name = $field->name();
         $label = $field->label();
@@ -186,6 +192,8 @@ class Fields
             ($field instanceof Field\Select && !$field->isMultipleSelection())
             || $field instanceof Field\Radios
         ) {
+            $field = $this->resolveField(field: $field, action: $action);
+            
             return new Select(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
                 ->group($this->group)
                 ->options($field->getOptions())
@@ -198,11 +206,45 @@ class Fields
             ($field instanceof Field\Select && $field->isMultipleSelection())
             || $field instanceof Field\Checkboxes
         ) {
+            $field = $this->resolveField(field: $field, action: $action);
+            
             return new Select(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
                 ->group($this->group)
                 ->options($field->getOptions())
                 ->comparison('contains')
                 ->attributes(['aria-label' => $label])
+                ->open($this->open);
+        }
+        
+        if ($field instanceof Field\SingleOptions) {
+            return new Options(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
+                ->group($this->group)
+                ->repository($field->rawRepository())
+                ->toOption(function(object $item, ViewInterface $view) use ($field): Field\Option {        
+                    return $field->createOption(item: $item, view: $view, field: $field, action: 'index');
+                })
+                ->baseWhere($field->getBaseWhere())
+                ->limit($field->getLimit())
+                ->storeColumn($field->getStoreColumn())
+                ->searchColumns(...$field->getSearchColumns())
+                ->placeholder($field->getPlaceholder())
+                ->comparison('=')
+                ->open($this->open);
+        }
+        
+        if ($field instanceof Field\Options) {
+            return new Options(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
+                ->group($this->group)
+                ->repository($field->rawRepository())
+                ->toOption(function(object $item, ViewInterface $view) use ($field): Field\Option {        
+                    return $field->createOption(item: $item, view: $view, field: $field, action: 'index');
+                })
+                ->baseWhere($field->getBaseWhere())
+                ->limit($field->getLimit())
+                ->storeColumn($field->getStoreColumn())
+                ->searchColumns(...$field->getSearchColumns())
+                ->placeholder($field->getPlaceholder())
+                ->comparison('contains')
                 ->open($this->open);
         }
         
@@ -214,6 +256,33 @@ class Fields
             ->open($this->open);
     }
     
+    /**
+     * Resolves field
+     *
+     * @param FieldInterface $field
+     * @param ActionInterface $action
+     * @return FieldInterface
+     */
+    protected function resolveField(FieldInterface $field, ActionInterface $action): FieldInterface
+    {
+        if (! Functions::has(ContainerInterface::class)) {
+            return $field;
+        }
+        
+        $autowire = new Autowire(Functions::get(ContainerInterface::class));
+        
+        foreach($field->getResolve() as $resolve) {
+            if ($resolve->supportsAction($action->name())) {
+                $resolve->resolved(
+                    field: $field,
+                    value: $autowire->call($resolve->callable(), ['action' => $action, 'field' => $field])
+                );
+            }
+        }
+        
+        return $field;
+    }
+
     /**
      * Converts dots to JSON syntax.
      *
