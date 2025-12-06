@@ -14,13 +14,29 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Test\Filter;
 
 use PHPUnit\Framework\TestCase;
+use Tobento\App\Crud\Filter;
 use Tobento\App\Crud\Filter\Fields;
 use Tobento\App\Crud\Filter\Input;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
+use Tobento\Service\Repository\RepositoryInterface;
+use Tobento\Service\Repository\Storage\Column;
+use Tobento\Service\View\ViewInterface;
 
 class FieldsTest extends TestCase
 {
+    protected function createRepository(): RepositoryInterface
+    {
+        return Factory::createStorageRepository(
+            table: 'users',
+            columns: [
+                new Column\Id(),
+                new Column\Text('name'),
+                new Column\Text('type'),
+            ],
+        );
+    }
+    
     public function testToFilterMethodReturnsNoneIfNoFieldsSpecified()
     {
         $this->assertSame([], new Fields()->toFilters());
@@ -188,5 +204,55 @@ class FieldsTest extends TestCase
         
         $rendered = $filter->render(Factory::createView());
         $this->assertStringContainsString('<select aria-label="LABEL" id="filter_field_color" name="filter[field][color]">', $rendered);
+    }
+    
+    public function testRendersOptionsFilterIfSingleOptionsField()
+    {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'red']);
+        $repo->create(['name' => 'blue']);
+        
+        $fields = new Fields()
+            ->fields(new Field\Fields(
+                new Field\SingleOptions(name: 'name')
+                    ->repository($repo)
+                    ->toOption(function(object $item, ViewInterface $view, Field\SingleOptions $options): Field\Option {        
+                        return new Field\Option(
+                            value: (string)$item->get('id'),
+                            text: (string)$item->get('name'),
+                        );
+                    })
+            ));
+        
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+        
+        $this->assertInstanceof(Filter\Options::class, $filter);
+        $this->assertSame('=', $filter->getComparison());
+    }
+    
+    public function testRendersOptionsFilterIfOptionsField()
+    {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'red']);
+        $repo->create(['name' => 'blue']);
+        
+        $fields = new Fields()
+            ->fields(new Field\Fields(
+                new Field\Options(name: 'name')
+                    ->repository($repo)
+                    ->toOption(function(object $item, ViewInterface $view, Field\Options $options): Field\Option {        
+                        return new Field\Option(
+                            value: (string)$item->get('id'),
+                            text: (string)$item->get('name'),
+                        );
+                    })
+            ));
+        
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+        
+        $this->assertInstanceof(Filter\Options::class, $filter);
+        $this->assertSame('contains', $filter->getComparison());
     }
 }
