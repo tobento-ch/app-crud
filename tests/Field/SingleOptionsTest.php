@@ -17,6 +17,7 @@ use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Entity\Entities;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\Input;
@@ -73,10 +74,26 @@ class SingleOptionsTest extends AbstractField
     
     public function testProcessIndex()
     {
+        $repo = $this->createRepository();
+        $repo->create(['name' => 'red']);
+        $repo->create(['name' => 'blue']);
+
         $field = new Field\SingleOptions(name: 'color')
-            ->setEntity(new Entity(['color' => 'red']));
+            ->repository($repo)
+            ->toOption(function(object $item, ViewInterface $view, Field\SingleOptions $options): Field\Option {        
+                return new Field\Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('name'),
+                );
+            })
+            ->setEntity(new Entity(['color' =>'1']));
         
-        $field->processIndex(field: $field);
+        $action = new Action\Index()->setEntities(new Entities([
+            new Entity(['id' => 1, 'color' => '1']),
+            new Entity(['id' => 2, 'color' => '2']),
+        ]));
+        
+        $field->processIndexAction(action: $action, field: $field, view: Factory::createView());
         
         $this->assertStringContainsString('red', $field->render());
     }
@@ -275,6 +292,21 @@ class SingleOptionsTest extends AbstractField
             $field->render()
         );
     }
+    
+    public function testProcessCreateEditWithHidden()
+    {
+        $field = new Field\SingleOptions(name: 'foo.bar')
+            ->hidden()
+            ->repository($this->createRepository());
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertSame('', $field->render());
+    }    
     
     public function testProcessSave()
     {

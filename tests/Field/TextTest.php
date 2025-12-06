@@ -132,6 +132,13 @@ class TextTest extends AbstractField
         $this->assertStringContainsString('<input name="name[en]" id="name_en" type="text" value="EN">', $field->render());
     }
     
+    public function testProcessCreateEditWithHidden()
+    {
+        $field = new Field\Text(name: 'name')->hidden();
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
+        $this->assertSame('', $field->render());
+    }    
+    
     public function testFormatValueShowAction()
     {
         $field = new Field\Text(name: 'name')

@@ -277,6 +277,21 @@ class SelectTest extends AbstractField
         );
     }
     
+    public function testProcessCreateEditWithHidden()
+    {
+        $field = new Field\Select(name: 'name')
+            ->hidden()
+            ->options(['blue' => 'Blue', 'red' => 'Red']);
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertSame('', $field->render());
+    }
+    
     public function testProcessSave()
     {
         $field = new Field\Select(name: 'color');

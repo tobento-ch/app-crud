@@ -116,6 +116,25 @@ class ItemsTest extends AbstractField
         $this->assertStringContainsString('Add new item', $rendered);
     }
     
+    public function testProcessCreateWithHidden()
+    {
+        $field = new Field\Items(name: 'name')
+            ->hidden()
+            ->fields(
+                new Field\Text('price_net', 'Price Net')
+                    ->type('number')
+                    ->attributes(['step' => 'any'])
+                    ->validate('decimal'),
+            );
+        
+        $action = new Action\Create()->setFields(new Field\Fields($field));
+        $actionProcessor = Factory::createActionProcessor();
+        $actionProcessor->processFields(action: $action);
+        $rendered = $action->fields()->get(name: $field->name())->render();
+        
+        $this->assertSame('', $rendered);
+    }    
+    
     public function testProcessCreateWithDefaultItems()
     {
         $field = new Field\Items(name: 'name')

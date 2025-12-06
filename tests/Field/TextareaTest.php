@@ -67,6 +67,13 @@ class TextareaTest extends AbstractField
         $this->assertStringContainsString('<textarea name="name[en]" id="name_en">Foo</textarea>', $field->render());
     }
     
+    public function testProcessCreateEditWithHidden()
+    {
+        $field = new Field\Textarea(name: 'name')->hidden()->setEntity(new Entity(['name' => 'Foo']));
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
+        $this->assertSame('', $field->render());
+    }
+    
     public function testCustomAttributesAreRendered()
     {
         $field = new Field\Textarea(name: 'name')

@@ -86,6 +86,21 @@ class CheckboxesTest extends AbstractField
         );
     }
     
+    public function testProcessCreateEditWithHidden()
+    {
+        $field = new Field\Checkboxes(name: 'name')
+            ->hidden()
+            ->options(['blue' => 'Blue', 'red' => 'Red']);
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertSame('', $field->render());
+    }
+    
     public function testProcessCreateEditUsingClosureOptions()
     {
         $field = new Field\Checkboxes(name: 'name')

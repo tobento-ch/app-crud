@@ -65,4 +65,11 @@ class HtmlTest extends AbstractField
         $field->processRender(field: $field, app: new AppFactory()->createApp());
         $this->assertSame('<p>foo</p>', $field->render());
     }
+    
+    public function testProcessRenderMethodWithHidden()
+    {
+        $field = new Field\Html(name: 'name')->hidden()->content(html: '<p>foo</p>');
+        $field->processRender(field: $field, app: new AppFactory()->createApp());
+        $this->assertSame('', $field->render());
+    }
 }

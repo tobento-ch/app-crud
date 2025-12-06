@@ -297,6 +297,21 @@ class OptionsTest extends AbstractField
         );
     }
     
+    public function testProcessCreateEditWithHidden()
+    {
+        $field = new Field\Options(name: 'foo.bar')
+            ->hidden()
+            ->repository($this->createRepository());
+        
+        $field->processCreateEdit(
+            action: new Action\Edit(),
+            field: $field,
+            view: Factory::createView(),
+        );
+        
+        $this->assertSame('', $field->render());
+    }
+    
     public function testProcessSave()
     {
         $field = new Field\Options(name: 'color');

@@ -287,6 +287,17 @@ class SlugTest extends AbstractField
         );
     }
     
+    public function testWithHidden()
+    {
+        $field = new Field\Slug(name: 'name')
+            ->hidden()
+            ->setEntity(new Entity(['name' => 'Foo']))
+            ->attributes(['data-foo' => ['foo'], 'required']);
+        
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
+        $this->assertSame('', $field->render());
+    }
+    
     public function testCustomSlugifierUsingString()
     {
         $field = new Field\Slug(name: 'name')->slugifier('foo');
