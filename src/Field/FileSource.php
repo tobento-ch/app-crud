@@ -81,6 +81,16 @@ class FileSource extends AbstractField
     protected null|int $maxFileSizeInKb = null;
     
     /**
+     * @var bool
+     */
+    protected bool $fileRequired = false;
+    
+    /**
+     * @var bool
+     */
+    protected bool $fileExists = false;
+    
+    /**
      * @var null|callable
      */
     protected $validator = null;
@@ -286,6 +296,33 @@ class FileSource extends AbstractField
     {
         $this->maxFileSizeInKb = $kb;
         return $this;
+    }
+    
+    /**
+     * Returns the accept attribute for the input field.
+     *
+     * @param bool $required
+     * @return static $this
+     */
+    public function required(bool $required = true): static
+    {
+        $this->fileRequired = $required;
+        return $this;
+    }
+    
+    /**
+     * Returns true if has required validation rule, otherwise false.
+     *
+     * @param mixed $rules
+     * @return bool
+     */
+    protected function hasRequiredValidationRule(mixed $rules): bool
+    {
+        if ($this->fileRequired) {
+            return true;
+        }
+        
+        return parent::hasRequiredValidationRule($rules);
     }
     
     /**
@@ -543,6 +580,8 @@ class FileSource extends AbstractField
         StoragesInterface $storages,
         UploadedFileFactoryInterface $uploadedFileFactory
     ): void {
+        $this->fileExists = $field->entity()->get($field->name(), '') === '' ? false : true;
+        
         if (! $input->has($field->name())) {
             return;
         }
@@ -978,7 +1017,9 @@ class FileSource extends AbstractField
                 $uploadedFiles = is_array($value) ? $value : [$value];
                 $validator = $this->configureValidator();
                 $valid = true;
-
+                
+                $totalFiles = $this->fileExists ? 1 : 0;
+                
                 foreach($uploadedFiles as $file) {
                     try {
                         if ($file instanceof UploadErrorException) {
@@ -990,6 +1031,8 @@ class FileSource extends AbstractField
                         }
 
                         $validator->validateUploadedFile($file);
+                        
+                        $totalFiles++;
                     } catch (UploadException $e) {
                         if (
                             $e instanceof UploadedFileException
@@ -1007,6 +1050,16 @@ class FileSource extends AbstractField
                         
                         $valid = false;
                     }
+                }
+                
+                if ($this->fileRequired && $totalFiles === 0) {
+                    $validation->errors()->add(
+                        level: 'error',
+                        message: 'The :attribute is required.',
+                        parameters: [':attribute' => $this->label()],
+                        key: $this->name(),
+                    );
+                    return false;
                 }
                 
                 return $valid;
