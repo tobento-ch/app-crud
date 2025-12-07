@@ -19,14 +19,13 @@
                         ) ?>
                     </div>
                     <div class="field-body">
+                        <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
                         <?= $form->textarea(
                             name: $field->name().'.'.$locale,
                             value: $entity->get($field->name(), '', $locale),
                             attributes: $attributes,
                         ) ?>
-                        <?php if ($field->getInfoText(action: $actionName)) { ?>
-                            <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-                        <?php } ?>
+                        <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
                     </div>
                 </div>
             <?php } ?>
@@ -43,14 +42,13 @@
             ) ?>
         </div>
         <div class="field-body">
+            <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
             <?= $form->textarea(
                 name: $field->name(),
                 value: $entity->get($field->name(), ''),
                 attributes: $attributes,
             ) ?>
-            <?php if ($field->getInfoText(action: $actionName)) { ?>
-                <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-            <?php } ?>
+            <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
         </div>
     </div>
 <?php } ?>

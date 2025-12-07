@@ -19,15 +19,14 @@
                         ) ?>
                     </div>
                     <div class="field-body">
+                        <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
                         <?= $form->input(
                             name: $field->name().'.'.$locale,
                             type: $inputType,
                             value: $field->getValue($field, $locale),
                             attributes: $inputAttributes,
                         ) ?>
-                        <?php if ($field->getInfoText(action: $actionName)) { ?>
-                            <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-                        <?php } ?>
+                        <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
                     </div>
                 </div>
             <?php } ?>
@@ -44,15 +43,14 @@
             ) ?>
         </div>
         <div class="field-body">
+            <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
             <?= $form->input(
                 name: $field->name(),
                 type: $inputType,
                 value: $field->getValue($field),
                 attributes: $inputAttributes,
             ) ?>
-            <?php if ($field->getInfoText(action: $actionName)) { ?>
-                <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-            <?php } ?>
+            <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
         </div>
     </div>
 <?php } ?>

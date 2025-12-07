@@ -13,6 +13,7 @@ $form = $view->form();
         ) ?>
     </div>
     <div class="field-body" data-options="<?= $view->esc($field->name()) ?>" data-display-modal="<?= $displayAsModal ? '1' : '' ?>">
+        <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
         <?= $form->getMessage($form->nameToArray($field->name())) ?>
         <div class="crud-select-input-ctn">
             <button
@@ -60,9 +61,7 @@ $form = $view->form();
                 attributes: ['id' => null, 'data-field-input' => ''],
             ),
         ) ?>
-        <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs mt-xs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-        <?php } ?>
+        <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
         
         <?php if ($displayAsModal) { ?>
             <div class="modal modal-single-options top" data-modal='{"id": "<?= $view->esc($field->name()) ?>"}'>

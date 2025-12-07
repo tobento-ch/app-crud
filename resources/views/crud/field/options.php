@@ -37,6 +37,7 @@ $name = $form->nameToArray($field->name().'.');
                 </div>
             <?php } ?>
         </div>
+        <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
         <div class="my-s">
             <?= $form->input(
                 name: 'search.'.$field->name(),
@@ -49,9 +50,7 @@ $name = $form->nameToArray($field->name().'.');
                 ],
             ) ?>
         </div>
-        <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs mt-xs mb-s"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-        <?php } ?>
+        <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
         <div class="crud-options" data-unselected="<?= $view->esc($field->name()) ?>">
             <?= $form->getMessage($form->nameToArray($field->name())) ?>
             <?php foreach($unselectedOptions as $item) { ?>

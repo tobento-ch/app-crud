@@ -19,13 +19,12 @@ $form = $view->form();
         <?php foreach ($filesMessages as $message) { ?>
             <span class="form-message error"><?= $view->esc($message->message()) ?></span>
         <?php } ?>
+        <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
         <?= $form->input(
             name: $field->name().'.src.',
             type: 'file',
             attributes: ['multiple', 'accept' => $field->acceptAttribute()],
         ) ?>
-        <?php if ($field->getInfoText(action: $actionName)) { ?>
-            <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-        <?php } ?>
+        <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
     </div>
 </div>

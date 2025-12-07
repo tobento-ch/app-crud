@@ -6,9 +6,8 @@ $form = $view->form();
     <?php if ($withoutLabel === false && $field->label()) { ?>
         <div class="mb-xs"><?= $view->esc($field->label()) ?></div>
     <?php } ?>
-    <?php if ($field->getInfoText(action: $actionName)) { ?>
-        <p class="text-xxs mb-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-    <?php } ?>
+    <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
+    <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
     <?= $form->getMessage($field->name()); ?>
     <div data-items-items="<?= $view->esc($field->name()) ?>">
         <?php foreach($items as $item) { ?>

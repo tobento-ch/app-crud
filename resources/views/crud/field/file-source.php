@@ -55,15 +55,14 @@ $form = $view->form();
                 </div>
             </div>
         <?php } else { ?>
+            <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
             <?= $form->input(
                 name: $field->name(),
                 type: 'file',
                 attributes: ['accept' => $field->acceptAttribute()],
                 withInput: false,
             ) ?>
-            <?php if ($field->getInfoText(action: $actionName)) { ?>
-                <p class="text-xxs mt-xs"><?= $view->esc($field->getInfoText(action: $actionName)) ?></p>
-            <?php } ?>
+            <?= $view->esc($field->getInfoText(action: $actionName, below: true)) ?>
         <?php } ?>
     </div>
     
