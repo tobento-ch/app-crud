@@ -24,6 +24,8 @@ $form = $view->form();
             >
                 <?php if ($selectedOption) { ?>
                     <div class="crud-select-option"><?= $selectedOption->getHtml() ?></div>
+                <?php } else { ?>
+                    <!-- -->
                 <?php } ?>
             </button>
             <?php if (!$displayAsModal) { ?>
