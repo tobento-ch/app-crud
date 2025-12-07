@@ -229,6 +229,26 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame(null, $this->getCrudRepository()->findById(1)->get('filesrc'));
     }
     
+    public function testStoreActionWithRequiredFailsIfNoFile()
+    {
+        $this->withFileSource(function () {
+            return new Field\FileSource('filesrc')->required();
+        });
+        
+        $fileStorage = $this->fakeFileStorage();
+        $http = $this->fakeHttp();
+        $http->request(method: 'POST', uri: $this->generateStoreUri())->body([
+            'title' => 'foo',
+        ]);
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudFormFieldExists(field: 'filesrc', errorText: 'The filesrc is required.');
+        
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(null, $this->getCrudRepository()->findById(1));
+    }
+    
     public function testStoreActionIgnoresUploadedFileWithErrorNoFile()
     {
         $fileStorage = $this->fakeFileStorage();
