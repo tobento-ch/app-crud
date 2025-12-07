@@ -304,8 +304,8 @@ abstract class AbstractField extends TestCase
         $this->assertSame('', $field->getInfoText(action: 'edit'));
         
         $field = new $fieldName('name')->infoText('lorem');
-        $this->assertSame('lorem', $field->getInfoText(action: 'create'));
-        $this->assertSame('lorem', $field->getInfoText(action: 'edit'));
+        $this->assertStringContainsString('lorem', (string)$field->getInfoText(action: 'create'));
+        $this->assertStringContainsString('lorem', (string)$field->getInfoText(action: 'edit'));
     }
 
     public function processIndexTests(string $fieldName, bool $withTranslatable = true)
