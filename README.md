@@ -13,6 +13,7 @@ A simple app CRUD.
         - [Create Controller](#create-controller)
             - [Entity Mapping](#entity-mapping)
             - [Entity Actions](#entity-actions)
+            - [Processable Actions](#processable-actions)
         - [Configure Fields](#configure-fields)
         - [Configure Actions](#configure-actions)
         - [Configure Filters](#configure-filters)
@@ -21,6 +22,7 @@ A simple app CRUD.
     - [Crud Write Repository](#crud-write-repository)
     - [Fields](#fields)
         - [Build in Fields](#build-in-fields)
+            - [Buttons Field](#buttons-field)
             - [Checkboxes Field](#checkboxes-field)
             - [File Field](#file-field)
             - [Files Field](#files-field)
@@ -42,8 +44,9 @@ A simple app CRUD.
         - [Validate Field](#validate-field)
         - [Translatable Field](#translatable-field)
         - [Unstorable Field](#unstorable-field)
-        - [Readonly And Disabled Field](#readonly-and-disabled-field)
+        - [Readonly, Disabled and Hidden Field](#readonly-disabled-and-hidden-field)
         - [Formatting Field Value](#formatting-field-value)
+        - [Retrieve Field Value](#retrieve-field-value)
         - [Live Field](#live-field)
         - [Field Grouping](#field-grouping)
         - [Field Texts](#field-texts)
@@ -89,6 +92,7 @@ A simple app CRUD.
             - [Locale Filter](#locale-filter)
             - [Menu Filter](#menu-filter)
             - [Modal Button Filter](#modal-button-filter)
+            - [Options Filter](#options-filter)
             - [Pagination Filter](#pagination-filter)
             - [Pagination Items Per Page Filter](#pagination-items-per-page-filter)
             - [Radios Filter](#radios-filter)
@@ -103,6 +107,7 @@ A simple app CRUD.
         - [Create Resource Type](#create-resource-type)
         - [Create Controller Supporting Resource Types](#create-controller-supporting-resource-types)
         - [Configure Resource Types](#configure-resource-types)
+    - [HTML Message](#html-message)
     - [Security](#security)
     - [Testing](#testing)
         - [Crud Controller Testing](#crud-controller-testing)
@@ -425,6 +430,34 @@ class ProductsController extends AbstractCrudController
 }
 ```
 
+#### Processable Actions
+
+You can override the ```isActionProcessable``` method to define whether a given action should be allowed to run.
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Action\ActionInterface;
+
+class ProductsController extends AbstractCrudController
+{
+    /**
+     * Determines if action is processable.
+     *
+     * @param ActionInterface $action
+     * @return void
+     * @throws \Throwable
+     */
+    public function isActionProcessable(ActionInterface $action): void
+    {
+        if ($action->name() === 'edit') {
+            throw new \Tobento\App\Http\Exception\ForbiddenException();
+        }
+        
+        parent::isActionProcessable(action: $action);
+    }
+}
+```
+
 ### Configure Fields
 
 Use the ```configureFields``` method to configure any fields using the [Build in Fields](#build-in-fields) or creating your custom fields.
@@ -738,6 +771,39 @@ $repository = $repository->onlyActions('store', 'update');
 
 ### Build in Fields
 
+#### Buttons Field
+
+The ```Buttons``` field lets you render and manage a collection of interactive buttons directly within your form, complementing the built-in [actions](#actions). Each button can be tailored with custom attributes, behaviors, and styling options.
+
+```php
+use Tobento\App\Crud\Field;
+
+new Field\Buttons(name: 'btns')
+    ->buttons(
+        new Button\Button(label: 'Save', group: 'entity')
+            ->name('save')
+            ->attr(name: 'name', value: 'next_action')
+            ->attr(name: 'value', value: 'edit')
+            ->attr(name: 'data-loading', value: 'true')
+            ->ajaxAction('Record saved successfully.')
+            ->primary(),
+        new Button\Button(label: 'Save & Close', group: 'entity')
+            ->name('close')
+            ->attr(name: 'data-loading', value: 'true')
+            ->ajaxAction(),
+    )
+    
+    // Alignment options:
+    ->alignLeft() // default if none is set.
+    ->alignRight()
+    ->alignCenter()
+    
+    // Render buttons as a field layout:
+    ->displayAsField();
+```
+
+For more details on configuration and linking, see the [Buttons](#buttons) section in the documentation.
+
 #### Checkboxes Field
 
 The checkboxes field displays a list of checkboxes using the specified options.
@@ -1011,7 +1077,10 @@ new Field\FileSource('image')
     ->allowedExtensions('jpg', 'png')
     
     // you may set max file size in KB:
-    ->maxFileSizeInKb(1000); // or null unlimited (default)
+    ->maxFileSizeInKb(1000) // or null unlimited (default)
+    
+    // you may set the file as required:
+    ->required();
 ```
 
 If you need more control validating files, use the ```validator``` method:
@@ -2257,7 +2326,7 @@ All locales are supported as defined in the [Language Config](https://github.com
 
 ### Unstorable Field
 
-When you set a field as unstorable using the ```storable``` method, the field gets not saved.
+You can mark a field as unstorable using the ```storable``` method. An unstorable field will not be persisted when saving, except in a [bulk edit action](##bulk-edit-action) where the field is explicitly defined.
 
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
@@ -2273,9 +2342,11 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
 }
 ```
 
-### Readonly And Disabled Field
+### Readonly, Disabled and Hidden Field
 
-You may set a field as readonly or disabled which will be automatically an [unstorable field](#unstorable-field).
+**readonly**
+
+You can mark a field as readonly, which makes the form element not mutable and automatically treats it as an [unstorable field](#unstorable-field).
 
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
@@ -2298,8 +2369,25 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
                     return true;
                 },
                 action: 'edit|update'
-            )
-            
+            ),
+    ];
+}
+```
+
+**disabled**
+
+You can mark a field as disabled, which makes the form element not mutable, focusable, or even submitted with the form and automatically treats it as an [unstorable field](#unstorable-field).
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    return [
+        new Field\Text(name: 'foo')
             ->disabled()
             
             // or you may set only for specific actions:
@@ -2311,7 +2399,37 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
                     return true;
                 },
                 action: 'edit|update'
-            )
+            ),
+    ];
+}
+```
+
+**hidden**
+
+A hidden field will not appear in the rendered form. However, unless you also mark it as [unstorable](#unstorable-field), users may still send modified values. If the field is storable, it will still undergo [validation](#validate-field).
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    return [
+        new Field\Text(name: 'foo')
+            ->hidden()
+            
+            // or you may set only for specific actions:
+            ->hidden(action: 'edit')
+            
+            // or you may use a closure (parameters are resolved by autowiring):
+            ->hidden(
+                hidden: function (ActionInterface $action, FieldInterface $field): bool {
+                    return true;
+                },
+                action: 'edit'
+            ),
     ];
 }
 ```
@@ -2444,6 +2562,42 @@ new Field\Text(name: 'foo')
             arrayToJson: true, // false default
         )
     );
+```
+
+### Retrieve Field Value
+
+The action's ```value``` method retrieves a field value from the request input when available, or else uses the entity's value, and finally the default.
+
+In the example below, the ```date_scheduled``` field is displayed only when the ```status``` is set to ```scheduled```:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    // At this stage only input values are available, as field data has not yet been processed:
+    $statusValue = $action->value(field: 'status', default: 'draft');
+    
+    yield new Field\Select(name: 'status')
+        ->options(['draft' => 'Draft', 'scheduled' => 'Scheduled' , 'published' => 'Published'])
+        ->live(fields: ['date_scheduled']);
+        
+    yield new Field\Text(name: 'date_scheduled')
+        ->type('datetime-local')
+        ->hidden(function(ActionInterface $action, Field\Text $field): bool {
+            // Show only when status is "scheduled"
+            if ($action->value(field: 'status') === 'scheduled') {
+                return false;
+            }
+            
+            // Otherwise hide and mark as unstorable
+            $field->storable(false);
+            return true;
+        });
+}
 ```
 
 ### Live Field
@@ -2667,30 +2821,41 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
 
 **```infoText```**
 
-You may specify an info text:
+The infoText method allows you to attach informational text to a field. This text can be static, contextual, or even rendered with custom HTML.
 
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Html\Message;
 use Tobento\Service\Support\HtmlString;
 
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
     return [
         new Field\Text(name: 'foo')
+            // Simple info text:
             ->infoText('Some info ...')
-            // same as:
+            // Equivalent with explicit parameters:
             ->infoText(text: 'Some info ...', action: 'create|edit')
             
-            // or using different text per action:
+            // Different text depending on the action:
             ->infoText(text: 'Some info ...', action: 'edit')
             
-            // you may pass HTML (make sure it is properly escaped):
-            ->infoText(new HtmlString('html')),
+            // By default, text is rendered below the form element.
+            // You can render it above instead:
+            ->infoText(text: 'Some info ...', below: false)
+            
+            // Pass HTML content (ensure it is properly escaped):
+            ->infoText(new HtmlString('html'))
+            
+            // Or use the Message class for advanced formatting:
+            ->infoText(new Message(title: 'Lorem', info: true)),
     ];
 }
 ```
+
+For more advanced usage, see the [HTML Message](#html-message) class.
 
 ### Field Resolving
 
@@ -4323,6 +4488,95 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
 }
 ```
 
+#### Options Filter
+
+The options filter displays searchable options to choose a single option from using the defined repository. If you have only a few options, you may consider using the [Select Filter](#select-filter) instead. 
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\Option;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter;
+use Tobento\Service\Repository\RepositoryInterface;
+use Tobento\Service\View\ViewInterface;
+
+protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+{
+    return [
+        new Filter\Options(name: 'categories', field: 'category')
+            ->repository(CategoriesRepository::class) // class-string|RepositoryInterface
+            
+            // creating options:
+            ->toOption(function(object $item, ViewInterface $view, Filter\Options $options): Option {        
+                return new Option(
+                    value: (string)$item->get('id'),
+                    text: (string)$item->get('title'),
+                );
+            })
+            // or using option methods:
+            ->toOption(function(object $item, ViewInterface $view, Filter\Options $options): Option {        
+                return new Option(value: (string)$item->get('id'))
+                    ->text((string)$item->get('title'))
+                    ->text((string)$item->get('sku'))
+                    ->html('html') // must be escaped!
+                    ->image(
+                        image: $item->get('image', []),
+                        view: $view,
+                    );
+            })
+            
+            // you may add base where queries:
+            ->baseWhere(['type' => 'blog'])
+    
+            // you may change the limit of the searchable options to be displayed:
+            ->limit(15) // default is 25
+    
+            // you may change the column value stored:
+            ->storeColumn('sku') // 'id' is default
+    
+            // you may change the search columns:
+            ->searchColumns('title', 'sku') // 'title' is default
+            
+            // you may define a placeholder text for the serach input element:
+            ->placeholder(text: 'Search categories')
+            
+            // you may set the default selected value:
+            ->selected('blue')
+            
+            // you may change the comparison:
+            ->comparison('like') // = (default)
+            // '=', '!=', '>', '<', '>=', '<=', '<>', '<=>', 'like', 'not like', 'contains'
+            
+            // hide on default:
+            ->open(false)
+            
+            // display above table (default):
+            ->group('header')
+            
+            // display below table:
+            ->group('footer')
+            
+            // display in modal:
+            ->group('modal')
+            
+            // display in the aside area:
+            ->group('aside')
+            
+            // display in table at the field:
+            ->group('field')
+            
+            // you may set a label:
+            ->label('Colors')
+            
+            // you may set a description:
+            ->description('Lorem ipsum')
+            
+            // you may set a custom view:
+            ->view('custom/crud/filter'),
+    ];
+}
+```
+
 #### Pagination Filter
 
 Adds pagination for the items.
@@ -5013,6 +5267,104 @@ $app->on(
         $types->add(new AnotherArticleType());
     }
 );
+```
+
+## HTML Message
+
+You can use the ```Message``` class to attach informational text to fields, or render it directly with the [HTML field](html-field).
+
+```php
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Html\Message;
+
+yield new Field\Text(name: 'foo')
+    ->infoText(new Message(
+        title: 'Lorem',
+    ));
+    
+yield new Field\Html('bar')
+    ->content(new Message(
+        title: 'Lorem',
+    ));
+```
+
+**Available Message Parameters**
+
+The ```Message``` class supports several parameters for customizing its output:
+
+```php
+use Tobento\App\Crud\Html\Message;
+use Tobento\Service\Support\HtmlString;
+
+$message = new Message(
+    // Add a title:
+    title: 'Lorem',
+    // Or render custom HTML:
+    title: new HtmlString('<h4>Lorem</h4>'),
+    
+    // Add text content:
+    text: 'Lorem ipsum',
+    // Or render custom HTML:
+    text: new HtmlString('<p>Lorem</p>'),
+    
+    // Add a list of items:
+    list: ['Draft', 'Published'],
+    
+    // Add a keyed list of items:
+    keyedList: [
+        'Draft' => 'Lorem ...',
+        'Published' => 'Lorem ...',
+    ],
+    
+    // Add a summary text, displayed inside a HTML <details> element:
+    summary: 'Lorem ipsum',
+    
+    // If summary is set, you may open the <details> by default:
+    open: true,
+    
+    // Add a custom icon:
+    icon: new HtmlString('<svg>...</svg>'),
+    
+    // Render the message as an alert box by setting one of these:
+    success: true,
+    warning: true,
+    danger: true,
+    info: true,
+    
+    // Add custom HTML attributes:
+    attributes: ['class' => 'foo'],
+    
+    // Render the message using a field layout:
+    displayAsField: true,
+);
+```
+
+**Fluent API Example**
+
+```php
+use Tobento\App\Crud\Html\Message;
+use Tobento\Service\Support\HtmlString;
+
+$message = new Message()
+    ->title('Lorem')
+    ->text('Lorem')
+    ->list(['Draft', 'Published'])
+    ->keyedList([
+        'Draft' => 'Lorem ...',
+        'Published' => 'Lorem ...',
+    ])
+    ->summary('Lorem')
+    ->open()
+    ->icon(new HtmlString('<svg>...</svg>'))
+    
+    // Alerts:
+    ->success()
+    ->warning()
+    ->danger()
+    ->info()
+    
+    ->attributes(['class' => 'foo'])
+    ->displayAsField()
 ```
 
 ## Security
