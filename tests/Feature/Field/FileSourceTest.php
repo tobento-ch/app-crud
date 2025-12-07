@@ -229,26 +229,6 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame(null, $this->getCrudRepository()->findById(1)->get('filesrc'));
     }
     
-    public function testStoreActionWithRequiredFailsIfNoFile()
-    {
-        $this->withFileSource(function () {
-            return new Field\FileSource('filesrc')->required();
-        });
-        
-        $fileStorage = $this->fakeFileStorage();
-        $http = $this->fakeHttp();
-        $http->request(method: 'POST', uri: $this->generateStoreUri())->body([
-            'title' => 'foo',
-        ]);
-        
-        $http->followRedirects()
-            ->assertStatus(200)
-            ->assertCrudFormFieldExists(field: 'filesrc', errorText: 'The filesrc is required.');
-        
-        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
-        $this->assertSame(null, $this->getCrudRepository()->findById(1));
-    }
-    
     public function testStoreActionIgnoresUploadedFileWithErrorNoFile()
     {
         $fileStorage = $this->fakeFileStorage();
@@ -292,6 +272,28 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->followRedirects()
             ->assertStatus(200)
             ->assertCrudFormFieldExists(field: 'filesrc', errorText: 'The uploaded file is invalid.');
+        
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(null, $this->getCrudRepository()->findById(1));
+    }
+    
+    public function testStoreActionFailsWithRequiredIfNoFile()
+    {
+        $this->withFileSource(function () {
+            return new Field\FileSource('filesrc', 'filesrc')->required();
+        });
+        
+        $fileStorage = $this->fakeFileStorage();
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateCreateUri());
+        $http->request(method: 'POST', uri: $this->generateStoreUri())->body([
+            'title' => 'foo',
+            'filesrc' => $http->getFileFactory()->createFile('nofile')->setError(4),
+        ]);
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudFormFieldExists(field: 'filesrc', errorText: 'The filesrc is required.');
         
         $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
         $this->assertSame(null, $this->getCrudRepository()->findById(1));
