@@ -17,6 +17,8 @@ use Stringable;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\InputInterface;
+use Tobento\Service\Support\HtmlString;
+use Tobento\Service\Support\Htmlable;
 use Tobento\Service\Support\Str;
 use Tobento\Service\Validation\Html\HtmlAttributesFactory;
 use Tobento\Service\View\ViewInterface;
@@ -135,7 +137,12 @@ abstract class AbstractField implements FieldInterface
     /**
      * @var array<string, string|Stringable>
      */
-    protected array $infoTexts = [];
+    protected array $infoTextsAbove = [];
+    
+    /**
+     * @var array<string, string|Stringable>
+     */
+    protected array $infoTextsBelow = [];
     
     /**
      * @var array
@@ -221,12 +228,12 @@ abstract class AbstractField implements FieldInterface
     /**
      * Sets the html.
      *
-     * @param string $html
+     * @param string|Stringable $html
      * @return static $this
      */
-    public function html(string $html): static
+    public function html(string|Stringable $html): static
     {
-        $this->html = $html;
+        $this->html = (string)$html;
         return $this;
     }
 
@@ -893,12 +900,21 @@ abstract class AbstractField implements FieldInterface
      *
      * @param string|Stringable $text
      * @param string $action
+     * @param bool $below
      * @return static $this
      */
-    public function infoText(string|Stringable $text, string $action = 'create|edit'): static
+    public function infoText(string|Stringable $text, string $action = 'create|edit', bool $below = true): static
     {
+        if ($below) {
+            foreach(explode('|', $action) as $actionName) {
+                $this->infoTextsBelow[$actionName] = $text;
+            }
+            
+            return $this;
+        }
+        
         foreach(explode('|', $action) as $actionName) {
-            $this->infoTexts[$actionName] = $text;
+            $this->infoTextsAbove[$actionName] = $text;
         }
         
         return $this;
@@ -908,11 +924,28 @@ abstract class AbstractField implements FieldInterface
      * Returns the info text.
      *
      * @param string $action
+     * @param bool $below
      * @return string|Stringable
      */
-    public function getInfoText(string $action): string|Stringable
+    public function getInfoText(string $action, bool $below = true): string|Stringable
     {
-        return $this->infoTexts[$action] ?? '';
+        $infoTexts = $below ? $this->infoTextsBelow : $this->infoTextsAbove;
+        
+        $text = $infoTexts[$action] ?? '';
+        
+        if ($text instanceof Htmlable) {
+            return $text;
+        }
+        
+        $text = (string)$text;
+        
+        if ($text === '') {
+            return '';
+        }
+        
+        $margin = $below ? 'mt-xs' : 'mb-xs';
+        
+        return new HtmlString('<p class="text-xxs '.$margin.'">'.Str::esc($text).'</p>');
     }
     
     /**
