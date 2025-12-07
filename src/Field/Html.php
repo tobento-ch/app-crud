@@ -13,20 +13,18 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field;
 
+use Stringable;
 use Tobento\App\AppInterface;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Input\InputInterface;
 
-/**
- * Html
- */
 class Html extends AbstractField
 {
     use Traits\Hidden;
     
     /**
-     * @var callable|string
+     * @var callable|string|Stringable
      */
     protected $content = '';
     
@@ -49,10 +47,10 @@ class Html extends AbstractField
     /**
      * Sets the html content.
      *
-     * @param callable|string $html Must be escaped.
+     * @param callable|string|Stringable $html Must be escaped.
      * @return static $this
      */
-    public function content(callable|string $html): static
+    public function content(callable|string|Stringable $html): static
     {
         $this->content = $html;
         return $this;
@@ -61,9 +59,9 @@ class Html extends AbstractField
     /**
      * Returns the html content.
      *
-     * @return callable|string
+     * @return callable|string|Stringable
      */
-    public function getContent(): callable|string
+    public function getContent(): callable|string|Stringable
     {
         return $this->content;
     }
