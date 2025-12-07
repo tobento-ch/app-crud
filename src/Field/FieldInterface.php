@@ -375,17 +375,19 @@ interface FieldInterface
      *
      * @param string|Stringable $text
      * @param string $action
+     * @param bool $below
      * @return static $this
      */
-    public function infoText(string|Stringable $text, string $action = 'create|edit'): static;
+    public function infoText(string|Stringable $text, string $action = 'create|edit', bool $below = true): static;
     
     /**
      * Returns the info text.
      *
      * @param string $action
+     * @param bool $below
      * @return string|Stringable
      */
-    public function getInfoText(string $action): string|Stringable;
+    public function getInfoText(string $action, bool $below = true): string|Stringable;
     
     /**
      * Sets whether the field is readonly.
