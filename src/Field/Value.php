@@ -116,7 +116,11 @@ class Value extends AbstractField
      */
     public function processShow(FieldInterface $field, ViewInterface $view): void
     {
-        $value = $field->entity()->get($field->name(), '', $field->locale());
+        if (! $this->hasValueFormatter(action: 'show')) {
+            $this->formatValue(formatter: new Field\Formatter\Str(trimWidth: 100, arrayToJson: true), action: 'show');
+        }
+        
+        $value = $field->entity()->get(name: $field->name(), locale: $field->locale());
         
         $value = $this->formattingValue(action: 'show', value: $value, field: $field);
 
