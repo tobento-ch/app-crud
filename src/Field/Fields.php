@@ -16,6 +16,7 @@ namespace Tobento\App\Crud\Field;
 use Traversable;
 use ArrayIterator;
 use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\Service\Iterable\Iter;
 
 /**
  * Fields
@@ -36,6 +37,21 @@ class Fields implements FieldsInterface
         FieldInterface ...$fields,
     ) {
         $this->addFields($fields);
+    }
+    
+    /**
+     * Create fields from iterable.
+     *
+     * @param iterable<FieldInterface> $fields
+     * @return static
+     */
+    public static function fromIterable(iterable $fields): static
+    {
+        if ($fields instanceof FieldsInterface) {
+            return $fields;
+        }
+        
+        return new Fields(...Iter::toArray($fields));
     }
 
     /**
