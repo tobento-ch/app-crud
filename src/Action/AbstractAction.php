@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Closure;
+use Psr\Container\ContainerInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Url\HasLinksTo;
 use Tobento\App\Crud\Field\FieldsInterface;
@@ -30,7 +32,6 @@ use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Translation\TranslatorInterface;
-use Closure;
 
 /**
  * AbstractAction
@@ -69,6 +70,11 @@ abstract class AbstractAction implements ActionInterface
      * @var null|AbstractCrudController
      */
     protected null|AbstractCrudController $controller = null;
+    
+    /**
+     * @var null|ContainerInterface
+     */
+    protected null|ContainerInterface $container = null;
     
     /**
      * @var null|ActionsInterface
@@ -484,6 +490,32 @@ abstract class AbstractAction implements ActionInterface
         }
         
         throw new \LogicException('Controller is not set!');
+    }
+    
+    /**
+     * Sets the container.
+     *
+     * @param ContainerInterface $container
+     * @return static $this
+     */
+    public function setContainer(ContainerInterface $container): static
+    {
+        $this->container = $container;
+        return $this;
+    }
+    
+    /**
+     * Returns the container.
+     *
+     * @return ContainerInterface
+     */
+    public function container(): ContainerInterface
+    {
+        if (!is_null($this->container)) {
+            return $this->container;
+        }
+        
+        throw new \LogicException('Container is not set!');
     }
     
     /**

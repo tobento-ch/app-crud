@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Closure;
+use Psr\Container\ContainerInterface;
 use Tobento\App\Crud\Url\Linkable;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Field\FieldsInterface;
@@ -23,7 +25,6 @@ use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Translation\TranslatorInterface;
-use Closure;
 
 /**
  * ActionInterface
@@ -237,6 +238,21 @@ interface ActionInterface extends Linkable
      * @return AbstractCrudController
      */
     public function controller(): AbstractCrudController;
+    
+    /**
+     * Sets the container.
+     *
+     * @param ContainerInterface $container
+     * @return static $this
+     */
+    public function setContainer(ContainerInterface $container): static;
+    
+    /**
+     * Returns the container.
+     *
+     * @return ContainerInterface
+     */
+    public function container(): ContainerInterface;
     
     /**
      * Sets the actions.
