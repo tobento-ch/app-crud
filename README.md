@@ -2038,6 +2038,41 @@ use Tobento\App\Crud\Field;
 new Field\Text(name: 'title')->attributes(['data-foo' => 'value']);
 ```
 
+**Prefix and Suffix**
+
+You can attach text or markup before and after an input field by using the ```prefix``` and ```suffix``` methods:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field;
+use Tobento\Service\Support\HtmlString;
+
+// Basic usage:
+new Field\Text(name: 'domain')
+    ->prefix('https://')
+    ->suffix('.com');
+
+new Field\Text(name: 'title')
+    // With additional attributes:
+    ->prefix(text: 'https://', attributes: ['class' => 'background-gray-300'])
+    
+    // Using HTML markup:
+    ->prefix(text: new HtmlString('<a href="foo">Foo</a>'))
+    
+    // Restricting to a specific action:
+    ->prefix(text: 'https://', action: 'create')
+
+    // Using a closure (dependencies are auto-resolved):
+    ->prefix(
+        text: function (ActionInterface $action, FieldInterface $field): string {
+            return 'dynamic';
+        },
+    );
+```
+
+Everything shown for ```prefix``` - attributes, HTML markup, action‑specific usage, or closures - works the same way for suffix as well.
+
 #### Textarea Field
 
 The textarea field will be rendered as an ```textarea``` element.
