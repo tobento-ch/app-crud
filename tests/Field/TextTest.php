@@ -137,7 +137,14 @@ class TextTest extends AbstractField
         $field = new Field\Text(name: 'name')->hidden();
         $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
         $this->assertSame('', $field->render());
-    }    
+    }
+    
+    public function testProcessCreateEditWithPrefixAndSuffix()
+    {
+        $field = new Field\Text(name: 'name')->prefix('prefix')->suffix('suffix');
+        $field->processCreateEdit(action: new Action\Edit(), field: $field, view: Factory::createView());
+        $this->assertStringContainsString('<div class="input-wrap"><div class="prefix">prefix</div><input name="name" id="name" type="text" value><div class="suffix">suffix</div></div>', $field->render());
+    }
     
     public function testFormatValueShowAction()
     {
