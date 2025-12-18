@@ -246,11 +246,11 @@ class Message implements Htmlable, Stringable
                 continue;
             }
             
-            $this->html .= '<div class="title">';
+            $this->html .= '<div>';
             $this->html .= Str::esc($key);
             $this->html .= '</div>';
             
-            $this->html .= '<div class="mb-s">';
+            $this->html .= '<div class="title mb-s">';
             $this->html .= Str::esc($item);
             $this->html .= '</div>';
         }
