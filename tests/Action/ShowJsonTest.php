@@ -31,6 +31,7 @@ class ShowJsonTest extends AbstractAction
         $this->entitiesTests(new Action\ShowJson());
         $this->entityTests(new Action\ShowJson());
         $this->controllerTests(new Action\ShowJson());
+        $this->containerTests(new Action\ShowJson());
         $this->actionsTests(new Action\ShowJson());
         $this->inputTests(new Action\ShowJson());
     }

@@ -33,6 +33,7 @@ use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\App\Crud\Input\Input;
 use Tobento\App\Crud\AbstractCrudController;
+use Tobento\Service\Container\Container;
 use Closure;
 
 abstract class AbstractAction extends TestCase
@@ -153,6 +154,14 @@ abstract class AbstractAction extends TestCase
         
         $action->setController($controller);
         $this->assertSame($controller, $action->controller());
+    }
+    
+    public function containerTests(ActionInterface $action)
+    {
+        $container = new Container();
+        
+        $action->setContainer($container);
+        $this->assertSame($container, $action->container());
     }
     
     public function actionsTests(ActionInterface $action)

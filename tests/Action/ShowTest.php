@@ -31,6 +31,7 @@ class ShowTest extends AbstractAction
         $this->entitiesTests(new Action\Show());
         $this->entityTests(new Action\Show());
         $this->controllerTests(new Action\Show());
+        $this->containerTests(new Action\Show());
         $this->actionsTests(new Action\Show());
         $this->inputTests(new Action\Show());
         $this->valueTests(new Action\Show());

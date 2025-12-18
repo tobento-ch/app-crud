@@ -32,6 +32,7 @@ class BulkEditTest extends AbstractAction
         $this->entitiesTests(new Action\BulkEdit(name: 'edit-status'));
         $this->entityTests(new Action\BulkEdit(name: 'edit-status'));
         $this->controllerTests(new Action\BulkEdit(name: 'edit-status'));
+        $this->containerTests(new Action\BulkEdit(name: 'edit-status'));
         $this->actionsTests(new Action\BulkEdit(name: 'edit-status'));
         $this->inputTests(new Action\BulkEdit(name: 'edit-status'));
         $this->assertTrue(new Action\BulkDelete()->displayButton());

@@ -31,6 +31,7 @@ class EditTest extends AbstractAction
         $this->entitiesTests(new Action\Edit());
         $this->entityTests(new Action\Edit());
         $this->controllerTests(new Action\Edit());
+        $this->containerTests(new Action\Edit());
         $this->actionsTests(new Action\Edit());
         $this->inputTests(new Action\Edit());
         $this->valueTests(new Action\Edit());

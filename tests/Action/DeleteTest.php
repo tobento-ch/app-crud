@@ -31,7 +31,7 @@ class DeleteTest extends AbstractAction
         $this->entitiesTests(new Action\Delete());
         $this->entityTests(new Action\Delete());
         $this->controllerTests(new Action\Delete());
-        $this->actionsTests(new Action\Delete());
+        $this->controllerTests(new Action\Delete());$this->actionsTests(new Action\Delete());
         $this->inputTests(new Action\Delete());
         $this->valueTests(new Action\Delete());
     }

@@ -31,6 +31,7 @@ class CreateTest extends AbstractAction
         $this->entitiesTests(new Action\Create());
         $this->entityTests(new Action\Create());
         $this->controllerTests(new Action\Create());
+        $this->containerTests(new Action\Create());
         $this->actionsTests(new Action\Create());
         $this->inputTests(new Action\Create());
         $this->valueTests(new Action\Create());

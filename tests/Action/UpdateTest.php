@@ -31,6 +31,7 @@ class UpdateTest extends AbstractAction
         $this->entitiesTests(new Action\Update());
         $this->entityTests(new Action\Update());
         $this->controllerTests(new Action\Update());
+        $this->containerTests(new Action\Update());
         $this->actionsTests(new Action\Update());
         $this->inputTests(new Action\Update());
         $this->valueTests(new Action\Update());

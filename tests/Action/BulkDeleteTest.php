@@ -32,6 +32,7 @@ class BulkDeleteTest extends AbstractAction
         $this->entitiesTests(new Action\BulkDelete());
         $this->entityTests(new Action\BulkDelete());
         $this->controllerTests(new Action\BulkDelete());
+        $this->containerTests(new Action\BulkDelete());
         $this->actionsTests(new Action\BulkDelete());
         $this->inputTests(new Action\BulkDelete());
         $this->valueTests(new Action\BulkDelete());

@@ -32,6 +32,7 @@ class IndexTest extends AbstractAction
         $this->entitiesTests(new Action\Index());
         $this->entityTests(new Action\Index());
         $this->controllerTests(new Action\Index());
+        $this->containerTests(new Action\Index());
         $this->actionsTests(new Action\Index());
         $this->inputTests(new Action\Index());
         $this->valueTests(new Action\Index());

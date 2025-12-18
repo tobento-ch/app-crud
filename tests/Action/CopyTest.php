@@ -31,6 +31,7 @@ class CopyTest extends AbstractAction
         $this->entitiesTests(new Action\Copy());
         $this->entityTests(new Action\Copy());
         $this->controllerTests(new Action\Copy());
+        $this->containerTests(new Action\Copy());
         $this->actionsTests(new Action\Copy());
         $this->inputTests(new Action\Copy());
         $this->valueTests(new Action\Copy());
