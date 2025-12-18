@@ -116,7 +116,7 @@ class ButtonsTest extends AbstractField
     
     public function testProcessRenderMethodDisplayAsField()
     {
-        $field = new Field\Buttons(name: 'name')
+        $field = new Field\Buttons(name: 'name', label: 'Label')
             ->buttons(
                 new Button\Button(label: 'Save', group: 'entity')
                     ->name('save'),
@@ -131,6 +131,7 @@ class ButtonsTest extends AbstractField
         );
         
         $rendered = $field->render();
+        $this->assertStringContainsString('<div class="field-label">Label</div>', $rendered);
         $this->assertStringContainsString('<div class="field field-crud" data-field="name">', $rendered);
         $this->assertStringContainsString('<div class="left crud-buttons">', $rendered);
     }
