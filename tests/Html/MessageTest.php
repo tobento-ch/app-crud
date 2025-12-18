@@ -83,7 +83,7 @@ class MessageTest extends TestCase
     {
         $msg = new Message(keyedList: ['foo' => 'Foo', 'bar' => 'Bar']);
         $this->assertSame(
-            '<div class="crud-message"><div class="crud-message-body"><div class="text-xs"><div class="title">foo</div><div class="mb-s">Foo</div><div class="title">bar</div><div class="mb-s">Bar</div></div></div></div>',
+            '<div class="crud-message"><div class="crud-message-body"><div class="text-xs"><div>foo</div><div class="title mb-s">Foo</div><div>bar</div><div class="title mb-s">Bar</div></div></div></div>',
             (string)$msg
         );
     }
@@ -200,7 +200,7 @@ class MessageTest extends TestCase
     {
         $msg = new Message(text: 'Text')->keyedList(items: ['foo' => 'Foo'], attributes: ['class' => 'my-m']);
         $this->assertSame(
-            '<div class="crud-message"><div class="crud-message-body"><p class="text-xs">Text</p><div class="my-m"><div class="title">foo</div><div class="mb-s">Foo</div></div></div></div>',
+            '<div class="crud-message"><div class="crud-message-body"><p class="text-xs">Text</p><div class="my-m"><div>foo</div><div class="title mb-s">Foo</div></div></div></div>',
             (string)$msg
         );
     }
