@@ -46,11 +46,14 @@ class Buttons extends AbstractField
      * Create a new Html instance.
      *
      * @param string $name
+     * @param null|string $label
      */
     final public function __construct(
         string $name,
+        null|string $label = null,
     ) {
         $this->name = $name;
+        $this->label = $label;
         $this->process('create|edit|index|show', [$this, 'processRender']);
         $this->indexable(false);
         $this->storable(false);
@@ -137,6 +140,16 @@ class Buttons extends AbstractField
     {
         $this->displayAsField = $field;
         return $this;
+    }
+    
+    /**
+     * Returns the label.
+     *
+     * @return string
+     */
+    public function label(): string
+    {
+        return (string)$this->label;
     }
     
     /**
