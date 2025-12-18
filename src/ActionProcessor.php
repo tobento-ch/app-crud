@@ -75,6 +75,8 @@ class ActionProcessor implements ActionProcessorInterface
      */
     public function preprocessAction(ActionInterface $action): void
     {
+        $action->setContainer($this->autowire->container());
+        
         if ($this->translator) {
             $action->setTranslator($this->translator);
         }
@@ -105,6 +107,7 @@ class ActionProcessor implements ActionProcessorInterface
         // Sets controller:
         foreach($action->actions() as $a) {
             $a->setController($action->controller());
+            $a->setContainer($this->autowire->container());
             $a->locales($action->getLocales());
         }
         
