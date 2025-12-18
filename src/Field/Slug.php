@@ -32,6 +32,7 @@ class Slug extends AbstractField
 {
     use Traits\HasValueFormatter;
     use Traits\Hidden;
+    use Traits\PrefixSuffix;
     
     /**
      * @var null|string

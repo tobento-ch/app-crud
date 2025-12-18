@@ -25,6 +25,7 @@ class Text extends AbstractField implements LiveAwareInterface
     use Traits\HasValueFormatter;
     use Traits\Hidden;
     use Traits\Live;
+    use Traits\PrefixSuffix;
     
     /**
      * @var string
