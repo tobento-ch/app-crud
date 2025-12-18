@@ -22,6 +22,24 @@ use Tobento\App\Crud\Field\FieldsInterface;
 
 class FieldsTest extends TestCase
 {
+    public function testFromIterableMethod()
+    {
+        $fields = Fields::fromIterable([
+            new Field\Text('foo'),
+            new Field\Text('bar'),
+        ]);
+        
+        $this->assertSame(2, $fields->count());
+    }
+    
+    public function testFromIterableMethodReturnsFieldsIfProvided()
+    {
+        $iterable = new Fields();
+        $fields = Fields::fromIterable($iterable);
+        
+        $this->assertTrue($iterable === $fields);
+    }
+    
     public function testConstructorMethod()
     {
         $fields = new Fields();
