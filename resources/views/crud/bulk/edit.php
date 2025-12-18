@@ -8,7 +8,7 @@ $field = $action->field();
         <?= $form->form(['action' => $action->getUrl()]) ?>
         <div class="modal-body" data-bulk-ajax-refresh="<?= $view->esc($field->name()) ?>">
             <?php foreach($action->fields()->column('groupName', 'groupId') as $groupId => $groupName) { ?>
-                <section class="fields">
+                <section class="fields" data-fields-group="<?= $view->esc($groupId) ?>">
                     <h2 class="group-title"><?= $view->esc($groupName) ?></h2>
                     <?php
                     foreach($action->fields()->group($groupName) as $f) {

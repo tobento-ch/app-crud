@@ -62,7 +62,7 @@
             
             <div data-ajax="refresh">
             <?php foreach($action->fields()->column('groupName', 'groupId') as $groupId => $groupName) { ?>
-                <section class="fields">
+                <section class="fields" data-fields-group="<?= $view->esc($groupId) ?>">
                     <a class="fragment" id="<?= $view->esc($groupId) ?>"></a>
                     <h2 class="group-title"><?= $view->esc($groupName) ?></h2>
                     <?php
