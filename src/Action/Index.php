@@ -13,14 +13,17 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Closure;
+use Psr\Http\Message\ResponseInterface;
+use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Button\ButtonsInterface;
 use Tobento\App\Crud\Button\Buttons;
 use Tobento\App\Crud\Button;
-use Closure;
+use Tobento\App\Crud\Entity\Entities;
+use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\FilterProcessorInterface;
+use Tobento\Service\Responser\ResponserInterface;
 
-/**
- * Index
- */
 final class Index extends AbstractAction
 {
     /**
@@ -45,6 +48,80 @@ final class Index extends AbstractAction
     public function name(): string
     {
         return 'index';
+    }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    /**
+     * Handle action.
+     *
+     * @param ActionProcessorInterface $actionProcessor
+     * @param FilterProcessorInterface $filterProcessor
+     * @param ResponserInterface $responser
+     * @return ResponseInterface
+     * @psalm-suppress UndefinedInterfaceMethod
+     */
+    public function handle(
+        ActionProcessorInterface $actionProcessor,
+        FilterProcessorInterface $filterProcessor,
+        ResponserInterface $responser,
+    ): ResponseInterface {
+        $actions = $this->actions();
+        $controller = $this->controller();
+        
+        $actionProcessor->preprocessAction(action: $this);
+        
+        // Set the configured fields if none specified:
+        if ($this->fields()->empty()) {
+            $this->setFields($controller->getConfiguredFields(action: $this));
+        }
+        
+        // Handle filters:
+        if ($this->filters()->empty()) {
+            $this->setFilters($controller->getConfiguredFilters($this));
+        }
+
+        $this->setFilters($filterProcessor->processFilters(filters: $this->filters(), action: $this));
+        
+        // Handle Entities:
+        $entities = new Entities($controller->findEntities($this->filters()));
+        
+        $entities = $entities->map(function(object $item) use ($controller): EntityInterface {
+            return $controller->createEntityFromObject($item);
+        });
+
+        $this->setEntities($entities);
+        
+        // Process action:
+        $controller->isActionProcessable($this);
+        $actionProcessor->processAction(action: $this);
+        
+        // Bulks:
+        $bulkActions = $actions->bulks();
+        
+        foreach($bulkActions as $bulkAction) {
+            $bulkAction->setActions($actions);
+            $bulkAction->setActionProcessor($actionProcessor);
+        }
+        
+        return $responser->render(
+            view: $this->getView(),
+            data: [
+                'action' => $this->setFields($this->fields()->parent(null)),
+                'buttons' => $this->buttons(),
+                'filters' => $this->filters(),
+                'bulkActions' => $bulkActions,
+                'locale' => 'en',
+            ],
+        );
     }
     
     /**

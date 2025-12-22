@@ -13,15 +13,14 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
-use Tobento\App\Crud\Button\ButtonsInterface;
-use Tobento\App\Crud\Button\Buttons;
-use Tobento\App\Crud\Button;
-use Tobento\App\Crud\Entity\EntityInterface;
 use Closure;
+use Psr\Http\Message\ResponseInterface;
+use Tobento\App\Crud\Button;
+use Tobento\App\Crud\Button\Buttons;
+use Tobento\App\Crud\Button\ButtonsInterface;
+use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Exception\ActionNotFoundException;
 
-/**
- * Show
- */
 final class ShowJson extends AbstractAction
 {
     /**
@@ -35,7 +34,7 @@ final class ShowJson extends AbstractAction
         $this->route('{name}.show', function(EntityInterface $entity): array {
             return ['id' => $entity->id(), 'type' => 'json'];
         });
-    }
+    }    
     
     /**
      * Returns the name.
@@ -45,6 +44,26 @@ final class ShowJson extends AbstractAction
     public function name(): string
     {
         return 'show.json';
+    }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    /**
+     * Handle action.
+     *
+     * @return ResponseInterface
+     */
+    public function handle(): ResponseInterface
+    {
+        throw new ActionNotFoundException(actionName: $this->name());
     }
     
     /**

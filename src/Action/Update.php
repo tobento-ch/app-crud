@@ -13,16 +13,22 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Psr\Http\Message\ResponseInterface;
 use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Exception\EntityNotFoundException;
 use Tobento\App\Crud\Exception\ValidationException;
+use Tobento\App\Crud\Input\Input;
+use Tobento\App\Crud\InteractsWithRequestTrait;
+use Tobento\Service\Requester\RequesterInterface;
+use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\Validation\ValidatorInterface;
 
-/**
- * Update
- */
 final class Update extends AbstractAction
 {
+    use InteractsWithRequestTrait;
+    use Traits\HandleNextAction;
+    
     /**
      * @var null|callable(EntityInterface):bool|array<array-key, int|string>
      */
@@ -53,6 +59,110 @@ final class Update extends AbstractAction
     public function name(): string
     {
         return 'update';
+    }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    /**
+     * Handle action.
+     *
+     * @param int|string $id
+     * @param ActionProcessorInterface $actionProcessor
+     * @param RequesterInterface $requester
+     * @param ResponserInterface $responser
+     * @return ResponseInterface
+     */
+    public function handle(
+        int|string $id,
+        ActionProcessorInterface $actionProcessor,
+        RequesterInterface $requester,
+        ResponserInterface $responser,
+    ): ResponseInterface {
+        $actions = $this->actions();
+        $controller = $this->controller();
+
+        $actionProcessor->preprocessAction(action: $this);
+        
+        // Handle entity:
+        $entity = $controller->repository()->findById($id);
+        
+        if ($entity === null) {
+            throw new EntityNotFoundException($id, $this);
+        }
+        
+        $this->setEntity($controller->createEntityFromObject($entity));
+        
+        // Handle input:
+        $this->setInput(new Input(
+            array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
+        ));
+        
+        // Set the configured fields if none specified:
+        if ($this->fields()->empty()) {
+            $this->setFields($controller->getConfiguredFields(action: $this));
+        }
+        
+        $fields = $this->fields()->editable();
+        
+        if ($requester->isAjax() || $this->isLiveRequest($requester)) {
+            $fields = $this->filterRequestedFieldsOnly($requester, $fields);
+        }
+
+        $this->setFields($fields);
+        
+        // Process action:
+        $controller->isActionProcessable($this);
+        $actionProcessor->processAction(action: $this);
+
+        if ($this->isLiveRequest($requester)) {
+            $response = $controller->edit(
+                id: $id,
+                actionProcessor: $actionProcessor,
+                requester: $requester,
+                responser: $responser,
+            );
+            
+            return $responser->json([
+                'status' => $response->getStatusCode(),
+                'html' => (string)$response->getBody(),
+            ]);
+        }
+        
+        // Update entity:
+        $attributes = $this->getInput()
+            ->collection()
+            ->onlyPresent($this->fields()->storable()->getNames())
+            ->all();
+        
+        $updatedItem = $controller->updateEntity($id, $attributes, $this->entity());
+        $entity = $controller->createEntityFromObject($updatedItem);
+        
+        // Process updated fields action:
+        $actionProcessor->processFieldsAction(
+            action: $this,
+            actionName: 'updated',
+            entity: $entity,
+        );
+        
+        if ($requester->wantsJson()) {
+            return $responser->json([
+                'status' => 200,
+                'entity' => $updatedItem->toArray(),
+            ]);
+        }
+        
+        // Handle next action:
+        $this->handleNextAction($this, $actions, $entity, $actionProcessor);
+        
+        return $responser->redirect(uri: $this->getLinkUrl());
     }
     
     /**

@@ -13,23 +13,24 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Closure;
+use Psr\Http\Message\ResponseInterface;
 use Tobento\App\Crud\Action;
+use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
-use Closure;
 use Throwable;
 
-/**
- * BulkEdit
- */
 final class BulkEdit extends AbstractAction implements BulkActionInterface
 {
     use HasActionProcessor;
+    use Traits\HandleBulk;
     
     /**
      * @var array<array-key, string>
@@ -70,6 +71,37 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     public function name(): string
     {
         return $this->name;
+    }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    /**
+     * Handle action.
+     *
+     * @param ActionProcessorInterface $actionProcessor
+     * @param RequesterInterface $requester
+     * @param ResponserInterface $responser
+     * @return ResponseInterface
+     */
+    public function handle(
+        ActionProcessorInterface $actionProcessor,
+        RequesterInterface $requester,
+        ResponserInterface $responser,
+    ): ResponseInterface {
+        return $this->handleBulk(
+            action: $this,
+            actionProcessor: $actionProcessor,
+            requester: $requester,
+            responser: $responser,
+        );
     }
     
     /**
