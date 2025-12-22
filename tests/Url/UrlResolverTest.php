@@ -378,6 +378,11 @@ final class CustomAction extends Action\AbstractAction
         return 'custom';
     }
     
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
     public function setRoute(string $name, array|Closure $parameters = []): static
     {
         $this->route($name, $parameters);
