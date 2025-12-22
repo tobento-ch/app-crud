@@ -66,6 +66,8 @@ A simple app CRUD.
             - [Bulk Delete Action](#bulk-delete-action)
             - [Bulk Edit Action](#bulk-edit-action)
             - [Bulk Tree Update Action](#bulk-tree-update-action)
+        - [Custom Action](#custom-action)
+        - [Dynamic Actions](#dynamic-actions)
         - [Buttons](#buttons)
             - [Creating Buttons](#creating-buttons)
             - [Adding Buttons](#adding-buttons)
@@ -77,7 +79,6 @@ A simple app CRUD.
             - [Confirming Button Action](#confirming-button-action)
             - [AJAX Button Action](#ajax-button-action)
             - [Set Buttons](#set-buttons)
-        - [Custom Action](#custom-action)
     - [Filters](#filters)
         - [Build in Filters](#build-in-filters)
             - [Checkboxes Filter](#checkboxes-filter)
@@ -3378,6 +3379,344 @@ protected function configureActions(): iterable|ActionsInterface
 
 Instead of setting the ```crud/index-tree``` view on the ```Index``` action, you may consider using the [Views Filter](#views-filter) to switch between views.
 
+### Custom Action
+
+You can add custom actions to your CRUD controller to perform operations that are not part of the standard CRUD flow (e.g., viewing an invoice, exporting data, sending emails, etc.).
+
+A custom action consists of:
+- A button that triggers the action
+- An action class (if using linkToAction)
+- A route that points to a controller method
+- The controller method that performs the operation
+    
+**1. Create and Add a Button**
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Button;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    $viewInvoiceBtn = new Button\Link(label: 'View Invoice', group: 'entity')
+        ->name('viewInvoice')
+        // Link to a custom action (requires step 2)
+        ->linkToAction('viewInvoice')
+        // Or link directly to a route (skip step 2)
+        ->linkToRoute('products.invoice.view', function(EntityInterface $entity): array {
+            return ['id' => $entity->id()];
+        });
+        
+    return [
+        new Action\Index(title: 'Products')
+            ->addButton($viewInvoiceBtn),
+        
+        // Add custom action (step 2)
+        new ViewInvoice(),
+        //...
+    ];
+}
+```
+
+**Tip**  
+Use `linkToAction()` when you want the action to appear in the CRUD UI (title, buttons, fields, etc.).  
+Use `linkToRoute()` when you only need a simple link.
+
+**2. Create the Action** (only if using linkToAction)
+
+If your added button links to a custom action using the ```linkToAction``` method, you will need to create the corresponding action, otherwise skip this step:
+
+```php
+use Closure;
+use Psr\Http\Message\ResponseInterface;
+use Tobento\App\Crud\Button;
+use Tobento\App\Crud\Button\Buttons;
+use Tobento\App\Crud\Button\ButtonsInterface;
+use Tobento\App\Crud\Entity\EntityInterface;
+
+final class ViewInvoice extends AbstractAction
+{
+    public function __construct(
+        null|string|Closure $title = null,
+    ) {
+        $this->title = $title;
+        $this->route('{name}.invoice.view', function(EntityInterface $entity): array {
+            return ['id' => $entity->id()];
+        });
+    }
+    
+    public function name(): string
+    {
+        return 'viewInvoice';
+    }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    /**
+     * Handle action.
+     *
+     * @return ResponseInterface
+     */
+    public function handle(): ResponseInterface
+    {
+        throw new \LogicException('The action is handled in the controller');
+    }
+    
+    public function buttons(): ButtonsInterface
+    {
+        if ($this->buttons instanceof ButtonsInterface) {
+            return $this->buttons;
+        }
+        
+        $this->buttons = new Buttons(
+            new Button\Link(label: $this->trans('Back to index'), group: 'entity')
+                ->name('back')
+                ->linkToAction('index'),
+        );
+        
+        return $this->applyButtonsConfig($this->buttons);
+    }
+}
+```
+
+Why does `handle()` throw? Because this action is not processed by the CRUD action processor - it simply forwards to a controller method.
+
+**3. Route the Action to the CRUD Controller**
+
+```php
+use Tobento\Service\Routing\RouterInterface;
+
+// After adding boots
+$app->booting();
+
+$router = $this->app->get(RouterInterface::class);
+
+$name = App\ProductsController::RESOURCE_NAME;
+
+$router->get($name.'/invoice/{id}', [App\ProductsController::class, 'viewInvoice'])
+    ->name($name.'.invoice.view');
+```
+
+You may also route it to a different controller if needed.
+
+**4. Implement the Controller Method**
+
+```php
+use Psr\Http\Message\ResponseInterface;
+use Tobento\App\Crud\AbstractCrudController;
+
+class ProductsController extends AbstractCrudController
+{
+    public function viewInvoice(int|string $id): ResponseInterface
+    {
+        // Your custom logic here
+        return $response;
+    }
+}
+```
+
+### Dynamic Actions
+
+Dynamic actions allow you to define custom operations without manually creating individual routes for each action. Instead, all dynamic actions are handled through a single endpoint on your CRUD controller. This makes it easy to add actions such as `publish`, `revise`, `archive`, and more.
+
+Dynamic actions behave like regular CRUD actions:  
+they can define fields, buttons, views, and a handler, but they are resolved at runtime based on the `{action}` URL segment.  
+The `{action}` value must match the action's name() method.
+
+**1. Enable Dynamic Action Routing**
+
+```php
+use Tobento\App\Boot;
+use Tobento\App\Crud\Boot\Crud;
+
+class RoutesBoot extends Boot
+{
+    public const BOOT = [
+        // you may ensure the crud boot:
+        Crud::class,
+    ];
+    
+    public function boot(Crud $crud)
+    {
+        $route = $crud->routeDynamicAction(
+            controller: App\ProductsController::class,
+            // you may localize the routes:
+            localized: true,
+        );
+        
+        // you may add middlewares for all dynamic routes
+        $route->middleware(SomeMiddleware::class);
+    }
+}
+```
+
+This creates a route like:
+
+```
+products/action/{action}/{?id}
+```
+
+This endpoint accepts all HTTP verbs (GET, POST, PUT, DELETE, ...).
+
+Examples:  
+- `products/action/export`
+- `products/action/revise/7`
+
+Your controller's dynamic() method will receive the action name and ID.
+
+**2. Create a Dynamic Action**
+
+```php
+use Closure;
+use Psr\Http\Message\ResponseInterface;
+use Tobento\App\Crud\ActionProcessorInterface;
+use Tobento\App\Crud\Action\AbstractAction;
+use Tobento\App\Crud\Button;
+use Tobento\App\Crud\Button\Buttons;
+use Tobento\App\Crud\Button\ButtonsInterface;
+use Tobento\App\Crud\Entity\EntityInterface;
+use Tobento\App\Crud\Field;
+use Tobento\Service\Requester\RequesterInterface;
+use Tobento\Service\Responser\ResponserInterface;
+
+final class Revise extends AbstractAction
+{
+    public function __construct(
+        null|string|Closure $title = null,
+    ) {
+        $this->title = $title;
+        $this->route('{name}.dynamic', function(EntityInterface $entity): array {
+            return ['id' => $entity->id(), 'action' => 'revise'];
+        });
+        $this->linkToAction('revise');
+    }
+    
+    public function name(): string
+    {
+        return 'revise';
+    }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    public function handle(
+        int|string $id,
+        ActionProcessorInterface $actionProcessor,
+        RequesterInterface $requester,
+        ResponserInterface $responser,
+    ): ResponseInterface {
+        
+        if (!in_array($requester->method(), ['GET', 'POST'])) {
+            throw new ActionNotFoundException(actionName: $this->name());
+        }
+        
+        if ($requester->method() === 'GET') {
+            // Delegate to the built-in Copy action to reuse its field processors and view
+            $this->fieldActionType('copy');
+
+            $action = new \Tobento\App\Crud\Action\Copy(title: 'Revise');
+            $action->setController($this->controller());
+            $action->setActions($this->actions());
+
+            return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        }
+        
+        // Delegate to the built-in Store action to reuse validation and saving logic
+        $this->fieldActionType('store');
+        
+        $action = new \Tobento\App\Crud\Action\Store();
+        $action->setController($this->controller());
+        $action->setActions($this->actions());
+        
+        $fields = $this->controller()->getConfiguredFields(action: $this);
+
+        $action->setFields(new Field\Fields(
+            new Field\Value(name: 'revision_for_id')->value($id),
+            ...$fields->all(),
+        ));
+        
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+    }
+    
+    public function buttons(): ButtonsInterface
+    {
+        if ($this->buttons instanceof ButtonsInterface) {
+            return $this->buttons;
+        }
+        
+        $this->buttons = new Buttons(
+            new Button\Link(label: $this->trans('Cancel'), group: 'entity')
+                ->name('cancel')
+                ->linkToAction('index'),
+            new Button\Button(label: $this->trans('Save'), group: 'entity')
+                ->name('save')
+                ->attr(name: 'name', value: 'next_action')
+                ->attr(name: 'value', value: 'edit')
+                ->attr(name: 'data-loading', value: 'true')
+                ->ajaxAction()
+                ->primary(),
+        );
+        
+        return $this->applyButtonsConfig($this->buttons);
+    }
+}
+```
+
+`fieldActionType()` tells the field processors which CRUD lifecycle to emulate (e.g., copy, store, update).  
+In this example, GET renders the form (copy) and POST processes it (store).
+
+**3. Register the Dynamic Action in Your Controller**
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Button;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    $reviseBtn = new Button\Link(label: 'Revise', group: 'entity')
+        ->name('revise')
+        ->linkToAction('revise');
+        
+    return [
+        new Action\Index(title: 'Products')
+            ->addButton($reviseBtn),
+        
+        // Add dynamic action
+        new Revise(title: 'Revise'),
+        //...
+    ];
+}
+```
+
+`linkToAction('revise')` ensures the button automatically links to the dynamic action route.
+
+**4. Implement the Controller's Dynamic Method**
+
+Your controller already inherits a `dynamic()` method from AbstractCrudController.  
+You only need to override it if you want custom behavior.  
+Most dynamic actions do not require overriding dynamic().  
+The default implementation resolves the action, prepares the context, and executes the handler.
+
+**Summary**
+
+Dynamic actions let you extend your CRUD controller with custom operations without defining individual routes. They behave like full CRUD actions and integrate seamlessly with fields, buttons, and the action processor.
+
 ### Buttons
 
 All build-in actions have already specified the buttons for linking to other actions. You may configure the buttons by the following methods.
@@ -3698,120 +4037,6 @@ protected function configureActions(): iterable|ActionsInterface
                     ->linkToAction('create'),
             ),
     ];
-}
-```
-
-### Custom Action
-
-You may create a custom action by the following way:
-
-**1. Create And Add Button**
-
-```php
-use Tobento\App\Crud\Action\ActionsInterface;
-use Tobento\App\Crud\Action;
-use Tobento\App\Crud\Button;
-
-protected function configureActions(): iterable|ActionsInterface
-{
-    $viewInvoiceBtn = new Button\Link(label: 'View Invoice', group: 'entity')
-        ->name('viewInvoice')
-        // link to an action:
-        ->linkToAction('viewInvoice')
-        // or link to a route:
-        ->linkToRoute('products.invoice.view', function(EntityInterface $entity): array {
-            return ['id' => $entity->id()];
-        });
-        
-    return [
-        new Action\Index(title: 'Products')
-            ->addButton($viewInvoiceBtn),
-        //...
-    ];
-}
-```
-
-**2. Create Action**
-
-If your added button links to a custom action using the ```linkToAction``` method, you will need to create the corresponding action, otherwise skip this step:
-
-```php
-use Tobento\App\Crud\Button\ButtonsInterface;
-use Tobento\App\Crud\Button\Buttons;
-use Tobento\App\Crud\Button;
-use Tobento\App\Crud\Entity\EntityInterface;
-use Closure;
-
-final class ViewInvoice extends AbstractAction
-{
-    public function __construct(
-        null|string|Closure $title = null,
-    ) {
-        $this->title = $title;
-        $this->route('{name}.invoice.view', function(EntityInterface $entity): array {
-            return ['id' => $entity->id()];
-        });
-    }
-
-    public static function new(null|string|Closure $title = null): static
-    {
-        return new static($title);
-    }
-    
-    public function name(): string
-    {
-        return 'viewInvoice';
-    }
-    
-    public function buttons(): ButtonsInterface
-    {
-        if ($this->buttons instanceof ButtonsInterface) {
-            return $this->buttons;
-        }
-        
-        $this->buttons = new Buttons(
-            new Button\Link(label: $this->trans('Back to index'), group: 'entity')
-                ->name('back')
-                ->linkToAction('index'),
-        );
-        
-        return $this->applyButtonsConfig($this->buttons);
-    }
-}
-```
-
-**3. Route your action to the CRUD controller**
-
-```php
-use Tobento\Service\Routing\RouterInterface;
-
-// After adding boots
-$app->booting();
-
-$router = $this->app->get(RouterInterface::class);
-
-$name = App\ProductsController::RESOURCE_NAME;
-
-// needed if you have configured bulk actions:
-$router->get($name.'/invoice/{id}', [App\ProductsController::class, 'viewInvoice'])
-    ->name($name.'.invoice.view');
-```
-
-Sure, you may route it to a different controller too!
-
-**4. Create your method in the routed controller**
-
-```php
-use Psr\Http\Message\ResponseInterface;
-use Tobento\App\Crud\AbstractCrudController;
-
-class ProductsController extends AbstractCrudController
-{
-    public function viewInvoice(int|string $id): ResponseInterface
-    {
-        // ...
-        return $response;
-    }
 }
 ```
 
