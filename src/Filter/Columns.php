@@ -17,6 +17,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field\Fields;
 use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Input\InputInterface;
+use Tobento\Service\Collection\Arr;
 use Tobento\Service\Tag\Attributes;
 use Tobento\Service\View\ViewInterface;
 
@@ -49,6 +50,16 @@ class Columns extends AbstractFilter
      * @var array<array-key, string>
      */
     protected array $reorderColumns = [];
+    
+    /**
+     * @var null|array<int, string>
+     */
+    protected null|array $only = null;
+    
+    /**
+     * @var null|array<int, string>
+     */
+    protected null|array $except = null;
     
     /**
      * @var bool
@@ -103,6 +114,30 @@ class Columns extends AbstractFilter
     public function reorder(string ...$column)
     {
         $this->reorderColumns = $column;
+        return $this;
+    }
+    
+    /**
+     * Sets the column names to be included.
+     *
+     * @param string ...$name
+     * @return static $this
+     */
+    public function only(string ...$name): static
+    {
+        $this->only = $name;
+        return $this;
+    }
+    
+    /**
+     * Sets the column names to be excluded.
+     *
+     * @param string ...$name
+     * @return static $this
+     */
+    public function except(string ...$name): static
+    {
+        $this->except = $name;
         return $this;
     }
     
@@ -168,6 +203,16 @@ class Columns extends AbstractFilter
         }
         
         $this->fields['actions'] = $this->actionsTitle ?: $action->trans('Actions');
+        
+        if ($this->only !== null) {
+            $this->fields = Arr::onlyPresent($this->fields, $this->only);
+            $this->only = null;
+        }
+
+        if ($this->except !== null) {
+            $this->fields = Arr::except($this->fields, $this->except);
+            $this->except = null;
+        }
         
         if (
             empty($columns)
