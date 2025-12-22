@@ -25,6 +25,7 @@ use Tobento\App\Media;
 use Tobento\App\Media\Upload\UploadedFileFactory;
 use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
 use Tobento\App\Language\RouteLocalizerInterface;
+use Tobento\Service\Routing\RouteInterface;
 use Tobento\Service\Routing\RouterInterface;
 
 /**
@@ -97,13 +98,18 @@ class Crud extends Boot
     }
     
     /**
-     * Route the given crud controller.
+     * Registers the full CRUD route set for the given controller.
      *
-     * @param string|AbstractCrudController $controller
-     * @param array<array-key, string> $only
-     * @param array<array-key, string> $except
-     * @param array $middleware Middleware for all routes
-     * @param bool $localized If to localize routes.
+     * This method defines all standard resource routes (index, create, store,
+     * show, edit, update, delete, bulk) for the controller, including optional
+     * localization, middleware assignment, and selective inclusion or exclusion
+     * of individual CRUD actions.
+     *
+     * @param string|AbstractCrudController $controller The CRUD controller class or instance.
+     * @param array<array-key, string> $only List of CRUD actions to include.
+     * @param array<array-key, string> $except List of CRUD actions to exclude.
+     * @param array $middleware Middleware applied to all generated routes.
+     * @param bool $localized Whether the routes should include an optional locale prefix.
      * @return void
      */
     public function routeController(
@@ -157,5 +163,41 @@ class Crud extends Boot
                 $routeLocalizer->localizeRoute($bulkRoute);
             }
         }
+    }
+    
+    /**
+     * Registers the dynamic action route for the given CRUD controller.
+     *
+     * This creates a single catch‑all endpoint that maps URLs of the form
+     * `{resource}/{action}/{?id}` to the controller's `dynamic()` method,
+     * allowing custom actions to be resolved and executed at runtime.
+     *
+     * @param string|AbstractCrudController $controller The CRUD controller class or instance.
+     * @param bool $localized Whether the route should include an optional locale prefix.
+     * @return RouteInterface The registered dynamic action route.
+     */
+    public function routeDynamicAction(
+        string|AbstractCrudController $controller,
+        bool $localized = false,
+    ): RouteInterface {
+        $router = $this->app->get(RouterInterface::class);
+        $routeLocalizer = $this->app->get(RouteLocalizerInterface::class);
+
+        $name = is_string($controller) ? $controller::RESOURCE_NAME : $controller->resourceName();
+
+        $uri = $localized
+            ? '{?locale}/'.$name.'/action/{action}/{?id}'
+            : $name.'/action/{action}/{?id}';
+        
+        $route = $router->route('*', $uri, [$controller, 'dynamic'])
+            ->where('action', '[a-z-]+')
+            ->where('id', '[a-z0-9]+')
+            ->name($name.'.dynamic');
+        
+        if ($localized) {
+            $routeLocalizer->localizeRoute($route);
+        }
+        
+        return $route;
     }
 }
