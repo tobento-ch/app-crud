@@ -4204,6 +4204,12 @@ protected function configureFilters(ActionInterface $action): iterable|FiltersIn
             // you may set the default active columns,
             // otherwise the first 5 fields and actions will be used.
             ->default('title', 'date', 'actions')
+
+            // you may display only certain columns:
+            ->only('title', 'date', 'actions')
+            
+            // you may display columns except this specified:
+            ->except('title', 'date')
             
             // you may reorder the columns:
             ->reorder('title', 'date', 'actions')
