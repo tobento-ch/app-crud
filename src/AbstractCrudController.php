@@ -15,34 +15,29 @@ namespace Tobento\App\Crud;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
-use Tobento\Service\Requester\RequesterInterface;
-use Tobento\Service\Responser\ResponserInterface;
-use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action\Actions;
-use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Action\ActionsInterface;
 use Tobento\App\Crud\Action\BulkActionInterface;
-use Tobento\App\Crud\Field\FieldsInterface;
-use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Fields;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
 use Tobento\App\Crud\Filter\FilterInterface;
-use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Filter\Filters;
+use Tobento\App\Crud\Filter\FiltersInterface;
 use Tobento\App\Crud\Entity\Entities;
-use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Entity\Entity;
-use Tobento\App\Crud\Input\Input;
+use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Exception\ActionNotFoundException;
-use Tobento\App\Crud\Exception\EntityNotFoundException;
 use Tobento\App\Crud\Exception\EntityUndeletableException;
 use Tobento\App\Crud\Exception\EntityUnupdatableException;
-use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Iterable\Iter;
+use Tobento\Service\Repository\RepositoryInterface;
+use Tobento\Service\Requester\RequesterInterface;
+use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\Support\Arrayable;
 
-/**
- * AbstractCrudController
- */
 abstract class AbstractCrudController
 {
     use InteractsWithRequestTrait;
@@ -153,7 +148,6 @@ abstract class AbstractCrudController
         FilterProcessorInterface $filterProcessor,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
         $actions = $this->getConfiguredActions();
         $action = $actions->get(name: 'index');
 
@@ -163,51 +157,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        // Handle filters:
-        if ($action->filters()->empty()) {
-            $action->setFilters($this->getConfiguredFilters($action));
-        }
-
-        $action->setFilters($filterProcessor->processFilters(filters: $action->filters(), action: $action));
-        
-        // Handle Entities:
-        $entities = new Entities($this->findEntities($action->filters()));
-        
-        $entities = $entities->map(function(object $item): EntityInterface {
-            return $this->createEntityFromObject($item);
-        });
-
-        $action->setEntities($entities);
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        // Bulks:
-        $bulkActions = $actions->bulks();
-        
-        foreach($bulkActions as $bulkAction) {
-            $bulkAction->setActions($actions);
-            $bulkAction->setActionProcessor($actionProcessor);
-        }
-        
-        return $responser->render(
-            view: $action->getView(),
-            data: [
-                'action' => $action->setFields($action->fields()->parent(null)),
-                'buttons' => $action->buttons(),
-                'filters' => $action->filters(),
-                'bulkActions' => $bulkActions,
-                'locale' => 'en',
-            ],
-        );
+        return $actionProcessor->call($action->getHandler());
     }
 
     /**
@@ -235,35 +186,8 @@ abstract class AbstractCrudController
 
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        if ($action->name() === 'bulk-delete') {
-            $action->setFields($action->fields());
-        } else {
-            $action->setFields($action->fields()->editable());
-        }
-        
-        $action->setInput(new Input($requester->input()->all()));
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-
-        // Bulk process:
-        $action->setActionProcessor($actionProcessor);
-
-        $response = $actionProcessor->call($action->getBulkProcessAction());
-        
-        if ($response instanceof ResponseInterface) {
-            return $response;
-        }
-
-        return $responser->redirect(uri: $action->getLinkUrl());
+        return $actionProcessor->call($action->getHandler());
     }
 
     /**
@@ -289,31 +213,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle entity:
-        $action->setEntity(new Entity());
-
-        // Handle input:
-        $action->setInput(new Input($requester->input()->all()));
-        
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-
-        $action->setFields($action->fields()->creatable());
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        return $responser->render(
-            view: $action->getView(),
-            data: [
-                'action' => $action->setFields($action->fields()->parent(null)),
-            ],
-        );
+        return $actionProcessor->call($action->getHandler());
     }
     
     /**
@@ -339,64 +240,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle input:
-        $action->setInput(new Input(
-            array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
-        ));
-        
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        $fields = $action->fields()->creatable();
-        
-        if ($this->isLiveRequest($requester)) {
-            $fields = $this->filterRequestedFieldsOnly($requester, $fields);
-        }
-        
-        $action->setFields($fields);
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        if ($this->isLiveRequest($requester)) {
-            $response = $this->create(
-                actionProcessor: $actionProcessor,
-                requester: $requester,
-                responser: $responser,
-            );
-            
-            return $responser->json([
-                'status' => $response->getStatusCode(),
-                'html' => (string)$response->getBody(),
-            ]);
-        }
-        
-        // Create entity:
-        $attributes = $action->getInput()
-            ->collection()
-            ->onlyPresent($action->fields()->storable()->getNames())
-            ->all();
-        
-        $entity = $this->storeEntity($attributes);
-        $entity = $this->createEntityFromObject($entity);
-        
-        // Process stored fields action:
-        $actionProcessor->processFieldsAction(
-            action: $action,
-            actionName: 'stored',
-            entity: $entity,
-        );
-        
-        // Handle next action:
-        $this->handleNextAction($action, $actions, $entity, $actionProcessor);
-        
-        // Return the response:
-        return $responser->redirect(uri: $action->getLinkUrl());
+        return $actionProcessor->call($action->getHandler());
     }
     
     /**
@@ -414,7 +259,6 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
         $actions = $this->getConfiguredActions();
         $action = $actions->get(name: 'edit');
 
@@ -424,37 +268,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle entity:
-        $entity = $this->repository()->findById($id);
-        
-        if ($entity === null) {
-            throw new EntityNotFoundException($id, $action);
-        }
-
-        $action->setEntity($this->createEntityFromObject($entity));
-        
-        // Handle input:
-        $action->setInput(new Input($requester->input()->all()));
-
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        $action->setFields($action->fields()->editable());
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        return $responser->render(
-            view: $action->getView(),
-            data: [
-                'action' => $action->setFields($action->fields()->parent(null)),
-            ],
-        );
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
     }
     
     /**
@@ -471,7 +286,6 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
         $actions = $this->getConfiguredActions();
         $action = $actions->get(name: 'update');
 
@@ -481,80 +295,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle entity:
-        $entity = $this->repository()->findById($id);
-        
-        if ($entity === null) {
-            throw new EntityNotFoundException($id, $action);
-        }
-        
-        $action->setEntity($this->createEntityFromObject($entity));
-        
-        // Handle input:
-        $action->setInput(new Input(
-            array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
-        ));
-        
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        $fields = $action->fields()->editable();
-        
-        if ($requester->isAjax() || $this->isLiveRequest($requester)) {
-            $fields = $this->filterRequestedFieldsOnly($requester, $fields);
-        }
-
-        $action->setFields($fields);
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-
-        if ($this->isLiveRequest($requester)) {
-            $response = $this->edit(
-                id: $id,
-                actionProcessor: $actionProcessor,
-                requester: $requester,
-                responser: $responser,
-            );
-            
-            return $responser->json([
-                'status' => $response->getStatusCode(),
-                'html' => (string)$response->getBody(),
-            ]);
-        }
-        
-        // Update entity:
-        $attributes = $action->getInput()
-            ->collection()
-            ->onlyPresent($action->fields()->storable()->getNames())
-            ->all();
-        
-        $updatedItem = $this->updateEntity($id, $attributes, $action->entity());
-        $entity = $this->createEntityFromObject($updatedItem);
-        
-        // Process updated fields action:
-        $actionProcessor->processFieldsAction(
-            action: $action,
-            actionName: 'updated',
-            entity: $entity,
-        );
-        
-        if ($requester->wantsJson()) {
-            return $responser->json([
-                'status' => 200,
-                'entity' => $updatedItem->toArray(),
-            ]);
-        }
-        
-        // Handle next action:
-        $this->handleNextAction($action, $actions, $entity, $actionProcessor);
-        
-        return $responser->redirect(uri: $action->getLinkUrl());
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
     }
     
     /**
@@ -572,7 +314,6 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
         $actions = $this->getConfiguredActions();
         $action = $actions->get(name: 'copy');
 
@@ -582,37 +323,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle entity:
-        $entity = $this->repository()->findById($id);
-        
-        if ($entity === null) {
-            throw new EntityNotFoundException($id, $action);
-        }
-
-        $action->setEntity($this->createEntityFromObject($entity));
-        
-        // Handle input:
-        $action->setInput(new Input($requester->input()->all()));
-
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        $action->setFields($action->fields()->creatable());
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        return $responser->render(
-            view: $action->getView(),
-            data: [
-                'action' => $action->setFields($action->fields()->parent(null)),
-            ],
-        );
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
     }
     
     /**
@@ -640,40 +352,8 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle entity:
-        $entity = $this->repository()->findById($id);
-        
-        if ($entity === null) {
-            throw new EntityNotFoundException($id, $action);
-        }
-        
-        $action->setEntity($this->createEntityFromObject($entity));
-
-        // Show json:
-        if ($requester->input()->get('type') === 'json') {
-            $this->isActionProcessable($action);
-            return $responser->json(data: $action->entity()->toArray());
-        }
-        
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
-        
-        $action->setFields($action->fields()->showable());
-        
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        return $responser->render(
-            view: $action->getView(),
-            data: [
-                'action' => $action->setFields($action->fields()->parent(null)),
-            ],
-        );
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
     }
     
     /**
@@ -701,36 +381,36 @@ abstract class AbstractCrudController
         
         $action->setController($this);
         $action->setActions($actions);
-        $actionProcessor->preprocessAction(action: $action);
         
-        // Handle entity:
-        $entity = $this->repository()->findById($id);
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+    }
+    
+    /**
+     * Returns the dynamic action response.
+     *
+     * @param string $action
+     * @param null|int|string $id
+     * @param ActionProcessorInterface $actionProcessor
+     * @return ResponseInterface
+     */
+    public function dynamic(
+        string $action,
+        null|int|string $id,
+        ActionProcessorInterface $actionProcessor,
+    ): ResponseInterface {
+        // Get the action:
+        $actionName = $action;
+        $actions = $this->getConfiguredActions();
+        $action = $actions->get(name: $actionName);
         
-        if ($entity === null) {
-            throw new EntityNotFoundException($id, $action);
+        if (is_null($action)) {
+            throw new ActionNotFoundException(actionName: $actionName);
         }
         
-        $action->setEntity($this->createEntityFromObject($entity));
-
-        // Set the configured fields if none specified:
-        if ($action->fields()->empty()) {
-            $action->setFields($this->getConfiguredFields(action: $action));
-        }
+        $action->setController($this);
+        $action->setActions($actions);
         
-        // Process action:
-        $this->isActionProcessable($action);
-        $actionProcessor->processAction(action: $action);
-        
-        // Delete entity:
-        $this->deleteEntity(id: $id, entity: $action->entity());
-        
-        // Process deleted fields action:
-        $actionProcessor->processFieldsAction(
-            action: $action,
-            actionName: 'deleted',
-        );
-        
-        return $responser->redirect(uri: $action->getLinkUrl());
+        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
     }
 
     /**
@@ -856,41 +536,6 @@ abstract class AbstractCrudController
         // Check if entity can be deleted:
         if ($action instanceof Action\Delete && ! $action->isDeletable($action->entity())) {
             throw new EntityUndeletableException($action->entity()->id(), $action);
-        }
-    }
-    
-    /**
-     * Handles the next action.
-     *
-     * @param ActionInterface $action
-     * @param ActionsInterface $actions
-     * @param EntityInterface $entity
-     * @param ActionProcessorInterface $actionProcessor
-     * @return void
-     */
-    protected function handleNextAction(
-        ActionInterface $action,
-        ActionsInterface $actions,
-        EntityInterface $entity,
-        ActionProcessorInterface $actionProcessor,
-    ): void {
-        $nextActionName = $action->getInput()->get('next_action');
-        
-        if (!is_string($nextActionName)) {
-            return;
-        }
-        
-        [$actionName, $buttonName] = array_pad(explode('|', $nextActionName), 2, null);
-        
-        if (!is_null($nextAction = $actions->get(name: $actionName))) {
-            $nextAction->setEntity($entity);
-            $actionProcessor->resolveActionUrls(action: $nextAction);
-            $action->setLinkUrl($nextAction->getUrl());
-            
-            if ($buttonName && !is_null($button = $nextAction->buttons()->get($buttonName))) {
-                $url = $actionProcessor->urlResolver()->resolveButtonUrl($button, $nextAction, $entity);
-                $action->setLinkUrl($url);
-            }
         }
     }
 }
