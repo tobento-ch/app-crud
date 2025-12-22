@@ -106,6 +106,44 @@ class ColumnsTest extends TestCase
         $this->assertSame(['title', 'sku', 'id'], $action->fields()->getNames());
     }
     
+    public function testApplyUsesFieldsOnly()
+    {
+        $filter = new Columns()->only('title', 'sku');
+        
+        $filter->apply(
+            input: new Input(),
+            filters: new Filters(),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
+            )),
+        );
+        
+        $this->assertSame(['columns' => ['title', 'sku']], $filter->getAppliedParameters());
+        $this->assertSame(['title', 'sku'], $filter->columns());
+        $this->assertTrue($filter->isActive());
+    }
+    
+    public function testApplyUsesFieldsExcept()
+    {
+        $filter = new Columns()->except('title', 'sku');
+        
+        $filter->apply(
+            input: new Input(),
+            filters: new Filters(),
+            action: new Index()->setFields(new Fields(
+                new Field\Text(name: 'id'),
+                new Field\Text(name: 'sku'),
+                new Field\Text(name: 'title'),
+            )),
+        );
+        
+        $this->assertSame(['columns' => ['id', 'actions']], $filter->getAppliedParameters());
+        $this->assertSame(['id', 'actions'], $filter->columns());
+        $this->assertTrue($filter->isActive());
+    }
+    
     public function testApplyReordersFieldsFromInput()
     {
         $filter = new Columns()->reorder('title', 'sku');
