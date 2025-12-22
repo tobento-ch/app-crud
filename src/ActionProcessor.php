@@ -179,7 +179,7 @@ class ActionProcessor implements ActionProcessorInterface
         // Process resolve first:
         foreach($fields as $field) {
             foreach($field->getResolve() as $resolve) {
-                if ($resolve->supportsAction($action->name())) {
+                if ($resolve->supportsAction($action->getFieldActionType())) {
                     $resolve->resolved(
                         field: $field,
                         value: $this->call($resolve->callable(), ['action' => $action, 'field' => $field])
@@ -211,8 +211,8 @@ class ActionProcessor implements ActionProcessorInterface
         null|string $actionName = null,
         null|EntityInterface $entity = null,
     ): void {
-        $actionName = $actionName ?: $action->name();
-
+        $actionName = $actionName ?: $action->getFieldActionType();
+        
         foreach($action->fields() as $field) {
             
             if ($entity) {
