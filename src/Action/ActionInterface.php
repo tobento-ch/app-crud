@@ -36,7 +36,14 @@ interface ActionInterface extends Linkable
      *
      * @return string
      */
-    public function name(): string;
+    public function name(): string;    
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    public function getHandler(): callable;
     
     /**
      * Returns the title.
@@ -171,6 +178,21 @@ interface ActionInterface extends Linkable
      * @return FieldsInterface
      */
     public function fields(): FieldsInterface;
+    
+    /**
+     * Sets the field action type. E.g. 'update', 'create', etc.
+     *
+     * @param string $type
+     * @return static
+     */
+    public function fieldActionType(string $type): static;
+    
+    /**
+     * Returns the field action type. E.g. 'update', 'create', etc.
+     *
+     * @return string
+     */
+    public function getFieldActionType(): string;
     
     /**
      * Returns the fields actions.

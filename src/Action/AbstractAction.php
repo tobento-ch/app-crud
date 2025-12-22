@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Action;
 
 use Closure;
+use LogicException;
 use Psr\Container\ContainerInterface;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Crud\Url\HasLinksTo;
@@ -33,9 +34,6 @@ use Tobento\App\Crud\Input\InputInterface;
 use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Translation\TranslatorInterface;
 
-/**
- * AbstractAction
- */
 abstract class AbstractAction implements ActionInterface
 {
     use HasLinksTo;
@@ -45,6 +43,11 @@ abstract class AbstractAction implements ActionInterface
      * @var null|FieldsInterface
      */
     protected null|FieldsInterface $fields = null;
+    
+    /**
+     * @var null|string
+     */
+    protected null|string $fieldActionType = null;
     
     /**
      * @var null|FiltersInterface
@@ -148,6 +151,13 @@ abstract class AbstractAction implements ActionInterface
     ) {
         $this->title = $title;
     }
+    
+    /**
+     * Returns the handler processing the action.
+     *
+     * @return callable(mixed...): \Psr\Http\Message\ResponseInterface
+     */
+    abstract public function getHandler(): callable;
     
     /**
      * Returns the title.
@@ -379,6 +389,28 @@ abstract class AbstractAction implements ActionInterface
     }
     
     /**
+     * Sets the field action type. E.g. 'update', 'create', etc.
+     *
+     * @param string $type
+     * @return static
+     */
+    public function fieldActionType(string $type): static
+    {
+        $this->fieldActionType = $type;
+        return $this;
+    }
+    
+    /**
+     * Returns the field action type. E.g. 'update', 'create', etc.
+     *
+     * @return string
+     */
+    public function getFieldActionType(): string
+    {
+        return !is_null($this->fieldActionType) ? $this->fieldActionType : $this->name();
+    }
+    
+    /**
      * Returns the fields actions.
      *
      * @return array<string, callable>
@@ -489,7 +521,7 @@ abstract class AbstractAction implements ActionInterface
             return $this->controller;
         }
         
-        throw new \LogicException('Controller is not set!');
+        throw new LogicException('Controller is not set!');
     }
     
     /**
