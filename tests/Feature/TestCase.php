@@ -40,6 +40,7 @@ abstract class TestCase extends \Tobento\App\Crud\Testing\AbstractCrudTestCase
         $app->set('crudController', $controller);
         
         $app->get(Crud::class)->routeController($controller);
+        $app->get(Crud::class)->routeDynamicAction($controller);
         return $app;
     }
 
