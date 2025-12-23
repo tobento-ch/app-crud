@@ -15,7 +15,7 @@ namespace Tobento\App\Crud;
 
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
-use Tobento\App\Crud\Field\ParentFieldsAwareInterface;
+use Tobento\App\Crud\Field\FieldsAwareInterface;
 use Tobento\Service\Requester\RequesterInterface;
 
 trait InteractsWithRequestTrait
@@ -31,11 +31,25 @@ trait InteractsWithRequestTrait
     {
         $inputKeys = $requester->input()->keys()->all();
         $inputKeys = array_merge($inputKeys, array_keys($requester->request()->getUploadedFiles()));
-        
-        return $fields->filter(
-            fn (FieldInterface $f): bool
-            => $f instanceof ParentFieldsAwareInterface || in_array(explode('.', $f->name())[0], $inputKeys)
-        );
+
+        return $fields->filter(function(FieldInterface $f) use ($inputKeys) {
+
+            $name = $f->name();
+            $root = explode('.', $name)[0];
+
+            // 1. Keep parent fields only if they exist in the request
+            if ($f instanceof FieldsAwareInterface) {
+                return in_array($root, $inputKeys);
+            }
+
+            // 2. Keep children only if their parent exists in the request
+            if (in_array($root, $inputKeys)) {
+                return true;
+            }
+
+            // 3. Keep direct fields that exist in the request
+            return in_array($name, $inputKeys);
+        });
     }
     
     /**
