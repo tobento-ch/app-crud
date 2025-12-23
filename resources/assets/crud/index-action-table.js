@@ -50,6 +50,19 @@ const indexActionTable = (function(window, document) {
             .then(response => response.json())
             .then(data => {
                 if (data.status !== 200) {
+                    // Handle non-validation errors (403, 500, etc.)
+                    if (!data.messages && data.message) {
+                        let msgEl = el.querySelector('[data-field-error]');
+                        if (!msgEl) {
+                            msgEl = document.createElement('div');
+                            msgEl.setAttribute('data-field-error', '');
+                            msgEl.classList.add('form-message', 'error', 'mt-xs');
+                            el.appendChild(msgEl);
+                        }
+                        msgEl.textContent = data.message;
+                        return;
+                    }
+                    // Existing validation error handling
                     data.messages.forEach(message => {
                         if (message.key === null && el.querySelector('.form-message') === null) {
                             let msgEl = document.createElement('div');
