@@ -440,6 +440,18 @@ class AbstractCrudTestCaseTest extends AbstractCrudTestCase
             ->assertCrudIndexButtonsExists(buttons: ['create'], group: 'global');
     }
     
+    public function testAssertCrudIndexButtonsExistsForEntityGroup()
+    {
+        $http = $this->fakeHttp();
+        $http->request(method: 'GET', uri: $this->generateIndexUri());
+        
+        $this->getSeedFactory()->times(1)->create();
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertCrudIndexButtonsExists(buttons: ['edit'], group: 'entity');
+    }
+    
     public function testAssertCrudIndexButtonsExistsThrowsExceptionIfButtonNotExists()
     {
         $this->expectException(ExpectationFailedException::class);
