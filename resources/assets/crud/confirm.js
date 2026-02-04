@@ -19,8 +19,17 @@ const crudConfirm = (function(window, document) {
                 el.innerHTML = '<span data-type="confirm" class="link">✔</span><span data-type="cancel" class="link pl-s">✘</span>';
             } else {
                 if (e.target.getAttribute('data-type') === 'confirm') {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     el.removeAttribute('data-confirming');
                     el.removeAttribute('data-confirm');
+
+                    // Restore original label
+                    el.textContent = el.getAttribute('data-confirming');
+
+                    // Trigger the click again so if button ajax action is called if set.
+                    setTimeout(() => el.click(), 0);
                 } else {
                     e.preventDefault();
                     e.stopPropagation();
