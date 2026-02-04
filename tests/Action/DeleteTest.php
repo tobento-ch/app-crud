@@ -56,4 +56,15 @@ class DeleteTest extends AbstractAction
         $this->assertSame('Foo', new Action\Delete(title: 'Foo')->title());        
         $this->assertSame('Foo', new Action\Delete(title: fn(EntityInterface $e) => 'Foo')->title());
     }
+    
+    public function testSupportsRequestMethod()
+    {
+        $action = new Action\Delete();
+
+        $this->assertTrue($action->supportsRequestMethod('POST'));
+        $this->assertFalse($action->supportsRequestMethod('PUT'));
+        $this->assertFalse($action->supportsRequestMethod('PATCH'));
+        $this->assertTrue($action->supportsRequestMethod('DELETE'));
+        $this->assertFalse($action->supportsRequestMethod('GET'));
+    }
 }

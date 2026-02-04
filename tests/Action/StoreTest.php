@@ -55,4 +55,15 @@ class StoreTest extends AbstractAction
     {
         $this->assertSame('Store', new Action\Store()->title());
     }
+    
+    public function testSupportsRequestMethod()
+    {
+        $action = new Action\Store();
+
+        $this->assertTrue($action->supportsRequestMethod('POST'));
+        $this->assertFalse($action->supportsRequestMethod('PUT'));
+        $this->assertFalse($action->supportsRequestMethod('PATCH'));
+        $this->assertFalse($action->supportsRequestMethod('DELETE'));
+        $this->assertFalse($action->supportsRequestMethod('GET'));
+    }
 }
