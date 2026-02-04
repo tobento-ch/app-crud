@@ -58,7 +58,7 @@ class FileSource extends AbstractField
     /**
      * @var string
      */
-    protected string $storageName = 'uploads';
+    protected string $storageName = 'uploads-private';
     
     /**
      * @var null|string
@@ -80,6 +80,11 @@ class FileSource extends AbstractField
      */
     protected null|int $maxFileSizeInKb = null;
     
+    /**
+     * @var bool
+     */
+    protected bool $allowedPublicPicturePreview = false;
+
     /**
      * @var bool
      */
@@ -296,6 +301,28 @@ class FileSource extends AbstractField
     {
         $this->maxFileSizeInKb = $kb;
         return $this;
+    }
+    
+    /**
+     * Allows the Picture feature to generate and display a public
+     * preview image for files stored in private storage.
+     *
+     * @return static $this
+     */
+    public function allowPublicPicturePreview(): static
+    {
+        $this->allowedPublicPicturePreview = true;
+        return $this;
+    }
+    
+    /**
+     * Returns the whether to allow public picture preview.
+     *
+     * @return bool
+     */
+    public function isAllowedPublicPicturePreview(): bool
+    {
+        return $this->allowedPublicPicturePreview;
     }
     
     /**
@@ -552,6 +579,7 @@ class FileSource extends AbstractField
                     resource: $storageName,
                     definition: $this->pictureDefinition,
                     queue: $this->pictureQueue,
+                    allowPrivateStorage: $field->isAllowedPublicPicturePreview(),
                 )->imgAttr('alt', $file->path()));
             } else {
                 $field->html($view->esc($file->path()));
@@ -827,6 +855,7 @@ class FileSource extends AbstractField
                     resource: $storageName,
                     definition: $this->pictureDefinition,
                     queue: $this->pictureQueue,
+                    allowPrivateStorage: $field->isAllowedPublicPicturePreview(),
                 )->imgAttr('alt', $file->path());
             }
             
@@ -896,6 +925,7 @@ class FileSource extends AbstractField
                     resource: $storageName,
                     definition: $this->pictureDefinition,
                     queue: $this->pictureQueue,
+                    allowPrivateStorage: $field->isAllowedPublicPicturePreview(),
                 )->imgAttr('alt', $file->path());
             }
         }
