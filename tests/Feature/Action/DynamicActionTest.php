@@ -33,21 +33,7 @@ class DynamicActionTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function createApp(): AppInterface
     {
         $app = $this->createTmpApp(rootDir: __DIR__.'/../../..');
-        
-$app->boot(\Tobento\App\Boot\ErrorHandling::class);
-$app->booting();
-$app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true);
-        
-        
         $app->boot(Crud::class);
-        
-        /*$app->on(Crud::class, function(Crud $crud): void {
-            $route = $crud->routeDynamicAction(
-                controller: App\ProductsController::class,
-                localized: true,
-            );
-        });*/
-        
         return $app;
     }
 
@@ -84,7 +70,7 @@ $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true
     public function testGetRequest()
     {
         $http = $this->fakeHttp();
-        $http->request(method: 'GET', uri: 'users/action/dynamic');
+        $http->request(method: 'GET', uri: $this->generateDynamicUri(action: 'dynamic'));
 
         $http->response()->assertStatus(200)->assertJson(['id' => null]);
     }
@@ -92,7 +78,7 @@ $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true
     public function testPostRequest()
     {
         $http = $this->fakeHttp();
-        $http->request(method: 'POST', uri: 'users/action/dynamic')->body([
+        $http->request(method: 'POST', uri: $this->generateDynamicUri(action: 'dynamic'))->body([
             'key' => 'value',
         ]);
 
@@ -102,7 +88,7 @@ $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true
     public function testPutRequest()
     {
         $http = $this->fakeHttp();
-        $http->request(method: 'PUT', uri: 'users/action/dynamic')->body([
+        $http->request(method: 'PUT', uri: $this->generateDynamicUri(action: 'dynamic'))->body([
             'key' => 'value',
         ]);
 
@@ -112,7 +98,7 @@ $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true
     public function testPatchRequest()
     {
         $http = $this->fakeHttp();
-        $http->request(method: 'PATCH', uri: 'users/action/dynamic')->body([
+        $http->request(method: 'PATCH', uri: $this->generateDynamicUri(action: 'dynamic'))->body([
             'key' => 'value',
         ]);
 
@@ -122,7 +108,7 @@ $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true
     public function testDeleteRequest()
     {
         $http = $this->fakeHttp();
-        $http->request(method: 'DELETE', uri: 'users/action/dynamic')->body([
+        $http->request(method: 'DELETE', uri: $this->generateDynamicUri(action: 'dynamic'))->body([
             'key' => 'value',
         ]);
 
@@ -132,7 +118,7 @@ $app->get(\Tobento\Service\Config\ConfigInterface::class)->set('app.debug', true
     public function testRequestWithId()
     {
         $http = $this->fakeHttp();
-        $http->request(method: 'GET', uri: 'users/action/dynamic/24');
+        $http->request(method: 'GET', uri: $this->generateDynamicUri(action: 'dynamic', id: 24));
 
         $http->response()->assertStatus(200)->assertJson(['id' => '24']);
     }
