@@ -125,12 +125,12 @@ abstract class AbstractField implements FieldInterface
     protected null|EntityInterface $oldEntity = null;
     
     /**
-     * @var array<string, string>
+     * @var array<string, string|Stringable>
      */
     protected array $requiredTexts = [];
     
     /**
-     * @var array<string, string>
+     * @var array<string, string|Stringable>
      */
     protected array $optionalTexts = [];
     
@@ -824,11 +824,11 @@ abstract class AbstractField implements FieldInterface
     /**
      * Set the required text for the given action.
      *
-     * @param string $text
+     * @param string|Stringable $text
      * @param string $action
      * @return static $this
      */
-    public function requiredText(string $text, string $action = 'create|edit'): static
+    public function requiredText(string|Stringable $text, string $action = 'create|edit'): static
     {
         foreach(explode('|', $action) as $actionName) {
             $this->requiredTexts[$actionName] = $text;
@@ -841,9 +841,9 @@ abstract class AbstractField implements FieldInterface
      * Returns the required text.
      *
      * @param string $action
-     * @return string
+     * @return string|Stringable
      */
-    public function getRequiredText(string $action): string
+    public function getRequiredText(string $action): string|Stringable
     {
         if (isset($this->requiredTexts[$action])) {
             return $this->requiredTexts[$action];
@@ -861,11 +861,11 @@ abstract class AbstractField implements FieldInterface
     /**
      * Set the optional text for the given action.
      *
-     * @param string $text
+     * @param string|Stringable $text
      * @param string $action
      * @return static $this
      */
-    public function optionalText(string $text, string $action = 'create|edit'): static
+    public function optionalText(string|Stringable $text, string $action = 'create|edit'): static
     {
         foreach(explode('|', $action) as $actionName) {
             $this->optionalTexts[$actionName] = $text;
@@ -878,9 +878,9 @@ abstract class AbstractField implements FieldInterface
      * Returns the optional text.
      *
      * @param string $action
-     * @return string
+     * @return string|Stringable
      */
-    public function getOptionalText(string $action): string
+    public function getOptionalText(string $action): string|Stringable
     {
         if (isset($this->optionalTexts[$action])) {
             return $this->optionalTexts[$action];
