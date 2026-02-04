@@ -11,7 +11,7 @@ $menu->subitems(false);
     <div class="field-body">
         <?= $menu ?>
         <?php if ($description) { ?>
-            <p><?= $view->esc($description) ?></p>
+            <p class="mt-xs"><?= $view->esc($description) ?></p>
         <?php } ?>
     </div>
 </div>

@@ -7,7 +7,7 @@
     <div class="field-body">
         <?= $body ?>
         <?php if ($description) { ?>
-            <div data-update="<?= $view->esc($name) ?>"><p><?= $view->esc($description) ?></p></div>
+            <div data-update="<?= $view->esc($name) ?>"><p class="mt-xs"><?= $view->esc($description) ?></p></div>
         <?php } ?>
     </div>
 </div>
