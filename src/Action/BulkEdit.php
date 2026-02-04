@@ -42,10 +42,15 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
      *
      * @param string $name Must be sluggable and only of [a-z-] characters.
      * @param null|string $title
+     * @param string $fieldsFrom Selects which action's field definitions are used
+     *   for building the bulk‑edit form. Allowed values:
+     *   - 'index'  → use index action fields
+     *   - 'create' → use create action fields (slightly heavier to process)
      */
     public function __construct(
         protected string $name,
         null|string $title = null,
+        protected string $fieldsFrom = 'index',
     ) {
         if ((bool) preg_match('/^[a-z-_.]+$/u', $name) === false) {
             throw new \InvalidArgumentException(
@@ -125,6 +130,23 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     public function setFields(FieldsInterface $fields): static
     {
         $this->fields = $fields->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));
+        return $this;
+    }
+    
+    /**
+     * Defines which action's field definitions should be used
+     * when building the bulk‑edit form.
+     *
+     * Allowed values:
+     *   - 'index'  Use fields from the index action (default)
+     *   - 'create' Use fields from the create action
+     *
+     * @param string $action
+     * @return static
+     */
+    public function fieldsFrom(string $action): static
+    {
+        $this->fieldsFrom = $action;
         return $this;
     }
     
@@ -226,9 +248,18 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
             return '';
         }
         
-        $fields = $indexAction
-            ->fields()
-            ->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));
+        // Determine source of fields
+        if ($this->fieldsFrom === 'create') {
+            // Use fields directly from create action
+            $fields = $indexAction->controller()
+                ->getConfiguredFields($createAction)
+                ->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));
+        } else {
+            // Default: use index action field definitions
+            $fields = $indexAction
+                ->fields()
+                ->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));         
+        }
         
         $createAction->setFields($fields);
         $this->actionProcessor->processFields(action: $createAction, entity: new Entity());
