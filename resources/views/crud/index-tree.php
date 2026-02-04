@@ -39,7 +39,7 @@ $entities = $action
             || ($columnsFilter && in_array('actions', $columnsFilter->columns()))
         ) {
             if ($entity->buttons()->has()) {
-                $html .= '<div class="crud-tree-item-col"><div class="buttons spaced">';
+                $html .= '<div class="crud-tree-item-col"><div class="buttons spaced" data-buttons="entity">';
 
                 foreach($entity->buttons() as $button) {
                     $html .= $button->render($view);
