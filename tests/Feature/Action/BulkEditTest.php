@@ -59,11 +59,15 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Field\Text('email')->validate('string|email'),
                 new Field\Text('firstname')->validate('string'),
                 new Field\Text('lastname')->validate('string'),
+                new Field\Select('status')
+                    ->options(['active', 'inactive'])
+                    ->infoText(text: 'Status info create only text', action: 'create')
             ],
             actions: [
                 new Action\Index('Users'),
                 new Action\BulkEdit(name: 'bulk-email')->field('email'),
                 new Action\BulkEdit(name: 'bulk-name')->field('firstname', 'lastname'),
+                new Action\BulkEdit(name: 'bulk-status')->field('status')->fieldsFrom('create'),
                 new Action\Create(),
                 new Action\Update()->unupdatable(
                     [3],
@@ -141,5 +145,17 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->followRedirects()->assertStatus(200)->assertCrudIndexEntityCount(1);
         
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+    }
+    
+    public function testBulkEditUsesCreateFields()
+    {
+        $http = $this->fakeHttp();
+        $http->request(method: 'GET', uri: $this->generateIndexUri());
+
+        $this->getSeedFactory()->times(1)->create();
+
+        $http->response()
+            ->assertStatus(200)
+            ->assertBodyContains('Status info create only text');
     }
 }
