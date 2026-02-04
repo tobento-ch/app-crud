@@ -89,7 +89,7 @@ class Option
         
         $this->html .= (string)$view->picture(
             path: $image['src'],
-            resource: $image['storage'] ?? 'uploads',
+            resource: $image['storage'] ?? 'uploads-public',
             definition: new ArrayDefinition('crud-option-image', [
                 'img' => [
                     'src' => [64, 64],
