@@ -55,4 +55,15 @@ class UpdateTest extends AbstractAction
     {
         $this->assertSame('Update', new Action\Update()->title());
     }
+    
+    public function testSupportsRequestMethod()
+    {
+        $action = new Action\Update();
+
+        $this->assertTrue($action->supportsRequestMethod('POST'));
+        $this->assertTrue($action->supportsRequestMethod('PUT'));
+        $this->assertTrue($action->supportsRequestMethod('PATCH'));
+        $this->assertFalse($action->supportsRequestMethod('DELETE'));
+        $this->assertFalse($action->supportsRequestMethod('GET'));
+    }
 }
