@@ -22,6 +22,7 @@ use Tobento\App\Crud\Test\Factory;
 use Tobento\App\Testing\Http\AssertableJson;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
+use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\Storage\StorageInterface;
 
 class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
@@ -64,6 +65,7 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Action\Store(),
                 new Action\Create(),
                 new Action\Index(),
+                new Action\Edit(),
             ],
         );
     }
@@ -115,6 +117,57 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame(0, $this->getCrudRepository()->count());
     }
     
+    public function testNextActionRedirectsIfNotSupportingMethod()
+    {
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(method: 'POST', uri: $this->generateStoreUri())->body([
+            'email' => 'new@example.com',
+            'next_action' => 'edit',
+        ]);
+
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('Edit'); // lands on edit page
+
+        $this->assertSame(1, $this->getCrudRepository()->count());
+    }
+    
+    public function testNextActionExecutesDirectlyIfSupportingMethod()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\PrimaryId('id'),
+                    new Field\Text('email'),
+                ],
+                actions: [
+                    new Action\Store(),
+                    new TestNextStoreAction(),
+                ],
+            );
+        });
+
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(
+            method: 'POST',
+            uri: $this->generateStoreUri(),
+            body: [
+                'email' => 'new@example.com',
+                'next_action' => 'next',
+            ]
+        );
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertBodyContains('executed');
+
+        $this->assertSame(1, $this->getCrudRepository()->count());
+    }
+    
     public function testLive()
     {
         $http = $this->fakeHttp();
@@ -134,5 +187,25 @@ class StoreTest extends \Tobento\App\Crud\Test\Feature\TestCase
             );
 
         $this->assertSame(0, $this->getCrudRepository()->count());
+    }
+}
+
+class TestNextStoreAction extends Action\AbstractAction
+{
+    protected array $supportedRequestMethods = ['POST'];
+
+    public function name(): string
+    {
+        return 'next';
+    }
+    
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    public function handle(ResponserInterface $responser): \Psr\Http\Message\ResponseInterface
+    {
+        return $responser->html('executed');
     }
 }

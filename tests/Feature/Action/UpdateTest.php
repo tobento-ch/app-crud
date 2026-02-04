@@ -23,6 +23,7 @@ use Tobento\App\Crud\Test\Factory;
 use Tobento\App\Testing\Http\AssertableJson;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
+use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\Storage\StorageInterface;
 
 class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
@@ -167,6 +168,61 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
     }
     
+    public function testNextActionRedirectsIfNotSupportingMethod()
+    {
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(method: 'PUT', uri: $this->generateUpdateUri(id: 1))->body([
+            'email' => 'new@example.com',
+            'next_action' => 'edit',
+        ]);
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->createOne();
+
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('Edit'); // lands on edit page
+
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+    }
+    
+    public function testNextActionExecutesDirectlyIfSupportingMethod()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\PrimaryId('id'),
+                    new Field\Text('email'),
+                ],
+                actions: [
+                    new Action\Update(),
+                    new TestNextUpdateAction(),
+                ],
+            );
+        });
+
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(
+            method: 'PUT',
+            uri: $this->generateUpdateUri(id: 1),
+            body: [
+                'email' => 'new@example.com',
+                'next_action' => 'next',
+            ]
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->createOne();
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertBodyContains('executed');
+
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+    }
+    
     public function testLive()
     {
         $http = $this->fakeHttp();
@@ -188,5 +244,25 @@ class UpdateTest extends \Tobento\App\Crud\Test\Feature\TestCase
             );
 
         $this->assertSame(1, $this->getCrudRepository()->count());
+    }
+}
+
+class TestNextUpdateAction extends Action\AbstractAction
+{
+    protected array $supportedRequestMethods = ['PUT'];
+
+    public function name(): string
+    {
+        return 'next';
+    }
+    
+    public function getHandler(): callable
+    {
+        return [$this, 'handle'];
+    }
+    
+    public function handle(ResponserInterface $responser): \Psr\Http\Message\ResponseInterface
+    {
+        return $responser->html('executed');
     }
 }
