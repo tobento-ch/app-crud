@@ -76,7 +76,7 @@ class Fields implements FieldsInterface
     public function filter(callable $callback): static
     {
         $new = clone $this;
-        $new->fields = array_filter($this->fields, $callback);
+        $new->fields = array_filter($new->fields, $callback);
         return $new;
     }
 
