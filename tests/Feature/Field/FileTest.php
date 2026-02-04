@@ -71,6 +71,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Field\Text('title'),
                 new Field\File('file', 'File')
                     ->fileSource(function(Field\FileSource $fs): void {
+                        $fs->storage(name: 'uploads-public');
                         $fs->allowedExtensions('jpg', 'txt');
                     })
                     ->fields(
@@ -126,7 +127,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateIndexUri());
         
         $this->getSeedFactory(['file' => ['src' => 'f-document.txt']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-document.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-document.txt', content: 'content');
         
         $http->response()
             ->assertStatus(200)
@@ -183,10 +184,10 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $fileStorage->storage(name: 'uploads')->assertCreated('f-profile.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('f-profile.jpg');
 
         $this->assertSame('f-profile.jpg', $this->getCrudRepository()->findById(1)->get('file.src'));
-        $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('file.storage'));
+        $this->assertSame('uploads-public', $this->getCrudRepository()->findById(1)->get('file.storage'));
     }
     
     public function testStoreActionWithoutFile()
@@ -199,7 +200,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
 
         $this->assertSame([], $this->getCrudRepository()->findById(1)->get('file'));
     }
@@ -207,7 +208,11 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testStoreActionUploadsFileTranslatable()
     {
         $this->withFile(function () {
-            return new Field\File('file')->translatable();
+            return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
+                ->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -222,18 +227,21 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $fileStorage->storage(name: 'uploads')->assertCreated('f-profile.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('f-profile.jpg');
 
         $this->assertSame('f-profile.jpg', $this->getCrudRepository()->findById(1)->get('file.src.en'));
         $this->assertSame('f-profile-de.jpg', $this->getCrudRepository()->findById(1)->get('file.src.de'));
         $this->assertSame(null, $this->getCrudRepository()->findById(1)->get('file.src.invalid'));
-        $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('file.storage'));
+        $this->assertSame('uploads-public', $this->getCrudRepository()->findById(1)->get('file.storage'));
     }
     
     public function testStoreActionUploadsFileUsesStoreFilenameTo()
     {
         $this->withFile(function () {
             return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
                 ->fields(
                     new Field\Text('alt', 'Alt Text'),
                 )
@@ -248,7 +256,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $fileStorage->storage(name: 'uploads')->assertCreated('foo_bar-baz.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('foo_bar-baz.jpg');
 
         $this->assertSame('foo bar baz', $this->getCrudRepository()->findById(1)->get('file.alt'));
     }
@@ -257,6 +265,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     {
         $this->withFile(function () {
             return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
                 ->fields(
                     new Field\Text('alt', 'Alt Text'),
                 )
@@ -273,7 +284,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $fileStorage->storage(name: 'uploads')->assertCreated('f-foo.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('f-foo.jpg');
 
         $this->assertSame('custom', $this->getCrudRepository()->findById(1)->get('file.alt'));
     }
@@ -282,6 +293,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     {
         $this->withFile(function () {
             return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
                 ->fields(
                     new Field\Text('alt', 'Alt Text')->translatable(),
                 )
@@ -306,6 +320,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     {
         $this->withFile(function () {
             return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
                 ->fields(
                     new Field\Text('alt', 'Alt Text')->translatable(),
                 )
@@ -334,6 +351,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     {
         $this->withFile(function () {
             return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })                
                 ->fields(
                     new Field\Text('alt', 'Alt Text')->translatable(),
                 )
@@ -361,6 +381,9 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     {
         $this->withFile(function () {
             return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
                 ->fields(
                     new Field\Text('alt', 'Alt Text'),
                 )
@@ -415,7 +438,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateEditUri(id: 1));
         
         $this->getSeedFactory(['file' => ['src' => 'f-doc.txt']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-doc.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-doc.txt', content: 'content');
         
         $http->response()
             ->assertStatus(200)
@@ -428,7 +451,11 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionDisplaysFileTranslatable()
     {
         $this->withFile(function () {
-            return new Field\File('file')->translatable();
+            return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
+                ->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -438,8 +465,8 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->getSeedFactory(
             ['file' => ['src' =>['en' => 'f-doc-en.txt', 'de' => 'f-doc-de.txt']]]
         )->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-doc-en.txt', content: 'content');
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-doc-de.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-doc-en.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-doc-de.txt', content: 'content');
         
         $http->response()
             ->assertStatus(200)
@@ -453,7 +480,11 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
     public function testEditActionDisplaysFileTranslatableShowsFileInputForMissingLocale()
     {
         $this->withFile(function () {
-            return new Field\File('file')->translatable();
+            return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
+                ->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -463,7 +494,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->getSeedFactory(
             ['file' => ['src' =>['en' => 'f-file.txt']]]
         )->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-file.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-file.txt', content: 'content');
         
         $http->response()
             ->assertStatus(200)
@@ -479,7 +510,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateEditUri(id: 1));
         
         $this->getSeedFactory(['file' => ['src' => 'f-edit.jpg']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(
+        $fileStorage->storage(name: 'uploads-public')->write(
             path: 'f-edit.jpg',
             content: (string)$http->getFileFactory()->createImage('f-edit.jpg', 50, 50)->getStream()
         );
@@ -502,16 +533,20 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $fileStorage->storage(name: 'uploads')->assertCreated('f-profile.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('f-profile.jpg');
 
         $this->assertSame('f-profile.jpg', $this->getCrudRepository()->findById(1)->get('file.src'));
-        $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('file.storage'));
+        $this->assertSame('uploads-public', $this->getCrudRepository()->findById(1)->get('file.storage'));
     }
     
     public function testUpdateActionUploadsFileTranslatable()
     {
         $this->withFile(function () {
-            return new Field\File('file')->translatable();
+            return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
+                ->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -528,13 +563,13 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
-        $fileStorage->storage(name: 'uploads')->assertCreated('f-bar.jpg');
-        $fileStorage->storage(name: 'uploads')->assertCreated('f-bar-de.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('f-bar.jpg');
+        $fileStorage->storage(name: 'uploads-public')->assertCreated('f-bar-de.jpg');
 
         $this->assertSame('f-bar.jpg', $this->getCrudRepository()->findById(1)->get('file.src.en'));
         $this->assertSame('f-bar-de.jpg', $this->getCrudRepository()->findById(1)->get('file.src.de'));
         $this->assertSame(null, $this->getCrudRepository()->findById(1)->get('file.src.invalid'));
-        $this->assertSame('uploads', $this->getCrudRepository()->findById(1)->get('file.storage'));
+        $this->assertSame('uploads-public', $this->getCrudRepository()->findById(1)->get('file.storage'));
     }
     
     public function testUpdateActionDeletesFileIfSrcIsEmpty()
@@ -546,20 +581,24 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         ]);
         
         $this->getSeedFactory(['file' => ['src' => 'f-readme.txt']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-readme.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-readme.txt', content: 'content');
         
-        $this->assertTrue($fileStorage->storage(name: 'uploads')->exists(path: 'f-readme.txt'));
+        $this->assertTrue($fileStorage->storage(name: 'uploads-public')->exists(path: 'f-readme.txt'));
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
         $this->assertSame([], $this->getCrudRepository()->findById(1)->get('file'));
-        $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'f-readme.txt'));
+        $this->assertFalse($fileStorage->storage(name: 'uploads-public')->exists(path: 'f-readme.txt'));
     }
     
     public function testUpdateActionDeletesFileIfSrcIsEmptyTranslatable()
     {
         $this->withFile(function () {
-            return new Field\File('file')->translatable();
+            return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
+                ->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -569,14 +608,14 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         ]);
         
         $this->getSeedFactory(['file' => ['src' => ['en' => 'ft-readme.txt']]])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'ft-readme.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'ft-readme.txt', content: 'content');
         
-        $this->assertTrue($fileStorage->storage(name: 'uploads')->exists(path: 'ft-readme.txt'));
+        $this->assertTrue($fileStorage->storage(name: 'uploads-public')->exists(path: 'ft-readme.txt'));
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
         $this->assertSame([], $this->getCrudRepository()->findById(1)->get('file'));
-        $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'ft-readme.txt'));
+        $this->assertFalse($fileStorage->storage(name: 'uploads-public')->exists(path: 'ft-readme.txt'));
     }
     
     public function testDeleteActionDeletesFile()
@@ -586,7 +625,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateEditUri(id: 1));
         
         $this->getSeedFactory(['file' => ['src' => 'f-plant.jpg']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(
+        $fileStorage->storage(name: 'uploads-public')->write(
             path: 'f-plant.jpg',
             content: (string)$http->getFileFactory()->createImage('f-plant.jpg', 50, 50)->getStream(),
         );
@@ -596,19 +635,23 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'DELETE', uri: $this->generateDeleteUri(id: 1));
         
         $this->assertSame(2, count($fileStorage->storage(name: 'images')->files(path: '')->all()));
-        $this->assertSame(1, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(1, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
         $this->assertSame(0, count($fileStorage->storage(name: 'images')->files(path: '')->all()));
-        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
         $this->assertNull($this->getCrudRepository()->findById(1));
     }
     
     public function testDeleteActionDeletesFileTranslatable()
     {
         $this->withFile(function () {
-            return new Field\File('file')->translatable();
+            return new Field\File('file')
+                ->fileSource(function(Field\FileSource $fs): void {
+                    $fs->storage(name: 'uploads-public');
+                })
+                ->translatable();
         });
         
         $fileStorage = $this->fakeFileStorage();
@@ -618,11 +661,11 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->getSeedFactory(
             ['file' => ['src' => ['en' => 'f-plant-en.jpg', 'de' => 'f-plant-de.jpg']]]
         )->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(
+        $fileStorage->storage(name: 'uploads-public')->write(
             path: 'f-plant-en.jpg',
             content: (string)$http->getFileFactory()->createImage('f-plant-en.jpg', 50, 50)->getStream(),
         );
-        $fileStorage->storage(name: 'uploads')->write(
+        $fileStorage->storage(name: 'uploads-public')->write(
             path: 'f-plant-de.jpg',
             content: (string)$http->getFileFactory()->createImage('f-plant-de.jpg', 50, 50)->getStream(),
         );
@@ -632,12 +675,12 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'DELETE', uri: $this->generateDeleteUri(id: 1));
         
         $this->assertSame(4, count($fileStorage->storage(name: 'images')->files(path: '')->all()));
-        $this->assertSame(2, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(2, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
         
         $this->assertSame(0, count($fileStorage->storage(name: 'images')->files(path: '')->all()));
-        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
         $this->assertNull($this->getCrudRepository()->findById(1));
     }    
     
@@ -648,7 +691,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateCopyUri(id: 1));
         
         $this->getSeedFactory(['file' => ['src' => 'f-fcopy.txt']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-fcopy.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-fcopy.txt', content: 'content');
         
         $http->response()
             ->assertStatus(200)
@@ -681,7 +724,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateEditUri(id: 1));
         
         $this->getSeedFactory(['file' => ['src' => 'f-bulkdel.jpg']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(
+        $fileStorage->storage(name: 'uploads-public')->write(
             path: 'f-bulkdel.jpg',
             content: (string)$http->getFileFactory()->createImage('f-bulkdel.jpg', 50, 50)->getStream(),
         );
@@ -693,12 +736,12 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         ]);
         
         $this->assertSame(2, count($fileStorage->storage(name: 'images')->files(path: '')->all()));
-        $this->assertSame(1, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(1, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
         
         $http->followRedirects()->assertStatus(200)->assertCrudIndexEntityCount(0);
         
         $this->assertSame(0, count($fileStorage->storage(name: 'images')->files(path: '')->all()));
-        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
         $this->assertNull($this->getCrudRepository()->findById(1));
     }
     
@@ -709,7 +752,7 @@ class FileTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->request(method: 'GET', uri: $this->generateShowUri(id: 1));
         
         $this->getSeedFactory(['file' => ['src' => 'f-tree.txt']])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'f-tree.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'f-tree.txt', content: 'content');
         
         $http->response()
             ->assertStatus(200)

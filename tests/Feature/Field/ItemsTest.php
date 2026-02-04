@@ -56,7 +56,7 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
                 new Field\Text('id'),
                 new Field\Items('items')->fields(
                     new Field\Text('price')->type('number')->validate('decimal'),
-                    new Field\FileSource('filesrc')->allowedExtensions('jpg', 'txt'),
+                    new Field\FileSource('filesrc')->storage(name: 'uploads-public')->allowedExtensions('jpg', 'txt'),
                 ),
             ],
             actions: [
@@ -105,16 +105,16 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
         ]);
         
         $this->getSeedFactory(['items' => [1 => ['price' => '2.5', 'filesrc' => 'item1.txt']]])->times(1)->create();
-        $fileStorage->storage(name: 'uploads')->write(path: 'item1.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'item1.txt', content: 'content');
         
-        $this->assertTrue($fileStorage->storage(name: 'uploads')->exists(path: 'item1.txt'));
+        $this->assertTrue($fileStorage->storage(name: 'uploads-public')->exists(path: 'item1.txt'));
         
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
 
         $this->assertSame([], $this->getCrudRepository()->findById(1)->get('items'));
         
-        $this->assertSame(0, count($fileStorage->storage(name: 'uploads')->files(path: '')->all()));
-        $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'item1.txt'));
+        $this->assertSame(0, count($fileStorage->storage(name: 'uploads-public')->files(path: '')->all()));
+        $this->assertFalse($fileStorage->storage(name: 'uploads-public')->exists(path: 'item1.txt'));
     }
     
     public function testUpdateActionDeletesEmptyItems()
@@ -137,9 +137,9 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ]
         ])->times(1)->create();
         
-        $fileStorage->storage(name: 'uploads')->write(path: 'item2.txt', content: 'content');
+        $fileStorage->storage(name: 'uploads-public')->write(path: 'item2.txt', content: 'content');
         
-        $this->assertTrue($fileStorage->storage(name: 'uploads')->exists(path: 'item2.txt'));
+        $this->assertTrue($fileStorage->storage(name: 'uploads-public')->exists(path: 'item2.txt'));
 
         $http->response()->assertStatus(302)->assertLocation($this->generateIndexUri());
 
@@ -147,7 +147,7 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
             [1 => ['price' => '1.7'], 2 => ['price' => '3.7']],
             $this->getCrudRepository()->findById(1)->get('items'));
         
-        $this->assertFalse($fileStorage->storage(name: 'uploads')->exists(path: 'item2.txt'));
+        $this->assertFalse($fileStorage->storage(name: 'uploads-public')->exists(path: 'item2.txt'));
     }
     
     public function testUpdateActionDeletesItemsIfNotArray()
