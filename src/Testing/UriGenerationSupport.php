@@ -165,4 +165,29 @@ trait UriGenerationSupport
     {
         return $this->generateUpdateUri($id, $locale);
     }
+    
+    /**
+     * Returns the generated dynamic uri for the crud dynamic action.
+     *
+     * @param string $action The action name.
+     * @param null|string|int $id
+     * @param null|string $locale
+     * @return string
+     */
+    protected function generateDynamicUri(string $action, null|string|int $id = null, null|string $locale = null): string
+    {
+        $name = $this->getCrudControllerResourceName();
+        
+        $uri = sprintf('%s/%s/%s', $name, 'action', $action);
+        
+        if (!empty($locale)) {
+            $uri = $locale.'/'.$uri;
+        }
+        
+        if ($id !== null && $id !== '') {
+            $uri = $uri.'/'.(string)$id;
+        }
+
+        return $uri;
+    }
 }
