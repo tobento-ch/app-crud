@@ -58,7 +58,7 @@ class OptionTest extends TestCase
         
         $option = new Option(value: 'foo');
         $option->image(
-            image: ['src' => 'image.jpg', 'storage' => 'uploads'],
+            image: ['src' => 'image.jpg', 'storage' => 'uploads-public'],
             view: Factory::createView(),
         );
         
