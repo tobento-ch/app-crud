@@ -38,6 +38,17 @@ use Closure;
 
 abstract class AbstractAction extends TestCase
 {
+    public function titleTests(ActionInterface $action)
+    {
+        $this->assertSame(null, $action->title());
+        
+        $action->setTitle('title');
+        $this->assertSame('title', $action->title());
+        
+        $action->setTitle(fn(EntityInterface $e) => 'title');
+        $this->assertInstanceof(Closure::class, $action->title());
+    }
+    
     public function urlTests(ActionInterface $action)
     {
         // raw url:
