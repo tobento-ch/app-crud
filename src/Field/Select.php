@@ -502,7 +502,7 @@ class Select extends AbstractField implements OptionsAwareInterface, LiveAwareIn
                 }
 
                 if (
-                    is_string($value)
+                    is_scalar($value)
                     && ! $this->isMultipleSelection()
                     && array_key_exists($value, $options)
                 ) {
