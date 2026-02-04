@@ -148,17 +148,10 @@ abstract class AbstractCrudController
         FilterProcessorInterface $filterProcessor,
         ResponserInterface $responser,
     ): ResponseInterface {
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'index');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'index');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler());
+        return $this->runAction(
+            name: 'index',
+            actionProcessor: $actionProcessor,
+        );
     }
 
     /**
@@ -176,18 +169,11 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: $name);
-        
-        if (is_null($action) || !$action instanceof BulkActionInterface) {
-            throw new ActionNotFoundException(actionName: $name);
-        }
-
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler());
+        return $this->runAction(
+            name: $name,
+            actionProcessor: $actionProcessor,
+            requiredInterface: BulkActionInterface::class,
+        );
     }
 
     /**
@@ -203,18 +189,10 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'create');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'create');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler());
+        return $this->runAction(
+            name: 'create',
+            actionProcessor: $actionProcessor,
+        );
     }
     
     /**
@@ -230,18 +208,10 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'store');
-        
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'store');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler());
+        return $this->runAction(
+            name: 'store',
+            actionProcessor: $actionProcessor,
+        );
     }
     
     /**
@@ -259,17 +229,11 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'edit');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'edit');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        return $this->runAction(
+            name: 'edit',
+            actionProcessor: $actionProcessor,
+            params: ['id' => $id],
+        );
     }
     
     /**
@@ -286,17 +250,11 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'update');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'update');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        return $this->runAction(
+            name: 'update',
+            actionProcessor: $actionProcessor,
+            params: ['id' => $id],
+        );
     }
     
     /**
@@ -314,17 +272,11 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'copy');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'copy');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        return $this->runAction(
+            name: 'copy',
+            actionProcessor: $actionProcessor,
+            params: ['id' => $id],
+        );
     }
     
     /**
@@ -342,18 +294,11 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'show');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'show');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        return $this->runAction(
+            name: 'show',
+            actionProcessor: $actionProcessor,
+            params: ['id' => $id],
+        );
     }
     
     /**
@@ -371,18 +316,11 @@ abstract class AbstractCrudController
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
-        // Get the action:
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: 'delete');
-
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: 'delete');
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        return $this->runAction(
+            name: 'delete',
+            actionProcessor: $actionProcessor,
+            params: ['id' => $id],
+        );
     }
     
     /**
@@ -398,19 +336,11 @@ abstract class AbstractCrudController
         null|int|string $id,
         ActionProcessorInterface $actionProcessor,
     ): ResponseInterface {
-        // Get the action:
-        $actionName = $action;
-        $actions = $this->getConfiguredActions();
-        $action = $actions->get(name: $actionName);
-        
-        if (is_null($action)) {
-            throw new ActionNotFoundException(actionName: $actionName);
-        }
-        
-        $action->setController($this);
-        $action->setActions($actions);
-        
-        return $actionProcessor->call($action->getHandler(), ['id' => $id]);
+        return $this->runAction(
+            name: $action,
+            actionProcessor: $actionProcessor,
+            params: ['id' => $id],
+        );
     }
 
     /**
@@ -537,5 +467,37 @@ abstract class AbstractCrudController
         if ($action instanceof Action\Delete && ! $action->isDeletable($action->entity())) {
             throw new EntityUndeletableException($action->entity()->id(), $action);
         }
+    }
+    
+    /**
+     * Executes a CRUD action by name.
+     *
+     * @param string $name
+     * @param ActionProcessorInterface $actionProcessor
+     * @param array $params Parameters passed to the action handler
+     * @param null|string $requiredInterface Optional interface the action must implement
+     * @return ResponseInterface
+     */
+    protected function runAction(
+        string $name,
+        ActionProcessorInterface $actionProcessor,
+        array $params = [],
+        null|string $requiredInterface = null,
+    ): ResponseInterface {
+        $actions = $this->getConfiguredActions();
+        $action = $actions->get(name: $name);
+
+        if (is_null($action)) {
+            throw new ActionNotFoundException(actionName: $name);
+        }
+
+        if ($requiredInterface !== null && !$action instanceof $requiredInterface) {
+            throw new ActionNotFoundException(actionName: $name);
+        }
+
+        $action->setController($this);
+        $action->setActions($actions);
+
+        return $actionProcessor->call($action->getHandler(), $params);
     }
 }
