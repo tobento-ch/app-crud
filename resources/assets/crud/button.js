@@ -46,7 +46,7 @@ const button = (function(window, document) {
                 return;
             }
             
-            event.preventDefault();
+            e.preventDefault();
             el.classList.add('loading');
             el.setAttribute('disabled', 'disabled');
             
@@ -58,11 +58,19 @@ const button = (function(window, document) {
                 method: form.getAttribute('method'),
                 body: formData,
             }).then(response => {
+                // 1. Handle 4xx / 5xx responses FIRST
+                if (!response.ok) {
+                    return response.text();
+                }
+
+                // 2. Handle real redirects
                 let [uri, hash] = window.location.href.split("#");
                 if (response.url !== uri) {
                     window.location.href = response.url;
                     return null;
                 }
+
+                // 3. Normal AJAX response
                 return response.text();
             }).then(string => {
                 const replaces = ['[data-table-group="items"]', '[data-ajax="refresh"]'];
