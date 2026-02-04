@@ -91,7 +91,7 @@ foreach($action->entities() as $entity) {
           })
           ->when($entity->buttons()->has(), function($row) use ($buttons, $entity, $view): void {
 
-              $html = '<div class="buttons spaced">';
+              $html = '<div class="buttons spaced" data-buttons="entity">';
               
               foreach($entity->buttons() as $button) {
                   $html .= $button->render($view);
