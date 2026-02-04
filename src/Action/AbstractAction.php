@@ -40,6 +40,11 @@ abstract class AbstractAction implements ActionInterface
     use ConfigurableButtons;
     
     /**
+     * @var array<int, string>
+     */
+    protected array $supportedRequestMethods = [];
+    
+    /**
      * @var null|FieldsInterface
      */
     protected null|FieldsInterface $fields = null;
@@ -160,6 +165,22 @@ abstract class AbstractAction implements ActionInterface
     abstract public function getHandler(): callable;
     
     /**
+     * Checks whether this action supports the given HTTP request method.
+     *
+     * Actions may declare supported HTTP verbs by setting the
+     * $supportedRequestMethods property (e.g., ['POST', 'PUT']).
+     * If the array is empty, the action does not support any methods
+     * for chained execution unless a subclass overrides this method.
+     *
+     * @param string $method The HTTP method to evaluate.
+     * @return bool True if the action supports the method, otherwise false.
+     */
+    public function supportsRequestMethod(string $method): bool
+    {
+        return in_array(strtoupper($method), $this->supportedRequestMethods, true);
+    }
+    
+    /**
      * Returns the title.
      *
      * @return string
@@ -176,6 +197,18 @@ abstract class AbstractAction implements ActionInterface
         
         $closure = $this->title;
         return $closure($this->entity());
+    }
+    
+    /**
+     * Sets the title.
+     *
+     * @param string|Closure $title
+     * @return static $this;
+     */
+    public function setTitle(string|Closure $title): static
+    {
+        $this->title = $title;
+        return $this;
     }
     
     /**

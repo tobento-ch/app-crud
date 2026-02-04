@@ -23,6 +23,11 @@ use Tobento\Service\Responser\ResponserInterface;
 final class Delete extends AbstractAction
 {
     /**
+     * @var array<int, string>
+     */
+    protected array $supportedRequestMethods = ['DELETE', 'POST'];
+    
+    /**
      * @var null|callable(EntityInterface):bool|array<array-key, int|string>
      */
     private $undeletable = null;
