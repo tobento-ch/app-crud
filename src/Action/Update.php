@@ -30,6 +30,11 @@ final class Update extends AbstractAction
     use Traits\HandleNextAction;
     
     /**
+     * @var array<int, string>
+     */
+    protected array $supportedRequestMethods = ['POST', 'PUT', 'PATCH'];
+    
+    /**
      * @var null|callable(EntityInterface):bool|array<array-key, int|string>
      */
     private $unupdatable = null;
@@ -160,7 +165,9 @@ final class Update extends AbstractAction
         }
         
         // Handle next action:
-        $this->handleNextAction($this, $actions, $entity, $actionProcessor);
+        if ($response = $this->handleNextAction($this, $actions, $entity, $requester, $actionProcessor)) {
+            return $response;
+        }
         
         return $responser->redirect(uri: $this->getLinkUrl());
     }
