@@ -36,7 +36,7 @@ interface ActionInterface extends Linkable
      *
      * @return string
      */
-    public function name(): string;    
+    public function name(): string;
     
     /**
      * Returns the handler processing the action.
@@ -46,11 +46,30 @@ interface ActionInterface extends Linkable
     public function getHandler(): callable;
     
     /**
+     * Determines whether the action handler accepts the given HTTP request method.
+     *
+     * This allows actions to explicitly restrict which HTTP verbs they respond to
+     * (e.g., GET, POST, PUT, PATCH, DELETE).
+     *
+     * @param string $method The HTTP method to check.
+     * @return bool True if the handler supports the method, otherwise false.
+     */
+    public function supportsRequestMethod(string $method): bool;
+    
+    /**
      * Returns the title.
      *
      * @return string
      */
     public function title(): string;
+    
+    /**
+     * Sets the title.
+     *
+     * @param string|Closure $title
+     * @return static $this;
+     */
+    public function setTitle(string|Closure $title): static;
     
     /**
      * Sets the url for the action.
