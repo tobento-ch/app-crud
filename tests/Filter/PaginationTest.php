@@ -315,7 +315,7 @@ class PaginationTest extends TestCase
         );
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('<p>of 3 Pages | Showing 11 - 20 from 25 records</p>', $rendered);
+        $this->assertStringContainsString('<p class="mt-xs">of 3 Pages | Showing 11 - 20 from 25 records</p>', $rendered);
         $this->assertStringContainsString('<input id="filter_pagination_page_header" min="1" max="3" aria-label="pagination_header" name="filter[pagination][page]" type="number" value="2">', $rendered);
     }
     
@@ -330,7 +330,7 @@ class PaginationTest extends TestCase
         );
         
         $rendered = $filter->render(Factory::createView());
-        $this->assertStringContainsString('<p>of 1 Pages | Showing 0 - 0 from 0 records</p>', $rendered);
+        $this->assertStringContainsString('<p class="mt-xs">of 1 Pages | Showing 0 - 0 from 0 records</p>', $rendered);
         $this->assertStringContainsString('<input id="filter_pagination_page_header" min="1" max="1" aria-label="pagination_header" name="filter[pagination][page]" type="number" value="1">', $rendered);
     }
     
