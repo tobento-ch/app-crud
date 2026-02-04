@@ -29,6 +29,11 @@ final class Store extends AbstractAction
     use Traits\HandleNextAction;
     
     /**
+     * @var array<int, string>
+     */
+    protected array $supportedRequestMethods = ['POST'];
+    
+    /**
      * Create a new Store.
      */
     public function __construct()
@@ -127,9 +132,10 @@ final class Store extends AbstractAction
         );
         
         // Handle next action:
-        $this->handleNextAction($this, $actions, $entity, $actionProcessor);
+        if ($response = $this->handleNextAction($this, $actions, $entity, $requester, $actionProcessor)) {
+            return $response;
+        }
         
-        // Return the response:
         return $responser->redirect(uri: $this->getLinkUrl());
     }
     
