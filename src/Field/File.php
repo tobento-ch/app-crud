@@ -38,7 +38,7 @@ class File extends AbstractField implements FieldsAwareInterface
     /**
      * @var string
      */
-    protected string $storageName = 'uploads';
+    protected string $storageName = 'uploads-private';
     
     /**
      * @var null|callable
