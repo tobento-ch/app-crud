@@ -65,6 +65,7 @@ A simple app CRUD.
             - [Delete Action](#delete-action)
             - [Bulk Delete Action](#bulk-delete-action)
             - [Bulk Edit Action](#bulk-edit-action)
+            - [Bulk Dynamic Edit Action](#bulk-dynamic-edit-action)
             - [Bulk Tree Update Action](#bulk-tree-update-action)
         - [Custom Action](#custom-action)
         - [Dynamic Actions](#dynamic-actions)
@@ -1130,27 +1131,34 @@ use Tobento\App\Media\FileStorage\FileWriter;
 use Tobento\App\Media\FileStorage\FileWriterInterface;
 use Tobento\App\Media\FileStorage\Writer;
 use Tobento\App\Media\Image\ImageProcessor;
+use Tobento\App\Media\Upload\CopyFileWrapper;
 use Tobento\Service\FileStorage\StorageInterface;
 
 new Field\FileSource('image')
-    ->fileWriter(static function(StorageInterface $storage): FileWriterInterface {
+    ->fileWriter(static function(StorageInterface $storage, mixed $inputFile): FileWriterInterface {
+        $writers = [];
+
+        // Only process images for real uploads
+        if (! $inputFile instanceof CopyFileWrapper) {
+            $writers[] = new Writer\ImageWriter(
+                imageProcessor: new ImageProcessor(
+                    actions: [
+                        'orientate' => [],
+                        'resize' => ['width' => 2000],
+                    ],
+                ),
+            );
+
+            $writers[] = new Writer\SvgSanitizerWriter();
+        }
+        
         return new FileWriter(
             storage: $storage,
             filenames: FileWriter::ALNUM, // RENAME, ALNUM, KEEP
             duplicates: FileWriter::RENAME, // RENAME, OVERWRITE, DENY
             folders: FileWriter::ALNUM, // or KEEP
             folderDepthLimit: 5,
-            writers: [
-                new Writer\ImageWriter(
-                    imageProcessor: new ImageProcessor(
-                        actions: [
-                            'orientate' => [],
-                            'resize' => ['width' => 2000],
-                        ],
-                    ),
-                ),
-                new Writer\SvgSanitizerWriter(),
-            ],
+            writers: $writers,
         );
     });
 ```
@@ -2601,17 +2609,20 @@ use Tobento\App\Crud\Field;
 new Field\Text(name: 'foo')
     ->formatValue(
         formatter: new Field\Formatter\Str(
-            // you may trim the width:
+            // trim the width:
             trimWidth: 100, // default (null)
             
-            // you may change the trim marker:
+            // change the trim marker:
             trimMarker: '...', // default
             
-            // you may change the delimiter for array value:
+            // delimiter for array values:
             delimiter: ', ', // default
             
-            // you may convert array value to json:
+            // convert array values to JSON:
             arrayToJson: true, // false default
+            
+            // wrap the final output in <pre>...</pre>:
+            pre: true, // default: false
         )
     );
 ```
@@ -3398,6 +3409,105 @@ The following fields support bulk editing:
 * [Select Field](#select-field)
 * [Text Field](#text-field)
 * [Textarea Field](#textarea-field)
+
+#### Bulk Dynamic Edit Action
+
+The **Bulk Dynamic Edit Action** is an advanced version of the [Bulk Edit Action](#bulk-edit-action).  
+It allows users to edit **multiple fields at once**, with each field's **input type changing dynamically** based on the selected field.
+
+You may create as many dynamic bulk-edit actions as needed.  
+As always, ensure the name parameter is unique and contains only a-z letters and hyphens.
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    yield new Action\DynamicBulkEdit(
+        name: 'edit-columns',
+        title: 'Edit Columns',
+        fieldLabel: 'Column',
+        valueLabel: 'New Value',
+        itemsGroupName: 'Columns to update',
+        itemsAddText: 'Add column',
+    )
+        // Define which fields may be edited dynamically
+        ->field('email', 'firstname', 'status')
+
+        // Enable or disable dynamic field types
+        ->dynamicFields(true),
+
+    // You may also map the edited values into a nested structure:
+    new Action\DynamicBulkEdit(
+        name: 'edit-row-data',
+        title: 'Edit Row Data',
+    )
+        // Dynamically determine editable fields
+        ->field(fn (): array => $this->getRowFields())
+        ->mapTo('row_edited');
+}
+```
+
+**How It Works**
+
+The action displays a list of items, each containing:
+- a **field selector** (e.g., `email`, `status`, `firstname`)
+- a **value input**, whose type changes dynamically based on the selected field
+
+For example:
+- Selecting a `Text` field renders a text input
+- Selecting a `Select` field renders a dropdown
+- Selecting a `Checkboxes` field renders multiple checkboxes
+- Selecting a `Radios` field renders radio buttons
+- Selecting a `Textarea` field renders a textarea
+
+The list of editable rows is powered by an [Items Field](#items-field), allowing users to add or remove multiple column/value pairs.
+
+Dynamic field switching is handled automatically through the CRUD live-update system.
+
+**Supported Fields**
+
+The following field types support dynamic bulk editing:
+
+* [Checkboxes Field](#checkboxes-field)
+* [Radios Field](#radios-field)
+* [Select Field](#select-field)
+* [Text Field](#text-field)
+* [Textarea Field](#textarea-field)
+
+If a field type is not supported, the action gracefully falls back to a simple [Text Field](#text-field).
+
+**Mapping Edited Values**
+
+You may map all edited values into a nested structure using `mapTo()`:
+
+```php
+->mapTo('row_edited')
+```
+
+This produces input like:
+
+```php
+[
+    'row_edited' => [
+        'status' => 'inactive',
+        'firstname' => 'John',
+    ],
+]
+```
+
+This allows you to store edited values under a dedicated key instead of writing them directly to the entity fields.
+
+**Disabling Dynamic Fields**
+
+If you prefer a simpler UI, you may disable dynamic field types:
+
+```php
+->dynamicFields(false)
+```
+
+In this mode, all value inputs are rendered as plain [Text Field](#text-field).
 
 #### Bulk Tree Update Action
 
