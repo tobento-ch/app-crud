@@ -1,13 +1,42 @@
 const live = (function(window, document) {
     'use strict';
 
-    function toDotNotation(string) {
-        return string.replaceAll('[]', '').replaceAll('[', '.').replaceAll(']', '');
-    }
-    
-    function dotNotationToObject(path, value) {
-        const keys = path.split('.');
-        return keys.reduceRight((acc, key) => ({ [key]: acc }), value);
+    function serializeFormToNestedObject(form, changedElement = null, changedValue = null) {
+        const result = {};
+        const fd = new FormData(form);
+
+        // Helper: convert "foo[1][bar]" → "foo.1.bar"
+        const toDot = (name) =>
+            name.replaceAll('[]', '').replaceAll('[', '.').replaceAll(']', '');
+
+        // Helper: assign value into nested object using dot path
+        const assignDeep = (obj, path, value) => {
+            const keys = path.split('.');
+            let current = obj;
+
+            while (keys.length > 1) {
+                const key = keys.shift();
+                if (!current[key] || typeof current[key] !== 'object') {
+                    current[key] = {};
+                }
+                current = current[key];
+            }
+
+            current[keys[0]] = value;
+        };
+
+        // Build nested object from full form
+        for (const [key, value] of fd.entries()) {
+            assignDeep(result, toDot(key), value);
+        }
+
+        // Apply the changed field override
+        if (changedElement) {
+            const path = toDot(changedElement.getAttribute('name'));
+            assignDeep(result, path, changedValue);
+        }
+
+        return result;
     }
     
     const live = {
@@ -32,8 +61,16 @@ const live = (function(window, document) {
                     value = value[0] ?? '';
                 }
             }
+
+            const changedPath = el.getAttribute('name')
+                .replaceAll('[]', '')
+                .replaceAll('[', '.')
+                .replaceAll(']', '');
+
+            const formData = serializeFormToNestedObject(form, el, value);
+
+            formData._changed = changedPath;
             
-            const formData = dotNotationToObject(toDotNotation(el.getAttribute('name')), value);
             const inputMethod = form.querySelector('input[name="_method"]');
             const queryParams = new URLSearchParams(window.location.search);
             const queryData = Object.fromEntries(queryParams.entries());
