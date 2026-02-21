@@ -13,8 +13,11 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field\Formatter;
 
+use Stringable;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\Service\Support\HtmlString;
+use Tobento\Service\Support\Str as SupportStr;
 
 class Str
 {
@@ -25,12 +28,14 @@ class Str
      * @param string $trimMarker
      * @param string $delimiter
      * @param bool $arrayToJson
+     * @param bool $pre
      */
     public function __construct(
         protected null|int $trimWidth = null,
         protected string $trimMarker = '...',
         protected string $delimiter = ', ',
         protected bool $arrayToJson = false,
+        protected bool $pre = false,
     ) {}
     
     /**
@@ -38,20 +43,24 @@ class Str
      *
      * @param mixed $value
      * @param FieldInterface $field
-     * @return string
+     * @return string|Stringable
      */
-    public function __invoke(mixed $value, FieldInterface $field): string
+    public function __invoke(mixed $value, FieldInterface $field): string|Stringable
     {
         if (is_array($value)) {
-            
             if ($this->arrayToJson) {
-                return $this->formatValue(value: json_encode($value), field: $field);
+                $value = json_encode($value, JSON_PRETTY_PRINT);
+                return $this->finalize($value);
             }
-            
-            return $this->formatValues(values: $value, field: $field);
+
+            return $this->finalize(
+                $this->formatValues($value, $field)
+            );
         }
-        
-        return $this->formatValue(value: $value, field: $field);
+
+        return $this->finalize(
+            $this->formatValue($value, $field)
+        );
     }
 
     /**
@@ -59,35 +68,29 @@ class Str
      *
      * @param mixed $value
      * @param FieldInterface $field
-     * @return string
+     * @return string|Stringable
      * @psalm-suppress TypeDoesNotContainType
      * @psalm-suppress RedundantCondition
      */
-    protected function formatValue(mixed $value, Field\FieldInterface $field): string
+    protected function formatValue(mixed $value, Field\FieldInterface $field): string|Stringable
     {
-        if (!is_scalar($value)) {
-            $value = '';
+        if ($value instanceof Stringable) {
+            $value = (string)$value;
         }
-        
-        $options = [];
-        
-        if ($field instanceof Field\OptionsAwareInterface) {
-            $options = $field->getOptions();
-        }
-        
-        $value = is_int($value) || is_string($value) ? $options[$value] ?? $value : $value;
         
         if (!is_scalar($value)) {
             return '';
         }
-        
-        $value = (string)$value;
-        
-        if (is_null($this->trimWidth)) {
-            return $value;
-        }
-        
-        return mb_strimwidth($value, 0, $this->trimWidth, $this->trimMarker);
+
+        $options = $field instanceof Field\OptionsAwareInterface
+            ? $field->getOptions()
+            : [];
+
+        $value = is_int($value) || is_string($value)
+            ? ($options[$value] ?? $value)
+            : $value;
+
+        return is_scalar($value) ? (string)$value : '';
     }
     
     /**
@@ -102,13 +105,11 @@ class Str
         if (empty($values)) {
             return '';
         }
-        
-        $options = [];
-        
-        if ($field instanceof Field\OptionsAwareInterface) {
-            $options = $field->getOptions();
-        }
-        
+
+        $options = $field instanceof Field\OptionsAwareInterface
+            ? $field->getOptions()
+            : [];
+
         $values = array_map(function(mixed $value) use ($options): mixed {
             if (is_int($value) || is_string($value)) {
                 return $options[$value] ?? $value;
@@ -117,12 +118,28 @@ class Str
             return $value;
         }, $values);
 
-        $values = implode($this->delimiter, $values);
-        
-        if (is_null($this->trimWidth)) {
-            return $values;
+        return implode($this->delimiter, $values);
+    }
+    
+    /**
+     * Finalizes the formatted value by applying trimming and optional
+     * <pre> wrapping.
+     *
+     * @param string $value
+     * @return string|HtmlString
+     */
+    protected function finalize(string $value): string|HtmlString
+    {
+        // Trim if needed
+        if (!is_null($this->trimWidth)) {
+            $value = mb_strimwidth($value, 0, $this->trimWidth, $this->trimMarker);
         }
-        
-        return mb_strimwidth($values, 0, $this->trimWidth, $this->trimMarker);
+
+        // Wrap in <pre> if enabled
+        if ($this->pre) {
+            return new HtmlString('<pre>'.SupportStr::esc($value).'</pre>');
+        }
+
+        return $value;
     }
 }

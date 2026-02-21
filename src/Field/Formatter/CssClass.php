@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field\Formatter;
 
+use Stringable;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\Service\Support\Htmlable;
 use Tobento\Service\Support\HtmlString;
 use Tobento\Service\Support\Str;
 
@@ -63,22 +65,35 @@ class CssClass
         if (!empty($label)) {
             return '<span class="'.Str::esc($this->class).'">'.Str::esc($label).'</span>';
         }
-        
+
+        $escape = true;
+
+        if ($value instanceof Htmlable) {
+            $value = $value->toHtml();
+            $escape = false;
+        } elseif ($value instanceof Stringable) {
+            $value = (string)$value;
+        }
+
         if (!is_scalar($value)) {
             return '';
         }
-        
+
         $value = (string)$value;
-        
+
         if ($value === '') {
             return '';
         }
-        
+
         if ($this->class === '') {
-            return '<span>'.Str::esc($value).'</span>';
+            return $escape
+                ? '<span>'.Str::esc($value).'</span>'
+                : '<span>'.$value.'</span>';
         }
-        
-        return '<span class="'.Str::esc($this->class).'">'.Str::esc($value).'</span>';
+
+        return $escape
+            ? '<span class="'.Str::esc($this->class).'">'.Str::esc($value).'</span>'
+            : '<span class="'.Str::esc($this->class).'">'.$value.'</span>';
     }
 
     /**
@@ -92,6 +107,10 @@ class CssClass
      */
     protected function formatValue(mixed $value, Field\FieldInterface $field): string
     {
+        if ($value instanceof Stringable) {
+            return $this->format(value: $value, label: null);
+        }
+        
         if (!is_scalar($value)) {
             $value = '';
         }

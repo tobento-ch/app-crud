@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Field\Formatter;
 
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\Service\Support\Htmlable;
 use Tobento\Service\Support\HtmlString;
 use Tobento\Service\Support\Str;
 
@@ -50,9 +51,15 @@ class Formatters
         }
         
         foreach($this->formatters as $formatter) {
-            $value = Str::esc($formatter($value, $field));
+            $value = $formatter($value, $field);
+            
+            if (! $value instanceof Htmlable) {
+                $value = Str::esc($value);
+            }
         }
         
-        return new HtmlString($value);
+        return $value instanceof Htmlable
+            ? $value
+            : new HtmlString($value);
     }
 }
