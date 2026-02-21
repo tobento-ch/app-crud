@@ -86,9 +86,9 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()
             ->assertStatus(200)
-            ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-email" method="POST">')
+            ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-email" name="bulk-email" method="POST">')
+            ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-name" name="bulk-name" method="POST">')
             ->assertBodyContains('<input name="email" id="email" type="text" value>')
-            ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-name" method="POST">')
             ->assertBodyContains('<input name="firstname" id="firstname" type="text" value>')
             ->assertBodyContains('<input name="lastname" id="lastname" type="text" value>');
     }
@@ -157,5 +157,24 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->response()
             ->assertStatus(200)
             ->assertBodyContains('Status info create only text');
+    }
+    
+    public function testFailsWhenValidationError()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-email'),
+            body: ['ids' => ['1'], 'email' => 'invalid-email'],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(1)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudIndexEntityCount(1)
+            ->assertBodyContains('The email must be a valid email address.');
+        
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(1)->get('email'));
     }
 }
