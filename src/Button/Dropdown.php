@@ -91,6 +91,10 @@ final class Dropdown extends AbstractButton implements ButtonsAwareInterface
      */
     public function render(ViewInterface $view): string
     {
+        if ($this->getButtons()->count() === 0) {
+            return '';
+        }
+            
         $menuId = sprintf('dropdown-menu-%s%s', $this->getName(), (string)$this->entity?->id());
         $menuId = preg_replace('/[^a-zA-Z0-9-_]/', '', $menuId);
         
