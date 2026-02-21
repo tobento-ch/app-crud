@@ -19,6 +19,7 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Exception\ActionNotFoundException;
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Fields;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\Service\Support\Str;
@@ -57,6 +58,11 @@ class Items extends AbstractField implements FieldsAwareInterface
      * @var null|int
      */
     protected null|int $defaultItems = null;
+    
+    /**
+     * @var callable|null
+     */
+    protected $onCreateFieldCallback = null;
     
     /**
      * Create a new Items.
@@ -162,6 +168,19 @@ class Items extends AbstractField implements FieldsAwareInterface
     }
     
     /**
+     * Set a callback to dynamically modify or replace a field
+     * for a specific row inside the Items repeater.
+     *
+     * @param callable $callback fn(FieldInterface $template, int $index, array $rowInput): ?FieldInterface
+     * @return $this
+     */
+    public function onCreateField(callable $callback): static
+    {
+        $this->onCreateFieldCallback = $callback;
+        return $this;
+    }
+    
+    /**
      * Set if to display the first item.
      *
      * @param array $item
@@ -211,7 +230,7 @@ class Items extends AbstractField implements FieldsAwareInterface
         $items = $action->getInput()->get($this->name(), []);
         
         $itemsCount = count($action->getInput()->get($this->name(), []));
-        
+
         if ($itemsCount === 0 && !in_array($action->name(), ['store', 'update'])) {
             $itemsCount = count($action->entity()->get($this->name(), []));
         }
@@ -236,8 +255,26 @@ class Items extends AbstractField implements FieldsAwareInterface
             
             foreach($this->fields as $field) {
                 $field = clone $field;
+                
+                // Dynamic override
+                if ($this->onCreateFieldCallback) {
+                    $dynamic = call_user_func(
+                        $this->onCreateFieldCallback,
+                        $field,
+                        $i,
+                        $items[$i] ?? []
+                    );
+                    
+                    if ($dynamic instanceof FieldInterface) {
+                        $field = $dynamic;
+                        $field->parent($this->name());
+                        $field->group($this->groupName());
+                    }
+                }
+                
                 $field->rename($this->name().'.'.$key.'.'.$field->name());
                 $field->attributes($field->getAttributes() + ['data-index' => (string)$key]);
+                //var_dump($field::class); var_dump($field->name()); exit;
                 $fields[] = $field;
             }
             
