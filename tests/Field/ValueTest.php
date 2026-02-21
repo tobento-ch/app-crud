@@ -81,7 +81,11 @@ class ValueTest extends AbstractField
     {
         $field = new Field\Value(name: 'name')->setEntity(new Entity(['name' => ['foo', 'bar']]));
         $field->processIndexAction(field: $field);
-        $this->assertSame('[&quot;foo&quot;,&quot;bar&quot;]', $field->render());
+        
+        $expectedJson = json_encode(['foo', 'bar'], JSON_PRETTY_PRINT);
+        $expected = \Tobento\Service\Support\Str::esc($expectedJson);
+        
+        $this->assertSame($expected, $field->render());
     }
     
     public function testProcessShowActionWithString()
