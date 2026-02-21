@@ -5,8 +5,11 @@ $field = $action->field();
 <div class="modal modal-fade" data-modal='{"id": "<?= $view->esc($field->name()) ?>"}'>
     <div class="modal-background"></div>
     <div class="modal-content modal-l">
-        <?= $form->form(['action' => $action->getUrl()]) ?>
         <div class="modal-body" data-bulk-ajax-refresh="<?= $view->esc($field->name()) ?>">
+            <?= $form->form([
+                'action' => $action->getUrl(),
+                'name' => $field->name(),
+            ]) ?>
             <?php foreach($action->fields()->column('groupName', 'groupId') as $groupId => $groupName) { ?>
                 <section class="fields" data-fields-group="<?= $view->esc($groupId) ?>">
                     <h2 class="group-title"><?= $view->esc($groupName) ?></h2>
@@ -17,6 +20,7 @@ $field = $action->field();
                     ?>
                 </section>
             <?php } ?>
+            <?= $form->close() ?>
         </div>
         <div class="modal-foot">
             <div class="buttons spaced">
@@ -24,6 +28,5 @@ $field = $action->field();
                 <span class="link modal-close"><?= $view->etrans('Cancel') ?></span>
             </div>
         </div>
-        <?= $form->close() ?>
     </div>
 </div>
