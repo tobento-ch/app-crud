@@ -91,16 +91,6 @@ class DropdownTest extends AbstractButton
         $this->assertFalse($button === $newButton);
     }
     
-    public function testRenderMethod()
-    {
-        $button = new Dropdown(label: 'label', group: 'group');
-        
-        $this->assertSame(
-            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"></div></div></div>',
-            $button->render(Factory::createView())
-        );
-    }
-    
     public function testRenderWithButtons()
     {
         $button = new Dropdown(label: 'label', group: 'group')->buttons(
@@ -114,10 +104,13 @@ class DropdownTest extends AbstractButton
     public function testRenderMethodWithPrimary()
     {
         $button = new Dropdown(label: 'label', group: 'group')
+            ->buttons(
+                new Button(label: 'foo', group: 'group'),
+            )
             ->primary();
         
         $this->assertSame(
-            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs primary" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"></div></div></div>',
+            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs primary" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"><div class="crud-dropdown-item"><button class="button text-xs" data-button="foo">foo</button></div></div></div></div>',
             $button->render(Factory::createView())
         );
     }
@@ -125,10 +118,13 @@ class DropdownTest extends AbstractButton
     public function testRenderMethodWithRaw()
     {
         $button = new Dropdown(label: 'label', group: 'group')
+            ->buttons(
+                new Button(label: 'foo', group: 'group'),
+            )
             ->raw();
         
         $this->assertSame(
-            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs raw" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"></div></div></div>',
+            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs raw" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"><div class="crud-dropdown-item"><button class="button text-xs" data-button="foo">foo</button></div></div></div></div>',
             $button->render(Factory::createView())
         );
     }
@@ -136,10 +132,13 @@ class DropdownTest extends AbstractButton
     public function testRenderMethodWithIcon()
     {
         $button = new Dropdown(label: 'label', group: 'group')
+            ->buttons(
+                new Button(label: 'foo', group: 'group'),
+            )
             ->icon('foo');
         
         $this->assertSame(
-            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label"><i>foo</i>label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"></div></div></div>',
+            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label"><i>foo</i>label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"><div class="crud-dropdown-item"><button class="button text-xs" data-button="foo">foo</button></div></div></div></div>',
             $button->render(Factory::createView())
         );
     }
@@ -147,10 +146,13 @@ class DropdownTest extends AbstractButton
     public function testRenderMethodWithAttr()
     {
         $button = new Dropdown(label: 'label', group: 'group')
+            ->buttons(
+                new Button(label: 'foo', group: 'group'),
+            )
             ->attr('data-foo', 'value');
         
         $this->assertSame(
-            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span data-foo="value" class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"></div></div></div>',
+            '<div class="crud-dropdown" data-dropdown="dropdown-menu-label"><span data-foo="value" class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-label" data-button="label">label</span><div class="crud-dropdown-menu" id="dropdown-menu-label" role="menu"><div class="crud-dropdown-body"><div class="crud-dropdown-item"><button class="button text-xs" data-button="foo">foo</button></div></div></div></div>',
             $button->render(Factory::createView())
         );
     }
@@ -158,11 +160,21 @@ class DropdownTest extends AbstractButton
     public function testRenderMethodLabelIsEscaped()
     {
         $button = new Dropdown(label: '<p>label</p>', group: 'group')
+            ->buttons(
+                new Button(label: 'foo', group: 'group'),
+            )
             ->name('name');
         
         $this->assertSame(
-            '<div class="crud-dropdown" data-dropdown="dropdown-menu-name"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-name" data-button="name">&lt;p&gt;label&lt;/p&gt;</span><div class="crud-dropdown-menu" id="dropdown-menu-name" role="menu"><div class="crud-dropdown-body"></div></div></div>',
+            '<div class="crud-dropdown" data-dropdown="dropdown-menu-name"><span class="button text-xs" aria-haspopup="true" aria-controls="dropdown-menu-name" data-button="name">&lt;p&gt;label&lt;/p&gt;</span><div class="crud-dropdown-menu" id="dropdown-menu-name" role="menu"><div class="crud-dropdown-body"><div class="crud-dropdown-item"><button class="button text-xs" data-button="foo">foo</button></div></div></div></div>',
             $button->render(Factory::createView())
         );
+    }
+    
+    public function testRenderWithoutButtons()
+    {
+        $button = new Dropdown(label: 'label', group: 'group')->buttons();
+        
+        $this->assertSame('', $button->render(Factory::createView()));
     }
 }
