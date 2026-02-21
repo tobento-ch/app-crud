@@ -80,6 +80,7 @@ class Crud extends Boot
     {
         // Migration:
         $migration->install(\Tobento\App\Crud\Migration\Crud::class);
+        $migration->install(\Tobento\App\Media\Migration\MediaExtended::class);
         
         // Interfaces:
         $this->app->set(ActionProcessorInterface::class, ActionProcessor::class);
