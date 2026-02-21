@@ -32,6 +32,7 @@ use Tobento\App\Media\FileStorage\FileWriter;
 use Tobento\App\Media\FileStorage\Writer;
 use Tobento\App\Media\FileStorage\WriteResponseInterface;
 use Tobento\App\Media\Picture\PictureGeneratorInterface;
+use Tobento\App\Media\Upload\CopyFileWrapper;
 use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
 use Tobento\App\Media\Upload\ValidatorInterface;
 use Tobento\App\Media\Upload\Validator;
@@ -523,12 +524,29 @@ class FileSource extends AbstractField
      * Returns the configured file writer.
      *
      * @param StorageInterface $storage
+     * @param mixed $inputFile
      * @return FileWriterInterface
      */
-    protected function configureFileWriter(StorageInterface $storage): FileWriterInterface
+    protected function configureFileWriter(StorageInterface $storage, mixed $inputFile): FileWriterInterface
     {
+        // Allow user-defined writer factory
         if (is_callable($this->fileWriter)) {
-            return call_user_func_array($this->fileWriter, [$storage]);
+            return call_user_func_array($this->fileWriter, [$storage, $inputFile]);
+        }
+
+        $writers = [];
+
+        // Only real uploads should be processed by image writers
+        if (! $inputFile instanceof CopyFileWrapper) {
+            $writers[] = new Writer\ImageWriter(
+                imageProcessor: new ImageProcessor(
+                    actions: [
+                        'orientate' => [],
+                        'resize' => ['width' => 2000],
+                    ],
+                ),
+            );
+            $writers[] = new Writer\SvgSanitizerWriter();
         }
 
         return new FileWriter(
@@ -537,17 +555,7 @@ class FileSource extends AbstractField
             duplicates: FileWriter::RENAME, // RENAME, OVERWRITE, DENY
             folders: FileWriter::ALNUM, // or KEEP
             folderDepthLimit: 5,
-            writers: [
-                new Writer\ImageWriter(
-                    imageProcessor: new ImageProcessor(
-                        actions: [
-                            'orientate' => [],
-                            'resize' => ['width' => 2000],
-                        ],
-                    ),
-                ),
-                new Writer\SvgSanitizerWriter(),
-            ],
+            writers: $writers,
         );
     }
     
@@ -655,7 +663,10 @@ class FileSource extends AbstractField
                 try {
                     $file = $storage->with('stream', 'mimeType', 'size')->file(path: $path);
                     $uploadedFile = $uploadedFileFactory->createFromStorageFile(file: $file);
-                    $input->set($field->name(), $uploadedFile);
+                    $input->set(
+                        $field->name(),
+                        new CopyFileWrapper($uploadedFile, $storageName, $path)
+                    );
                 } catch (FileNotFoundException|CreateUploadedFileException $e) {
                     $input->set($field->name(), new UploadErrorException(
                         message: 'Unable to upload the file :path from the file storage :storage: :message',
@@ -726,8 +737,9 @@ class FileSource extends AbstractField
                 $input->set($field->name(), '');
                 return;
             case $inputFile instanceof UploadedFileInterface:
+            case $inputFile instanceof CopyFileWrapper:
                 // handle no file selected:
-                if ($inputFile->getError() === 4) {
+                if ($inputFile instanceof UploadedFileInterface && $inputFile->getError() === 4) {
                     if ($action->entity()->has($field->name())) {
                         $input->set($field->name(), $action->entity()->get($field->name()));
                     } else {
@@ -750,10 +762,15 @@ class FileSource extends AbstractField
                 }
                 
                 // handle upload:
-                $writer = $this->configureFileWriter($storage);
+                $writer = $this->configureFileWriter($storage, $inputFile);
                 
                 try {
-                    $writeResponse = $writer->writeUploadedFile($inputFile, $folderPath);
+                    if ($inputFile instanceof CopyFileWrapper) {
+                        $writeResponse = $writer->copyFile(path: $inputFile->path(), folderPath: $folderPath);
+                    } else {
+                        $writeResponse = $writer->writeUploadedFile($inputFile, $folderPath);
+                    }
+
                     $field->writeResponse($writeResponse);
                 } catch (WriteException $e) {
                     if (in_array('error', $this->messageLevelsToDisplay)) {
@@ -1054,6 +1071,10 @@ class FileSource extends AbstractField
                     try {
                         if ($file instanceof UploadErrorException) {
                             throw $file;
+                        }
+                        
+                        if ($file instanceof CopyFileWrapper) {
+                            $file = $file->uploadedFile();
                         }
                         
                         if (!$file instanceof UploadedFileInterface) {
