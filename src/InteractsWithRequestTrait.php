@@ -29,6 +29,24 @@ trait InteractsWithRequestTrait
      */
     public function filterRequestedFieldsOnly(RequesterInterface $requester, FieldsInterface $fields): FieldsInterface
     {
+        $isLive = $this->isLiveRequest($requester);
+
+        // LIVE REQUEST
+        if ($isLive) {
+            $changed = $requester->input()->get('_changed');
+            
+            // If _changed is missing, do NOT update anything
+            if (!$changed) {
+                return $fields->filter(fn() => false);
+            }
+
+            // Only update the changed field
+            return $fields->filter(function(FieldInterface $f) use ($changed) {
+                return $f->name() === $changed;
+            });
+        }
+
+        // Fallback: original behavior for normal AJAX
         $inputKeys = $requester->input()->keys()->all();
         $inputKeys = array_merge($inputKeys, array_keys($requester->request()->getUploadedFiles()));
 
@@ -39,16 +57,16 @@ trait InteractsWithRequestTrait
 
             // 1. Keep parent fields only if they exist in the request
             if ($f instanceof FieldsAwareInterface) {
-                return in_array($root, $inputKeys);
+                return in_array($root, $inputKeys, true);
             }
 
             // 2. Keep children only if their parent exists in the request
-            if (in_array($root, $inputKeys)) {
+            if (in_array($root, $inputKeys, true)) {
                 return true;
             }
 
             // 3. Keep direct fields that exist in the request
-            return in_array($name, $inputKeys);
+            return in_array($name, $inputKeys, true);
         });
     }
     
