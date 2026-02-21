@@ -123,7 +123,7 @@ class CreateTest extends \Tobento\App\Crud\Test\Feature\TestCase
             method: 'GET',
             uri: $this->generateCreateUri(),
             headers: ['X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json', 'X-Crud-Live' => '1'],
-            body: ['firstname' => 'john'],
+            body: ['firstname' => 'john', '_changed' => 'firstname'],
         );
         
         $http->response()

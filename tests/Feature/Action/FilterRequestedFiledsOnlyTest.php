@@ -87,7 +87,7 @@ class FilterRequestedFiledsOnlyTest extends \Tobento\App\Crud\Test\Feature\TestC
             method: 'POST',
             uri: $this->generateStoreUri(),
             headers: ['X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json', 'X-Crud-Live' => '1'],
-            body: ['items' => [[]]],
+            body: ['items' => [[]], '_changed' => 'items'],
         );
         
         $http->followRedirects()

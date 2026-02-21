@@ -133,7 +133,7 @@ class CopyTest extends \Tobento\App\Crud\Test\Feature\TestCase
             method: 'GET',
             uri: $this->generateCopyUri(id: 1),
             headers: ['X-Requested-With' => 'XMLHttpRequest', 'Content-Type' => 'application/json', 'X-Crud-Live' => '1'],
-            body: ['firstname' => 'john'],
+            body: ['firstname' => 'john', '_changed' => 'firstname'],
         );
         
         $this->getSeedFactory(['email' => 'tom@example.com'])->createOne();
