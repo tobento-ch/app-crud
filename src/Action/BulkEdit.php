@@ -22,6 +22,7 @@ use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
@@ -259,6 +260,14 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
             $fields = $indexAction
                 ->fields()
                 ->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));         
+        }
+        
+        // Restore input if available
+        $input = $this->getInput();
+
+        if (empty($input->all())) {
+            $requester = $this->container()->get(RequesterInterface::class);
+            $createAction->setInput(new Input($requester->input()->all()));
         }
         
         $createAction->setFields($fields);
