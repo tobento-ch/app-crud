@@ -30,7 +30,7 @@ $form = $view->form();
                             input: new HtmlString($form->input(
                                 name: $field->name().'.'.$locale,
                                 type: $inputType,
-                                value: $field->getValue($field, $locale),
+                                value: $field->getValue($field, $locale, $actionName),
                                 attributes: $inputAttributes,
                             )),
                             suffix: $field->getSuffix(),
@@ -59,7 +59,7 @@ $form = $view->form();
                 input: new HtmlString($form->input(
                     name: $field->name(),
                     type: $inputType,
-                    value: $field->getValue($field),
+                    value: $field->getValue($field, null, $actionName),
                     attributes: $inputAttributes,
                 )),
                 suffix: $field->getSuffix(),
