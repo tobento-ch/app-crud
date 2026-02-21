@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Formatter\CssClass;
 use Tobento\App\Crud\Field;
+use Tobento\Service\Support\HtmlString;
 
 class CssClassTest extends TestCase
 {
@@ -47,6 +48,16 @@ class CssClassTest extends TestCase
         $this->assertSame(
             '<span class="text-700">555</span>',
             (string)$class(value: 555, field: new Field\Text(name: 'name'))
+        );
+    }
+    
+    public function testHtmlStringValue()
+    {
+        $class = new CssClass('text-700');
+        
+        $this->assertSame(
+            '<span class="text-700"><p>lorem</p></span>',
+            (string)$class(value: new HtmlString('<p>lorem</p>'), field: new Field\Text(name: 'name'))
         );
     }
     

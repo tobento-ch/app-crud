@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Formatter\Str;
 use Tobento\App\Crud\Field;
+use Tobento\Service\Support\HtmlString;
 
 class StrTest extends TestCase
 {
@@ -47,6 +48,16 @@ class StrTest extends TestCase
         $this->assertSame(
             '555',
             $str(value: 555, field: new Field\Text(name: 'name'))
+        );
+    }
+    
+    public function testHtmlStringValue()
+    {
+        $str = new Str();
+        
+        $this->assertSame(
+            '<p>lorem</p>',
+            $str(value: new HtmlString('<p>lorem</p>'), field: new Field\Text(name: 'name'))
         );
     }
     
@@ -129,14 +140,51 @@ class StrTest extends TestCase
             $str(value: ['foo', 'bar', 'baz'], field: new Field\Text(name: 'name'))
         );
     }
-    
+
     public function testArrayToJson()
     {
         $str = new Str(arrayToJson: true);
-        
+
         $this->assertSame(
-            '{"foo":"bar"}',
+            json_encode(['foo' => 'bar'], JSON_PRETTY_PRINT),
             $str(value: ['foo' => 'bar'], field: new Field\Text(name: 'name'))
+        );
+    }
+    
+    public function testPreWithArrayToJson()
+    {
+        $str = new Str(arrayToJson: true, pre: true);
+
+        $expectedJson = json_encode(['foo' => 'bar'], JSON_PRETTY_PRINT);
+        $expected = '<pre>'.\Tobento\Service\Support\Str::esc($expectedJson).'</pre>';
+
+        $this->assertSame(
+            $expected,
+            (string)$str(value: ['foo' => 'bar'], field: new Field\Text(name: 'name'))
+        );
+    }
+    
+    public function testPreWithArray()
+    {
+        $str = new Str(pre: true);
+
+        $expected = '<pre>'.\Tobento\Service\Support\Str::esc('foo, bar').'</pre>';
+
+        $this->assertSame(
+            $expected,
+            (string)$str(value: ['foo', 'bar'], field: new Field\Text(name: 'name'))
+        );
+    }
+    
+    public function testPreScalar()
+    {
+        $str = new Str(pre: true);
+
+        $expected = '<pre>'.\Tobento\Service\Support\Str::esc('Hello').'</pre>';
+
+        $this->assertSame(
+            $expected,
+            (string)$str(value: 'Hello', field: new Field\Text(name: 'name'))
         );
     }
 }
