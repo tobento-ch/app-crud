@@ -22,11 +22,11 @@ use Tobento\App\Crud\FilterProcessor;
 use Tobento\App\Crud\Url;
 use Tobento\App\Crud\AbstractCrudController;
 use Tobento\App\Media;
-use Tobento\App\Media\Upload\UploadedFileFactory;
-use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
 use Tobento\App\Language\RouteLocalizerInterface;
 use Tobento\Service\Routing\RouteInterface;
 use Tobento\Service\Routing\RouterInterface;
+use Tobento\Service\Upload\UploadedFileFactory;
+use Tobento\Service\Upload\UploadedFileFactoryInterface;
 
 /**
  * Crud boot.
