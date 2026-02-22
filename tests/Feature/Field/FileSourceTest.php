@@ -21,15 +21,15 @@ use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Event\FileSourceDeleted;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Test\Factory;
-use Tobento\App\Media\FileStorage\FileWriter;
-use Tobento\App\Media\FileStorage\FileWriterInterface;
-use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
-use Tobento\App\Media\Upload\Validator;
-use Tobento\App\Media\Upload\ValidatorInterface;
 use Tobento\Service\FileStorage\StorageInterface as FileStorageInterface;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
 use Tobento\Service\Storage\StorageInterface;
+use Tobento\Service\Upload\FileStorageWriter;
+use Tobento\Service\Upload\FileStorageWriterInterface;
+use Tobento\Service\Upload\UploadedFileFactoryInterface;
+use Tobento\Service\Upload\Validator;
+use Tobento\Service\Upload\ValidatorInterface;
 
 class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
 {
@@ -457,7 +457,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
             return new Field\FileSource('filesrc')
                 ->storage(name: 'uploads-public')
                 ->validator(static function(): ValidatorInterface {
-                    return new Validator(
+                    return new Validator\General(
                         allowedExtensions: ['txt'],
                     );
                 });
@@ -481,8 +481,8 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->withFileSource(function () {
             return new Field\FileSource('filesrc')
                 ->storage(name: 'uploads-public')
-                ->fileWriter(static function(FileStorageInterface $storage): FileWriterInterface {
-                    return new FileWriter(
+                ->fileStorageWriter(static function(FileStorageInterface $storage): FileStorageWriterInterface {
+                    return new FileStorageWriter(
                         storage: $storage,
                         filenames: function (string $filename): string {
                             return 'testname';
@@ -1121,7 +1121,7 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
             return new Field\FileSource('filesrc')
                 ->storage(name: 'uploads-public')
                 ->validator(static function(): ValidatorInterface {
-                    return new Validator(
+                    return new Validator\General(
                         allowedExtensions: ['txt'],
                     );
                 });
@@ -1142,13 +1142,13 @@ class FileSourceTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame('file-val.txt', $this->getCrudRepository()->findById(1)->get('filesrc'));
     }
     
-    public function testUpdateActionUsesConfiguredFileWriter()
+    public function testUpdateActionUsesConfiguredFileStorageWriter()
     {
         $this->withFileSource(function () {
             return new Field\FileSource('filesrc')
                 ->storage(name: 'uploads-public')
-                ->fileWriter(static function(FileStorageInterface $storage): FileWriterInterface {
-                    return new FileWriter(
+                ->fileStorageWriter(static function(FileStorageInterface $storage): FileStorageWriterInterface {
+                    return new FileStorageWriter(
                         storage: $storage,
                         filenames: function (string $filename): string {
                             return 'testname';
