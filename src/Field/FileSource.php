@@ -22,29 +22,30 @@ use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Exception\UploadErrorException;
 use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Input\InputInterface;
-use Tobento\App\Media\Exception\CreateUploadedFileException;
-use Tobento\App\Media\Exception\UploadException;
-use Tobento\App\Media\Exception\UploadedFileException;
-use Tobento\App\Media\Exception\WriteException;
-use Tobento\App\Media\Image\ImageProcessor;
-use Tobento\App\Media\FileStorage\FileWriterInterface;
-use Tobento\App\Media\FileStorage\FileWriter;
-use Tobento\App\Media\FileStorage\Writer;
-use Tobento\App\Media\FileStorage\WriteResponseInterface;
-use Tobento\App\Media\Picture\PictureGeneratorInterface;
-use Tobento\App\Media\Upload\CopyFileWrapper;
-use Tobento\App\Media\Upload\UploadedFileFactoryInterface;
-use Tobento\App\Media\Upload\ValidatorInterface;
-use Tobento\App\Media\Upload\Validator;
+use Tobento\App\Media\Upload\ImageProcessor;
+use Tobento\App\Media\Upload\Writer\SvgSanitizer;
 use Tobento\Service\FileStorage\FileNotFoundException;
 use Tobento\Service\FileStorage\StoragesInterface;
 use Tobento\Service\FileStorage\StorageInterface;
 use Tobento\Service\Picture\Definition\ArrayDefinition;
 use Tobento\Service\Picture\DefinitionInterface;
 use Tobento\Service\Picture\DefinitionsInterface;
+use Tobento\Service\Picture\Generator\PictureGeneratorInterface;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\Support\Str;
+use Tobento\Service\Upload\CopyFileWrapper;
+use Tobento\Service\Upload\Exception\CreateUploadedFileException;
+use Tobento\Service\Upload\Exception\UploadException;
+use Tobento\Service\Upload\Exception\UploadedFileException;
+use Tobento\Service\Upload\Exception\WriteException;
+use Tobento\Service\Upload\FileStorageWriter;
+use Tobento\Service\Upload\FileStorageWriterInterface;
+use Tobento\Service\Upload\Writer;
+use Tobento\Service\Upload\WriteResponseInterface;
+use Tobento\Service\Upload\UploadedFileFactoryInterface;
+use Tobento\Service\Upload\Validator;
+use Tobento\Service\Upload\ValidatorInterface;
 use Tobento\Service\Validation\Rule\Passes;
 use Tobento\Service\Validation\ValidationInterface;
 use Tobento\Service\View\ViewInterface;
@@ -104,7 +105,7 @@ class FileSource extends AbstractField
     /**
      * @var null|callable
      */
-    protected $fileWriter = null;
+    protected $fileStorageWriter = null;
     
     /**
      * @var null|WriteResponseInterface
@@ -335,6 +336,11 @@ class FileSource extends AbstractField
     public function required(bool $required = true): static
     {
         $this->fileRequired = $required;
+        
+        if ($required) {
+            $this->validate('required');
+        }
+        
         return $this;
     }
     
@@ -394,12 +400,12 @@ class FileSource extends AbstractField
     /**
      * Sets the file writer.
      *
-     * @param callable $fileWriter
+     * @param callable $writer
      * @return static $this
      */
-    public function fileWriter(callable $fileWriter): static
+    public function fileStorageWriter(callable $writer): static
     {
-        $this->fileWriter = $fileWriter;
+        $this->fileStorageWriter = $writer;
         return $this;
     }
 
@@ -512,7 +518,7 @@ class FileSource extends AbstractField
             return call_user_func($this->validator);
         }
         
-        return new Validator(
+        return new Validator\General(
             allowedExtensions: $this->allowedFileExtensions ?: ['jpg', 'png', 'gif', 'webp'],
             strictFilenameCharacters: true,
             maxFilenameLength: 255,
@@ -521,24 +527,24 @@ class FileSource extends AbstractField
     }
     
     /**
-     * Returns the configured file writer.
+     * Returns the configured file storage writer.
      *
      * @param StorageInterface $storage
      * @param mixed $inputFile
-     * @return FileWriterInterface
+     * @return FileStorageWriterInterface
      */
-    protected function configureFileWriter(StorageInterface $storage, mixed $inputFile): FileWriterInterface
+    protected function configureFileStorageWriter(StorageInterface $storage, mixed $inputFile): FileStorageWriterInterface
     {
         // Allow user-defined writer factory
-        if (is_callable($this->fileWriter)) {
-            return call_user_func_array($this->fileWriter, [$storage, $inputFile]);
+        if (is_callable($this->fileStorageWriter)) {
+            return call_user_func_array($this->fileStorageWriter, [$storage, $inputFile]);
         }
 
         $writers = [];
 
         // Only real uploads should be processed by image writers
         if (! $inputFile instanceof CopyFileWrapper) {
-            $writers[] = new Writer\ImageWriter(
+            $writers[] = new Writer\Image(
                 imageProcessor: new ImageProcessor(
                     actions: [
                         'orientate' => [],
@@ -546,14 +552,14 @@ class FileSource extends AbstractField
                     ],
                 ),
             );
-            $writers[] = new Writer\SvgSanitizerWriter();
+            $writers[] = new SvgSanitizer();
         }
 
-        return new FileWriter(
+        return new FileStorageWriter(
             storage: $storage,
-            filenames: FileWriter::ALNUM, // RENAME, ALNUM, KEEP
-            duplicates: FileWriter::RENAME, // RENAME, OVERWRITE, DENY
-            folders: FileWriter::ALNUM, // or KEEP
+            filenames: FileStorageWriter::ALNUM, // RENAME, ALNUM, KEEP
+            duplicates: FileStorageWriter::RENAME, // RENAME, OVERWRITE, DENY
+            folders: FileStorageWriter::ALNUM, // or KEEP
             folderDepthLimit: 5,
             writers: $writers,
         );
@@ -762,7 +768,7 @@ class FileSource extends AbstractField
                 }
                 
                 // handle upload:
-                $writer = $this->configureFileWriter($storage, $inputFile);
+                $writer = $this->configureFileStorageWriter($storage, $inputFile);
                 
                 try {
                     if ($inputFile instanceof CopyFileWrapper) {
