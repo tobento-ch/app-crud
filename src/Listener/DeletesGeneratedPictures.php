@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Listener;
 
 use Tobento\App\Crud\Event\FileSourceDeleted;
-use Tobento\App\Media\Picture\PictureGeneratorInterface;
+use Tobento\Service\Picture\Generator\PictureGeneratorInterface;
 
 final class DeletesGeneratedPictures
 {

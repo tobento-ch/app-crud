@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Listener;
 
 use Tobento\App\Media\Event\ImageEdited;
-use Tobento\App\Media\Picture\PictureRepositoryInterface;
+use Tobento\Service\Picture\Generator\PictureRepositoryInterface;
 
 /**
  * Clears the generated picture.
