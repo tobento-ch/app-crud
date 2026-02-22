@@ -214,4 +214,79 @@ class ItemsTest extends \Tobento\App\Crud\Test\Feature\TestCase
 
         $this->assertSame([1 => ['price' => '7.5']], $this->getCrudRepository()->findById(1)->get('items'));
     }
+    
+    public function testOnCreateFieldCallbackModifiesField()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\Text('id'),
+                    new Field\Items('items')
+                        ->fields(
+                            new Field\Text('price')->type('number')
+                        )
+                        ->onCreateField(function(
+                            Field\FieldInterface $template,
+                            int $index,
+                            array $rowInput
+                        ) {
+                            // Add info text dynamically
+                            $template->infoText('Row '.$index);
+                            return $template;
+                        }),
+                ],
+                actions: [
+                    new Action\Edit(),
+                    new Action\Update(),
+                ],
+            );
+        });
+
+        $http = $this->fakeHttp();
+        $http->request(method: 'GET', uri: $this->generateEditUri(id: 1));
+        
+        $this->getSeedFactory(['items' => [1 => ['price' => '5.0']]])->times(1)->create();
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertBodyContains('Row 1'); // infoText applied
+    }
+    
+    public function testOnCreateFieldCallbackReplacesField()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\Text('id'),
+                    new Field\Items('items')
+                        ->fields(
+                            new Field\Text('price')
+                        )
+                        ->onCreateField(function(
+                            Field\FieldInterface $template,
+                            int $index,
+                            array $rowInput
+                        ) {
+                            return new Field\Text('special');
+                        }),
+                ],
+                actions: [
+                    new Action\Edit(),
+                ],
+            );
+        });
+
+        $http = $this->fakeHttp();
+        $http->request(method: 'GET', uri: $this->generateEditUri(id: 1));
+        
+        $this->getSeedFactory(['items' => [1 => ['price' => '5.0']]])->times(1)->create();
+        
+        $http->response()
+            ->assertStatus(200)
+            ->assertCrudFormFieldExists('items.1.special');
+    }
 }
