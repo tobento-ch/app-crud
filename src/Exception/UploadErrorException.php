@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Tobento\App\Crud\Exception;
 
 use Serializable;
-use Tobento\App\Media\Exception\UploadException;
+use Tobento\Service\Upload\Exception\UploadException;
 
 /**
  * UploadErrorException
