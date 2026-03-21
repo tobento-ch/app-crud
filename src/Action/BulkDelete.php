@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Action;
 
 use Throwable;
 use Psr\Http\Message\ResponseInterface;
+use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Entity\Entity;
@@ -119,7 +120,7 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     /**
      * Process bulk action.
      *
-     * @param ResponserInterface $responser
+     * @param RequesterInterface $requester
      * @param FilterProcessorInterface $filterProcessor
      * @param ResponserInterface $responser
      * @return void
@@ -184,6 +185,8 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         
         $deleteAction->setFields($this->fields());
         
+        $deletedCount = 0;
+        
         foreach(array_values($ids) as $id) {
             if (!is_string($id) && !is_int($id)) {
                 continue;
@@ -219,6 +222,20 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
             $this->actionProcessor()->processFieldsAction(
                 action: $deleteAction,
                 actionName: 'deleted',
+            );
+            
+            $deletedCount++;
+        }
+        
+        if ($deletedCount > 0) {
+            $responser->messages()->add(
+                level: 'success',
+                message: trans(':count record(s) have been deleted.', [':count' => $deletedCount]),
+            );
+        } else {
+            $responser->messages()->add(
+                level: 'info',
+                message: trans('No records were deleted.'),
             );
         }
     }
@@ -267,14 +284,15 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
      *
      * @param ActionInterface $action
      * @return iterable<FieldInterface>|FieldsInterface
+     * @psalm-suppress UnusedParam
      */
     protected function configureFields(ActionInterface $action): iterable|FieldsInterface
     {
-        yield new Field\Select(name: $this->fieldName('selection_mode'), label: trans('Rows to Delete'))
+        yield new Field\Select(name: $this->fieldName('selection_mode'), label: trans('Records to Delete'))
             ->group(trans('Options'))
             ->options([
-                'ids' => trans('Selected Rows'),
-                'filtered' => trans('All Filtered Rows'),
+                'ids' => trans('Selected Records'),
+                'filtered' => trans('All Filtered Records'),
             ])
             ->infoText(new Message(
                 title: trans('Are you sure you want to delete these items?'),
