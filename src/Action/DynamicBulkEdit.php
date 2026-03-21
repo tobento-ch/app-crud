@@ -49,9 +49,9 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     protected $allowedFields = [];
     
     /**
-     * @var null|string
+     * @var null|callable
      */
-    protected null|string $mapTo = null;
+    protected $inputAttributesModifier = null;
     
     /**
      * @var string
@@ -138,25 +138,25 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     }
     
     /**
-     * Map normalized changes to a specific key on the row (e.g. row_edited).
+     * Modify input attributes.
      *
-     * @param string $target
+     * @param callable $modifier fn (array $attributes, Action\ActionInterface $action): array => $attributes;
      * @return static $this
      */
-    public function mapTo(string $target): static
+    public function modifyInputAttributes(callable $modifier): static
     {
-        $this->mapTo = $target;
+        $this->inputAttributesModifier = $modifier;
         return $this;
     }
 
     /**
-     * Returns the map to target.
+     * Returns the input attributes modifier.
      *
-     * @return null|string
+     * @return null|callable
      */
-    public function getMapTo(): null|string
+    public function inputAttributesModifier(): null|callable
     {
-        return $this->mapTo;
+        return $this->inputAttributesModifier;
     }
     
     /**
@@ -232,10 +232,11 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         RequesterInterface $requester,
         ResponserInterface $responser,
     ): ResponseInterface {
+        $actionProcessor->preprocessAction(action: $this);
+        
         // 1. Detect live request FIRST
         if ($this->isLiveRequest($requester)) {
             
-            $actionProcessor->preprocessAction(action: $this);
             $controller = $this->controller();
             
             // // Ensure fields exist
@@ -346,6 +347,10 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         if (empty($attributes)) {
             return;
         }
+        
+        if ($this->inputAttributesModifier()) {
+            $attributes = ($this->inputAttributesModifier())($attributes, $updateAction);
+        }
 
         foreach(array_values($ids) as $id) {
             
@@ -452,7 +457,7 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     protected function getAllowedFields(): array
     {
         if (is_callable($this->allowedFields)) {
-            return $this->allowedFields = ($this->allowedFields)();
+            return $this->allowedFields = ($this->allowedFields)($this);
         }
 
         return $this->allowedFields;
@@ -528,7 +533,6 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     {
         $changes = $input->get($this->getChangeInputName(), []);
         $allowed = $this->getAllowedFields();
-        $target  = $this->getMapTo();
         $mapped  = [];
 
         foreach ($changes as $change) {
@@ -546,11 +550,7 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         }
 
         foreach ($mapped as $field => $value) {
-            if ($target) {
-                $mapped[$target][$field] = $value;
-            } else {
-                $mapped[$field] = $value;
-            }
+            $mapped[$field] = $value;
         }
         
         return $mapped;
@@ -615,7 +615,9 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         $options = [];
 
         foreach ($allowed as $name) {
-            $options[$name] = ucfirst((string) $name);
+            $field = $this->fields()->get($name);
+            $label = $field?->label() ?: ucfirst((string) $name);
+            $options[$name] = $label;
         }
 
         $max = 20;
