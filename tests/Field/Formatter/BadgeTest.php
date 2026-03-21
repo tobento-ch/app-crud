@@ -25,7 +25,7 @@ class BadgeTest extends TestCase
         $badge = new Badge(['foo' => 'text-green']);
         
         $this->assertSame(
-            '<span class="crud-badge text-green">foo</span>',
+            '<span class="badge text-green">foo</span>',
             (string)$badge(value: 'foo', field: new Field\Text(name: 'name'))
         );
     }
@@ -35,7 +35,7 @@ class BadgeTest extends TestCase
         $badge = new Badge(['foo' => 'text-green']);
         
         $this->assertSame(
-            '<span class="crud-badges"><span class="crud-badge text-green">foo</span><span class="crud-badge text-black">bar</span></span>',
+            '<span class="badges"><span class="badge text-green">foo</span><span class="badge text-black">bar</span></span>',
             (string)$badge(value: ['foo', 'bar'], field: new Field\Text(name: 'name'))
         );
     }
@@ -45,7 +45,7 @@ class BadgeTest extends TestCase
         $badge = new Badge([555 => 'text-green']);
         
         $this->assertSame(
-            '<span class="crud-badge text-green">555</span>',
+            '<span class="badge text-green">555</span>',
             (string)$badge(value: 555, field: new Field\Text(name: 'name'))
         );
     }
@@ -55,7 +55,7 @@ class BadgeTest extends TestCase
         $badge = new Badge();
         
         $this->assertSame(
-            '<span class="crud-badges"></span>',
+            '<span class="badges"></span>',
             (string)$badge(value: [[]], field: new Field\Text(name: 'name'))
         );
     }
@@ -80,12 +80,12 @@ class BadgeTest extends TestCase
         $badge = new Badge();
         
         $this->assertSame(
-            '<span class="crud-badge text-black">&lt;p&gt;foo&lt;/p&gt;</span>',
+            '<span class="badge text-black">&lt;p&gt;foo&lt;/p&gt;</span>',
             (string)$badge(value: '<p>foo</p>', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
-            '<span class="crud-badges"><span class="crud-badge text-black">&lt;p&gt;foo&lt;/p&gt;</span></span>',
+            '<span class="badges"><span class="badge text-black">&lt;p&gt;foo&lt;/p&gt;</span></span>',
             (string)$badge(value: ['<p>foo</p>'], field: new Field\Text(name: 'name'))
         );
     }
@@ -95,12 +95,12 @@ class BadgeTest extends TestCase
         $badge = new Badge(['blue' => 'text-blue']);
         
         $this->assertSame(
-            '<span class="crud-badge text-blue">Blue</span>',
+            '<span class="badge text-blue">Blue</span>',
             (string)$badge(value: 'blue', field: new Field\Select(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
         );
         
         $this->assertSame(
-            '<span class="crud-badges"><span class="crud-badge text-blue">Blue</span></span>',
+            '<span class="badges"><span class="badge text-blue">Blue</span></span>',
             (string)$badge(value: ['blue'], field: new Field\Select(name: 'name')->options(['blue' => 'Blue', 'red' => 'Red']))
         );
     }
@@ -110,12 +110,12 @@ class BadgeTest extends TestCase
         $badge = new Badge();
         
         $this->assertSame(
-            '<span class="crud-badge text-black">foo</span>',
+            '<span class="badge text-black">foo</span>',
             (string)$badge(value: 'foo', field: new Field\Text(name: 'name'))
         );
         
         $this->assertSame(
-            '<span class="crud-badges"><span class="crud-badge text-black">foo</span></span>',
+            '<span class="badges"><span class="badge text-black">foo</span></span>',
             (string)$badge(value: ['foo'], field: new Field\Text(name: 'name'))
         );
     }
@@ -125,7 +125,7 @@ class BadgeTest extends TestCase
         $badge = new Badge(fallbackClass: 'text-foo');
         
         $this->assertSame(
-            '<span class="crud-badge text-foo">foo</span>',
+            '<span class="badge text-foo">foo</span>',
             (string)$badge(value: 'foo', field: new Field\Text(name: 'name'))
         );
     }
@@ -135,7 +135,7 @@ class BadgeTest extends TestCase
         $badge = new Badge(limit: 1);
         
         $this->assertSame(
-            '<span class="crud-badges"><span class="crud-badge text-black">a</span><span>...</span></span>',
+            '<span class="badges"><span class="badge text-black">a</span><span>...</span></span>',
             (string)$badge(value: ['a', 'b', 'c'], field: new Field\Text(name: 'name'))
         );
     }

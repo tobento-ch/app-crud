@@ -71,7 +71,7 @@ class Badge
         }
         
         if (!empty($label)) {
-            return '<span class="crud-badge '.Str::esc($class).'">'.Str::esc($label).'</span>';
+            return '<span class="badge '.Str::esc($class).'">'.Str::esc($label).'</span>';
         }
         
         if (!is_scalar($value)) {
@@ -84,7 +84,7 @@ class Badge
             return '';
         }
         
-        return '<span class="crud-badge '.Str::esc($class).'">'.Str::esc($value).'</span>';
+        return '<span class="badge '.Str::esc($class).'">'.Str::esc($value).'</span>';
     }
 
     /**
@@ -132,7 +132,7 @@ class Badge
             $options = $field->getOptions();
         }
         
-        $html = '<span class="crud-badges">';
+        $html = '<span class="badges">';
         
         $sliced = array_slice($values, 0, $this->limit);
         
