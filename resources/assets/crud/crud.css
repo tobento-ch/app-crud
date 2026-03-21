@@ -48,6 +48,10 @@ body.crud {max-width: 100%;}
   overflow: visible;
   position: relative;
 }
+.table-col textarea {
+  width: 100%;
+  display: block;
+}
 .crud .filters .closed {
   display: none;
 }
@@ -97,6 +101,13 @@ body.crud {max-width: 100%;}
   .field-crud > .field-label {text-align: right;}
   .field-crud .field-body {flex-basis: 0; flex-grow: 5; flex-shrink: 1;}
   .field-crud .field-label .required, .field-crud .field-label .optional {display: block; margin-left: 0; margin-top: var(--spacing-xs);}
+}
+.field-crud .field-body pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-height: 400px; /* optional */
+    overflow-y: auto; /* optional */
 }
 .crud .item-header {
   border-top: 1px solid var(--color-black);
@@ -231,9 +242,20 @@ body.crud {max-width: 100%;}
 
 /* Misc */
 [data-filter="columns"] .wrap-v {justify-content: space-between;}
-.crud-badges, .crud-values {display: flex; flex-wrap: wrap; gap: .5rem;}
-.crud-badge {font-size: .8rem; padding: .1rem .3rem;}
-.crud-badge {border: 1px solid color(from currentColor srgb r g b / 0.5); border-radius: .3rem;}
+.inline-success-indicator {
+  position: absolute;
+  right: .25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: fadeInOut 1.2s ease;
+  pointer-events: none;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 /* Buttons */
 .crud-buttons {display: flex;}
