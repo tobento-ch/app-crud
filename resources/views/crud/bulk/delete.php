@@ -1,16 +1,28 @@
 <?php
 $form = $view->form();
 ?>
-<div class="modal modal-fade" data-modal='{"id": "bulk-delete"}'>
+<div class="modal modal-fade" data-modal='{"id": "<?= $view->esc($action->name()) ?>"}'>
     <div class="modal-background"></div>
     <div class="modal-content modal-l">
-        <?= $form->form(['action' => $action->getUrl()]) ?>
-        <div class="modal-body">
-            <p class="py-xs text-body"><?= $view->etrans('Are you sure you want to delete all selected items?') ?></p>
-        </div>
+        <div class="modal-body" data-bulk-ajax-refresh="<?= $view->esc($action->name()) ?>">
+            <?= $form->form([
+                'action' => $action->getUrl(),
+                'name' => $action->name(),
+            ]) ?>
+            <?php foreach($action->fields()->column('groupName', 'groupId') as $groupId => $groupName) { ?>
+                <section class="fields" data-fields-group="<?= $view->esc($groupId) ?>">
+                    <h2 class="group-title"><?= $view->esc($groupName) ?></h2>
+                    <?php
+                    foreach($action->fields()->group($groupName) as $f) {
+                        echo $f->render();
+                    }
+                    ?>
+                </section>
+            <?php } ?>
+        </div>        
         <div class="modal-foot">
             <div class="buttons spaced">
-                <span class="button primary" data-bulk-save="bulk-delete"><?= $view->etrans('Delete') ?></span>
+                <button class="button primary" data-bulk-save="<?= $view->esc($action->name()) ?>"><?= $view->etrans('Delete') ?></button>
                 <span class="link modal-close"><?= $view->etrans('Cancel') ?></span>
             </div>
         </div>
