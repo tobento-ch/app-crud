@@ -152,10 +152,11 @@ const indexAction = (function(window, document) {
                     }
                 });
             });
-            
+
             // Show dropdown menu on input click:
             document.addEventListener('click', (e) => {
-                const el = event.target.closest('[name^="bulk"]');
+
+                const el = e.target.closest('[name^="bulk"]');
                 const dropdownEl = document.querySelector('[data-dropdown="bulk"]');
                 
                 if (!dropdownEl) {
@@ -164,7 +165,7 @@ const indexAction = (function(window, document) {
                 
                 if (el) {
                     const count = document.querySelectorAll('[name="bulk[]"]:checked').length;
-                    if (count > 0) {
+                    if (count > 0 && !e.target.closest('.modal')) {
                         dropdownEl.classList.remove('display-none');
                         el.parentNode.appendChild(dropdownEl);
                     } else {
