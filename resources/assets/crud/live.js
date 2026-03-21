@@ -95,26 +95,37 @@ const live = (function(window, document) {
                     const doc = (new DOMParser()).parseFromString(data.html, 'text/html');
 
                     replaces.forEach(selector => {
-                        const newEl = doc.querySelector(selector);
-                        const oldEl = document.querySelector(selector);
-                        
-                        if (newEl && oldEl) {
-                            oldEl.parentNode.replaceChild(newEl, oldEl);
-                            return;
-                        }
-                        
-                        if (oldEl && newEl === null) {
-                            oldEl.remove();
-                            return;
-                        }
-                        
-                        if (newEl && oldEl === null) {
-                            if (newEl.previousElementSibling) {
-                                document.querySelector('[data-field="'+newEl.previousElementSibling.getAttribute('data-field')+'"]').after(newEl);
-                            } else if (newEl.nextElementSibling) {
-                                document.querySelector('[data-field="'+newEl.nextElementSibling.getAttribute('data-field')+'"]').before(newEl);
+                        const newEls = doc.querySelectorAll(selector);
+                        const oldEls = document.querySelectorAll(selector);
+
+                        // Replace existing fields
+                        oldEls.forEach((oldEl, index) => {
+                            const newEl = newEls[index];
+                            if (newEl) {
+                                oldEl.replaceWith(newEl);
+                            } else {
+                                oldEl.remove();
                             }
-                        }
+                        });
+
+                        // Insert new fields that do not exist in DOM
+                        newEls.forEach(newEl => {
+                            const field = newEl.getAttribute('data-field');
+
+                            // If field does not exist in DOM, insert it after the field that triggered the update
+                            if (!document.querySelector('[data-field="'+field+'"]')) {
+
+                                const targetField = el.closest('[data-field]');
+
+                                if (targetField) {
+                                    targetField.after(newEl);
+                                } else {
+                                    // fallback: append at end of container
+                                    const container = document.querySelector('[data-field]')?.parentNode;
+                                    container?.appendChild(newEl);
+                                }
+                            }
+                        });
                     });
                     
                     const msgEl = el.parentNode.parentNode.querySelector('.form-message');
