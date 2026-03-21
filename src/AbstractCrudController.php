@@ -89,9 +89,22 @@ abstract class AbstractCrudController
      *
      * @return string
      */
-    protected function entityIdName(): string
+    public function entityIdName(): string
     {
         return 'id';
+    }
+    
+    /**
+     * Returns a new instance with the given repository.
+     *
+     * @param RepositoryInterface $repository
+     * @return static
+     */
+    public function withRepository(RepositoryInterface $repository): static
+    {
+        $new = clone $this;
+        $new->repository = $repository;
+        return $new;
     }
     
     /**
