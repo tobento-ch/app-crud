@@ -53,7 +53,12 @@ trait HandleBulk
             $action->setFields($action->fields()->editable());
         }
         
-        $action->setInput(new Input($requester->input()->all()));
+        $action->setInput(new Input(
+            array_replace_recursive(
+                $requester->input()->all(),
+                $requester->request()->getUploadedFiles()
+            )
+        ));
         
         // Process action:
         $controller->isActionProcessable($action);
