@@ -13,15 +13,24 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
+use Throwable;
 use Psr\Http\Message\ResponseInterface;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\ActionProcessorInterface;
+use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\Fields;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\FilterProcessorInterface;
+use Tobento\App\Crud\Html\Message;
+use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
-use Throwable;
+use function Tobento\App\Translation\trans;
 
 final class BulkDelete extends AbstractAction implements BulkActionInterface
 {
@@ -53,6 +62,17 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     public function name(): string
     {
         return 'bulk-delete';
+    }
+    
+    /**
+     * Returns a namespaced field name for this action.
+     *
+     * @param string $suffix Field-specific suffix.
+     * @return string
+     */
+    public function fieldName(string $suffix): string
+    {
+        return $this->name() . '_' . $suffix;
     }
     
     /**
@@ -100,14 +120,61 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
      * Process bulk action.
      *
      * @param ResponserInterface $responser
+     * @param FilterProcessorInterface $filterProcessor
+     * @param ResponserInterface $responser
      * @return void
      * @throws ActionProcessException
      * @psalm-suppress RedundantCondition
      * @psalm-suppress NoValue
      */
-    public function processBulk(ResponserInterface $responser): void
-    {
-        $input = $this->getInput();
+    public function processBulk(
+        RequesterInterface $requester,
+        FilterProcessorInterface $filterProcessor,
+        ResponserInterface $responser
+    ): void {
+        // Process action for validation e.g.
+        $storeAction = new Action\Store();
+        $storeAction->setController($this->controller());
+        $this->actionProcessor()->preprocessAction(action: $storeAction);
+        
+        $storeAction->setInput(new Input(
+            array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
+        ));
+        
+        $fields = Fields::fromIterable($this->configureFields($storeAction));
+        $storeAction->setFields($fields);
+        
+        $this->actionProcessor()->processFields(action: $storeAction, entity: new Entity());
+        
+        // Get input data
+        $input = $storeAction->getInput();
+        $selectionMode = $input->get($this->fieldName('selection_mode'), 'ids'); // or filtered
+
+        // Ids selection mode
+        if ($selectionMode === 'ids') {
+            $ids = $input->get('ids', []);
+        } else {
+            // filtered selection mode
+            // Get Index action for filters
+            $indexAction = $this->actions()->get('index');
+
+            if (is_null($indexAction)) {
+                throw new ActionNotFoundException(actionName: 'index');
+            }
+
+            $indexAction->setFields($this->controller()->getConfiguredFields(action: $indexAction));
+
+            // Handle filters:
+            $filters = $this->controller()->getConfiguredFilters($indexAction);
+            $filters = $filterProcessor->processFilters(filters: $filters, action: $indexAction);
+
+            $ids = $this->controller()->repository()->findColumn(
+                column: $this->controller()->entityIdName(),
+                where: $filters->getWhereParameters(),
+                orderBy: $filters->getOrderByParameters(),
+            );
+        }
+        
         $repository = $this->controller()->repository();
         $deleteAction = $this->actions()->get('delete');
         
@@ -116,8 +183,6 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         }
         
         $deleteAction->setFields($this->fields());
-        
-        $ids = $input->get('ids', []);
         
         foreach(array_values($ids) as $id) {
             if (!is_string($id) && !is_int($id)) {
@@ -156,7 +221,7 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
                 actionName: 'deleted',
             );
         }
-    }    
+    }
     
     /**
      * Returns the html of action. MUST be escaped.
@@ -166,6 +231,19 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
      */
     public function render(ViewInterface $view): string
     {
+        $indexAction = $this->actions()->get('index');
+        $createAction = $this->actions()->get('create');
+        
+        if (is_null($indexAction) || is_null($createAction)) {
+            return '';
+        }
+
+        $fields = Fields::fromIterable($this->configureFields($createAction));
+        
+        $createAction->setFields($fields);
+        $this->actionProcessor->processFields(action: $createAction, entity: new Entity());
+        $this->setFields($createAction->fields());
+        
         return $view->render(
             view: $this->getView(),
             data: [
@@ -182,5 +260,26 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     public function displayButton(): bool
     {
         return true;
+    }
+    
+    /**
+     * Returns the configured fields.
+     *
+     * @param ActionInterface $action
+     * @return iterable<FieldInterface>|FieldsInterface
+     */
+    protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+    {
+        yield new Field\Select(name: $this->fieldName('selection_mode'), label: trans('Rows to Delete'))
+            ->group(trans('Options'))
+            ->options([
+                'ids' => trans('Selected Rows'),
+                'filtered' => trans('All Filtered Rows'),
+            ])
+            ->infoText(new Message(
+                title: trans('Are you sure you want to delete these items?'),
+                warning: true,
+                attributes: ['class' => 'mt-s'],
+            ));
     }
 }
