@@ -109,7 +109,7 @@ class Factory
                 return $this->resourceName;
             }
             
-            protected function entityIdName(): string
+            public function entityIdName(): string
             {
                 return $this->entityIdName;
             }
