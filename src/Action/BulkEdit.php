@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Action;
 
 use Closure;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Entity\Entity;
@@ -26,7 +27,7 @@ use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
-use Throwable;
+use function Tobento\App\Translation\trans;
 
 final class BulkEdit extends AbstractAction implements BulkActionInterface
 {
@@ -193,6 +194,8 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
             return;
         }
         
+        $updatedCount = 0;
+        
         foreach(array_values($ids) as $id) {
             
             if (!is_string($id) && !is_int($id)) {
@@ -231,8 +234,22 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
                 actionName: 'updated',
                 entity: $entity,
             );
+            
+            $updatedCount++;
         }
-    }    
+        
+        if ($updatedCount > 0) {
+            $responser->messages()->add(
+                level: 'success',
+                message: trans(':count record(s) have been updated.', [':count' => $updatedCount]),
+            );
+        } else {
+            $responser->messages()->add(
+                level: 'info',
+                message: trans('No records were updated.'),
+            );
+        }
+    }
     
     /**
      * Returns the html of action. MUST be escaped.

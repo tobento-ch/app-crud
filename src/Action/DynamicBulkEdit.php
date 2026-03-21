@@ -15,6 +15,7 @@ namespace Tobento\App\Crud\Action;
 
 use Closure;
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Entity\Entity;
@@ -35,7 +36,7 @@ use Tobento\Service\Requester\Requester;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 use Tobento\Service\View\ViewInterface;
-use Throwable;
+use function Tobento\App\Translation\trans;
 
 final class DynamicBulkEdit extends AbstractAction implements BulkActionInterface
 {
@@ -351,7 +352,9 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         if ($this->inputAttributesModifier()) {
             $attributes = ($this->inputAttributesModifier())($attributes, $updateAction);
         }
-
+        
+        $updatedCount = 0;
+        
         foreach(array_values($ids) as $id) {
             
             if (!is_string($id) && !is_int($id)) {
@@ -389,6 +392,20 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
                 action: $updateAction,
                 actionName: 'updated',
                 entity: $entity,
+            );
+            
+            $updatedCount++;
+        }
+        
+        if ($updatedCount > 0) {
+            $responser->messages()->add(
+                level: 'success',
+                message: trans(':count record(s) have been updated.', [':count' => $updatedCount]),
+            );
+        } else {
+            $responser->messages()->add(
+                level: 'info',
+                message: trans('No records were updated.'),
             );
         }
     }
@@ -616,7 +633,7 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
 
         foreach ($allowed as $name) {
             $field = $this->fields()->get($name);
-            $label = $field?->label() ?: ucfirst((string) $name);
+            $label = $field?->label() ?: ucfirst($name);
             $options[$name] = $label;
         }
 
