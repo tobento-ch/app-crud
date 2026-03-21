@@ -13,13 +13,11 @@ const indexAction = (function(window, document) {
                 modals.get(this.name).open();
             });
             
-            const saveEl = document.querySelector('[data-bulk-save="'+this.name+'"]');
-
-            if (saveEl) {
-                saveEl.addEventListener('click', (e) => {
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('[data-bulk-save="'+this.name+'"]')) {
                     this.handleSaveAction(e);
-                });                
-            }
+                }
+            });
         }
         handleSaveAction(event) {
             let form = event.target.closest('form');
@@ -54,15 +52,28 @@ const indexAction = (function(window, document) {
             }).then(response => {
                 return response.text();
             }).then(string => {
-                const replaces = ['[data-table-group="items"]', '[data-bulk-ajax-refresh]'];
+                const bulkNames = Array.from(
+                    document.querySelectorAll('[data-bulk-ajax-refresh]')
+                ).map(el => el.getAttribute('data-bulk-ajax-refresh'));
+                
+                const replaces = [
+                    '[data-table-group="items"]',
+                    ...bulkNames.map(name => '[data-bulk-ajax-refresh="'+name+'"]')
+                ];
+
                 const doc = (new DOMParser()).parseFromString(string, 'text/html');
 
                 replaces.forEach(selector => {
-                    const newEl = doc.querySelector(selector);
-                    const oldEl = document.querySelector(selector);
-                    if (newEl && oldEl) {
-                        oldEl.parentNode.replaceChild(newEl, oldEl);
-                    }
+                    const newEls = doc.querySelectorAll(selector);
+                    const oldEls = document.querySelectorAll(selector);
+
+                    // Replace elements one by one
+                    newEls.forEach((newEl, index) => {
+                        const oldEl = oldEls[index];
+                        if (newEl && oldEl && oldEl.parentNode) {
+                            oldEl.parentNode.replaceChild(newEl, oldEl);
+                        }
+                    });
                 });
 
                 targetEl.classList.remove('loading');
@@ -78,8 +89,15 @@ const indexAction = (function(window, document) {
                 });
                 
                 const formErrorEl = document.querySelector('.form-message.error');
-
-                if (formErrorEl) {
+                const isFullPage = string.includes('<html');
+                
+                // Detect whether the response is a full page or a modal partial.
+                // In this flow only the final successful step returns a full page (contains <html>).
+                // All intermediate steps (Step 1, Step 2 errors, and any future multi‑step screens)
+                // return partial modal HTML without <html>. These should keep the modal open.
+                // Therefore:
+                // - Partial → still inside the multi‑step modal → keep it open
+                if (formErrorEl || !isFullPage) {
                     document.querySelectorAll('input[name^="bulk"]').forEach(el => {
                         if (selectedBulks.includes(el.value)) {
                             el.checked = true;
