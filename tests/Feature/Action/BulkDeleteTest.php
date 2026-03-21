@@ -82,7 +82,7 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $http->response()
             ->assertStatus(200)
             ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-delete" name="bulk-delete" method="POST">')
-            ->assertBodyContains('Rows to Delete')
+            ->assertBodyContains('Records to Delete')
             ->assertBodyContains('Are you sure you want to delete these items?');
     }
     
@@ -99,6 +99,7 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->followRedirects()
             ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been deleted.', true)
             ->assertCrudIndexEntityCount(3);
     }
     
@@ -184,5 +185,22 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertStatus(200)
             ->assertBodyContains('ID 3 undeletable because of...')
             ->assertCrudIndexEntityCount(2);
-    }    
+    }
+    
+    public function testNoEntitiesDeleted()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-delete'),
+            body: ['ids' => []],
+        );
+        
+        $this->getSeedFactory()->times(2)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('No records were deleted.', true)
+            ->assertCrudIndexEntityCount(2);
+    }
 }

@@ -138,7 +138,10 @@ class DynamicBulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $this->getSeedFactory(['email' => 'tom@example.com', 'status' => 'active'])->times(3)->create();
         
-        $http->followRedirects()->assertStatus(200)->assertCrudIndexEntityCount(3);
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(3);
 
         $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
         $this->assertSame('inactive', $this->getCrudRepository()->findById(1)->get('status'));
@@ -148,6 +151,32 @@ class DynamicBulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame('active', $this->getCrudRepository()->findById(3)->get('status'));
     }
 
+    public function testNoEntitiesUpdated()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'dynamic-bulk-edit'),
+            body: [
+                'ids' => [],
+                'changes' => [
+                    1 => ['field' => 'email', 'value' => 'new@example.com'],
+                    2 => ['field' => 'status', 'value' => 'inactive'],
+                ],
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com', 'status' => 'active'])->times(2)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('No records were updated.', true)
+            ->assertCrudIndexEntityCount(2);
+
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+    }
+    
     public function testUnupdatableEntitiesAreIgnored()
     {
         $http = $this->fakeHttp();
