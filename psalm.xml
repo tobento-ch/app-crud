@@ -16,6 +16,7 @@
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
+        <UndefinedFunction errorLevel="suppress" />
         <UnusedClass>
             <errorLevel type="suppress">
                 <directory name="src" />
