@@ -19,6 +19,7 @@ use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Filter;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
@@ -58,11 +59,15 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ],
             actions: [
                 new Action\Index('Users'),
+                new Action\Create(),
                 new Action\BulkDelete(),
                 new Action\Delete()->undeletable(
                     [3],
                     fn (EntityInterface $entity): string => sprintf('ID %s undeletable because of...', $entity->id()),
                 ),
+            ],
+            filters: [
+                new Filter\Input(name: 'email', field: 'email'),
             ],
         );
     }
@@ -76,24 +81,92 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $http->response()
             ->assertStatus(200)
-            ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-delete" method="POST">')
-            ->assertBodyContains('Are you sure you want to delete all selected items?');
+            ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-delete" name="bulk-delete" method="POST">')
+            ->assertBodyContains('Rows to Delete')
+            ->assertBodyContains('Are you sure you want to delete these items?');
     }
     
-    public function testDeletesEntities()
+    public function testDeletesEntitiesByIdsAsDefault()
     {
         $http = $this->fakeHttp();
         $http->request(
             method: 'POST',
             uri: $this->generateBulkUri(action: 'bulk-delete'),
-            body: ['ids' => ['1', '2', '12']],
+            body: ['ids' => ['1', '2']],
         );
         
-        $this->getSeedFactory()->times(3)->create();
+        $this->getSeedFactory()->times(5)->create();
         
         $http->followRedirects()
             ->assertStatus(200)
-            ->assertCrudIndexEntityCount(1);
+            ->assertCrudIndexEntityCount(3);
+    }
+    
+    public function testDeletesEntitiesBySelectionModeIds()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-delete'),
+            body: [
+                'ids' => ['1', '2'],
+                'bulk-delete_selection_mode' => 'ids',
+            ],
+        );
+        
+        $this->getSeedFactory()->times(5)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudIndexEntityCount(3);
+    }
+    
+    public function testDeletesEntitiesBySelectionModeFiltered()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-delete'),
+            body: [
+                'bulk-delete_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $this->getSeedFactory()->times(5)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudIndexEntityCount(1); // because id: 3 undeletable 
+    }
+    
+    public function testDeletesEntitiesBySelectionModeFilteredUsesFilters()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'GET',
+            uri: $this->generateIndexUri(),
+            query: ['filter' => ['email' => 'tim@example.com']],
+            body: [
+                'bulk-delete_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
+        $this->getSeedFactory(['email' => 'tim@example.com'])->times(4)->create();
+        
+        $http->response()->assertStatus(200);
+        
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-delete'),
+            body: [
+                'bulk-delete_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertCrudIndexEntityCount(3);
     }
     
     public function testUndeletableEntitiesAreIgnored()
