@@ -24,7 +24,7 @@ $field = $action->field();
         </div>
         <div class="modal-foot">
             <div class="buttons spaced">
-                <button class="button primary" data-bulk-save="<?= $view->esc($field->name()) ?>"><?= $view->etrans('Save') ?></button>
+                <button class="button primary" data-bulk-save="<?= $view->esc($field->name()) ?>"><?= $view->etrans('Apply') ?></button>
                 <span class="link modal-close"><?= $view->etrans('Cancel') ?></span>
             </div>
         </div>
