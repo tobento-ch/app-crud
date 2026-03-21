@@ -111,6 +111,7 @@ class Crud extends Boot
      * @param array<array-key, string> $except List of CRUD actions to exclude.
      * @param array $middleware Middleware applied to all generated routes.
      * @param bool $localized Whether the routes should include an optional locale prefix.
+     * @param string $whereId Route parameter constraints for the "id" parameter
      * @return void
      */
     public function routeController(
@@ -119,6 +120,7 @@ class Crud extends Boot
         array $except = [],
         array $middleware = [],
         bool $localized = false,
+        string $whereId = '[a-z0-9]+',
     ): void {
         $router = $this->app->get(RouterInterface::class);
         $routeLocalizer = $this->app->get(RouteLocalizerInterface::class);
@@ -127,13 +129,13 @@ class Crud extends Boot
         
         $resource = $router->resource($localized ? '{?locale}/'.$name : $name, $controller)
             ->name($name)
-            ->where('[a-z0-9]+');
+            ->where($whereId);
         
         $resource->action(
             action: 'copy', 
             method: 'GET', 
             uri: '/{id}/copy',
-            parameters: ['constraints' => ['id' => '[a-z0-9]+']],
+            parameters: ['constraints' => ['id' => $whereId]],
         );
         
         if (!empty($only)) {
@@ -175,11 +177,13 @@ class Crud extends Boot
      *
      * @param string|AbstractCrudController $controller The CRUD controller class or instance.
      * @param bool $localized Whether the route should include an optional locale prefix.
+     * @param string $whereId Route parameter constraints for the "id" parameter
      * @return RouteInterface The registered dynamic action route.
      */
     public function routeDynamicAction(
         string|AbstractCrudController $controller,
         bool $localized = false,
+        string $whereId = '[a-z0-9]+',
     ): RouteInterface {
         $router = $this->app->get(RouterInterface::class);
         $routeLocalizer = $this->app->get(RouteLocalizerInterface::class);
@@ -192,7 +196,7 @@ class Crud extends Boot
         
         $route = $router->route('*', $uri, [$controller, 'dynamic'])
             ->where('action', '[a-z-]+')
-            ->where('id', '[a-z0-9]+')
+            ->where('id', $whereId)
             ->name($name.'.dynamic');
         
         if ($localized) {
