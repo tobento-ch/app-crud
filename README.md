@@ -19,6 +19,7 @@ A simple app CRUD.
         - [Configure Filters](#configure-filters)
         - [Route Controller](#route-controller)
         - [Route Permissions](#route-permissions)
+        - [Using ACL for CRUD Actions](#using-acl-for-crud-actions)
     - [Crud Write Repository](#crud-write-repository)
     - [Fields](#fields)
         - [Build in Fields](#build-in-fields)
@@ -628,16 +629,23 @@ class RoutesBoot extends Boot
         // or:
         $crud->routeController(
             controller: App\ProductsController::class,
-            // you may set specific actions only:
+            
+            // Register only specific actions:
             only: ['index', 'show'],
-            // or you may exclude specific actions:
+            
+            // Or exclude certain actions:
             except: ['bulk'],
-            // you may set middlewares for all routes:
+            
+            // Apply middleware to all generated routes:
             middleware: [
                 SomeMiddleware::class,
             ],
-            // you may localize the routes:
+            
+            // Generate localized routes (e.g. /en/products, /de/products):
             localized: true,
+            
+            // Add route parameter constraints for the "id" parameter (default):
+            whereId: '[a-z0-9]+',
         );
     }
 }
@@ -673,7 +681,9 @@ You may check out the [Routing Service](https://github.com/tobento-ch/service-ro
 
 ### Route Permissions
 
-You may install the [App User](https://github.com/tobento-ch/app-user) and use the [Verify Route Permission Middleware](https://github.com/tobento-ch/app-user#verify-route-permission-middleware) to protect your crud routes from users without the defined permissions.
+If you want to protect your CRUD routes based on user permissions, you may install the [App User](https://github.com/tobento-ch/app-user) package and apply the [Verify Route Permission Middleware](https://github.com/tobento-ch/app-user#verify-route-permission-middleware).
+
+You can assign permissions for each individual action:
 
 ```php
 use Tobento\App\Boot;
@@ -689,14 +699,24 @@ class RoutesBoot extends Boot
                 [
                     \Tobento\App\User\Middleware\VerifyRoutePermission::class,
                     'permissions' => [
+                        // Read permissions:
                         'products.index' => 'products',
                         'products.show' => 'products',
+                        
+                        // Create permissions:
                         'products.create' => 'products.create',
                         'products.store' => 'products.create',
                         'products.copy' => 'products.create',
+                        
+                        // Update permissions:
                         'products.edit' => 'products.edit',
                         'products.update' => 'products.edit',
+                        
+                        // Delete permissions:
                         'products.delete' => 'products.delete',
+                        
+                        // Bulk actions (e.g. BulkDelete, BulkEdit):
+                        // You may combine permissions using "|"
                         'products.bulk' => 'products.edit|products.delete',
                     ],
                 ]
@@ -705,6 +725,78 @@ class RoutesBoot extends Boot
     }
 }
 ```
+
+This allows you to define fine-grained access control for every CRUD action, including individual bulk actions.
+
+### Using ACL for CRUD Actions
+
+In addition to [route permissions](#route-permissions), you may use the [ACL service](https://github.com/tobento-ch/service-acl) to conditionally register **any** CRUD action inside the controller.
+
+ACL is not limited to bulk actions - it can protect:
+
+- standard CRUD actions (`index`, `show`, `create`, `edit`, `delete`)
+- custom actions
+- bulk actions (e.g. BulkDelete, BulkEdit)
+- any action you register manually
+
+This allows you to hide actions from the UI entirely if the user lacks permission.
+
+```php
+use Tobento\App\Crud\AbstractCrudController;
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\Service\Acl\AclInterface;
+
+class ProductController extends AbstractCrudController
+{
+    public const RESOURCE_NAME = 'products';
+
+    public function __construct(
+        ProductRepository $repository,
+        protected AclInterface $acl,
+    ) {
+        $this->repository = $repository;
+    }
+
+    protected function configureActions(): iterable|ActionsInterface
+    {
+        // Read
+        if ($this->acl->can('products')) {
+            yield new Action\Index('Products');
+            yield new Action\Show();
+        }
+
+        // Create
+        if ($this->acl->can('products.create')) {
+            yield new Action\Create();
+            yield new Action\Store();
+            yield new Action\Copy();
+        }
+
+        // Edit
+        if ($this->acl->can('products.edit')) {
+            yield new Action\Edit();
+            yield new Action\Update();
+        }
+
+        // Delete
+        if ($this->acl->can('products.delete')) {
+            yield new Action\Delete();
+        }
+    }
+}
+```
+
+> **Note**  
+> Standard CRUD routes may already be protected by the  
+> `VerifyRoutePermission` middleware.
+>
+> ACL checks inside the controller complement this by ensuring that  
+> unauthorized users do **not** see actions in the UI and that actions  
+> are not registered at all if the user lacks permission.
+>
+> Using both mechanisms together keeps your CRUD resources secure,  
+> predictable, and aligned with your global permission model.
+
 
 ## Crud Write Repository
 
@@ -3430,6 +3522,12 @@ protected function configureActions(): iterable|ActionsInterface
 
 #### Bulk Delete Action
 
+The **BulkDelete** action allows users to remove multiple entities at once.  
+It supports two selection modes:
+
+- **Selected Rows (`ids`)** Deletes only the rows explicitly selected by the user in the table.
+- **Filtered Rows (`filtered`)** Deletes all rows that match the currently active filters.  
+
 ```php
 use Tobento\App\Crud\Action\ActionsInterface;
 use Tobento\App\Crud\Action;
@@ -3516,7 +3614,18 @@ protected function configureActions(): iterable|ActionsInterface
     )
         // Dynamically determine editable fields
         ->field(fn (): array => $this->getRowFields())
-        ->mapTo('row_edited');
+
+        // Modify the input attributes before handling the action
+        ->modifyInputAttributes(function (array $attributes): array {
+            // Example: flatten "row_edited" into JSON-style keys
+            $flat = [];
+
+            foreach ($attributes['row_edited'] ?? [] as $key => $value) {
+                $flat['row_edited->'.$key] = $value;
+            }
+
+            return $flat;
+        });
 }
 ```
 
@@ -3549,15 +3658,31 @@ The following field types support dynamic bulk editing:
 
 If a field type is not supported, the action gracefully falls back to a simple [Text Field](#text-field).
 
-**Mapping Edited Values**
+**Modifying Input Attributes**
 
-You may map all edited values into a nested structure using `mapTo()`:
+You may transform the submitted values before the action is executed using `modifyInputAttributes()`.
 
+This is useful when you want to:
+- flatten nested data
+- rename keys
+- convert structures
+- prepare values for storage (e.g., JSON)
+    
 ```php
-->mapTo('row_edited')
+// Modify the input attributes before handling the action
+->modifyInputAttributes(function (array $attributes): array {
+    // Example: flatten "row_edited" into JSON-style keys
+    $flat = [];
+
+    foreach ($attributes['row_edited'] ?? [] as $key => $value) {
+        $flat['row_edited->'.$key] = $value;
+    }
+
+    return $flat;
+});
 ```
 
-This produces input like:
+This transforms input like:
 
 ```php
 [
@@ -3568,7 +3693,16 @@ This produces input like:
 ]
 ```
 
-This allows you to store edited values under a dedicated key instead of writing them directly to the entity fields.
+into:
+
+```php
+[
+    'row_edited->status' => 'inactive',
+    'row_edited->firstname' => 'John',
+]
+```
+
+This approach gives you full control over how edited values are structured before they are written to the entity or passed to your handler.
 
 **Disabling Dynamic Fields**
 
@@ -3771,8 +3905,12 @@ class RoutesBoot extends Boot
     {
         $route = $crud->routeDynamicAction(
             controller: App\ProductsController::class,
-            // you may localize the routes:
+            
+            // Generate localized routes:
             localized: true,
+            
+            // Add route parameter constraints for the "id" parameter (default):
+            whereId: '[a-z0-9]+',
         );
         
         // you may add middlewares for all dynamic routes
