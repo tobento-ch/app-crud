@@ -99,6 +99,19 @@ const indexActionTable = (function(window, document) {
                     if (msgEl) {
                         msgEl.remove();
                     }
+                    
+                    // Add success indicator
+                    let ok = el.querySelector('[data-field-success]');
+                    if (!ok) {
+                        ok = document.createElement('span');
+                        ok.setAttribute('data-field-success', '');
+                        ok.classList.add('badge', 'round', 'text-success', 'background-white', 'inline-success-indicator');
+                        ok.textContent = '✔';
+                        el.appendChild(ok);
+                    }
+
+                    // Auto-remove
+                    setTimeout(() => ok.remove(), 1200);
                 }
             });
         },
