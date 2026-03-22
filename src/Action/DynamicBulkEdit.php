@@ -43,6 +43,7 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     use InteractsWithRequestTrait;
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\ConfiguresModal;
     
     /**
      * @var array<string>|callable
@@ -95,7 +96,8 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         
         $this->linkToAction('index');
         
-        $this->view('crud/bulk/edit');
+        $this->view('crud/bulk/modal');
+        $this->modalButtonLabel(trans('Apply'));
     }
     
     /**

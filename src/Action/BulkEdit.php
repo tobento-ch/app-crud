@@ -33,6 +33,7 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
 {
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\ConfiguresModal;
     
     /**
      * @var array<array-key, string>
@@ -67,7 +68,8 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
         
         $this->linkToAction('index');
         
-        $this->view('crud/bulk/edit');
+        $this->view('crud/bulk/modal');
+        $this->modalButtonLabel(trans('Apply'));
     }
     
     /**

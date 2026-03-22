@@ -37,6 +37,7 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
 {
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\ConfiguresModal;
     
     /**
      * Create a new BulkDelete.
@@ -52,7 +53,8 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         });
         
         $this->linkToAction('index');
-        $this->view('crud/bulk/delete');
+        $this->view('crud/bulk/modal');
+        $this->modalButtonLabel(trans('Delete'));
     }
     
     /**
