@@ -50,8 +50,49 @@ const indexAction = (function(window, document) {
                 method: form.getAttribute('method'),
                 body: formData,
             }).then(response => {
+                const disposition = response.headers.get('Content-Disposition');
+
+                // If server returns a file download
+                if (disposition && disposition.includes('attachment')) {
+                    return response.blob().then(blob => {
+                        // Extract filename from header
+                        let filename = 'download';
+                        const match = /filename="?([^"]+)"?/.exec(disposition);
+                        if (match) {
+                            filename = match[1];
+                        }
+
+                        // Trigger browser download
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        return null; // signal: download happened
+                    });
+                }
+
+                // Otherwise treat as HTML
                 return response.text();
-            }).then(string => {
+            }).then(result => {
+                // If result === null → file download happened → stop AJAX flow
+                if (result === null) {
+                    targetEl.classList.remove('loading');
+                    targetEl.removeAttribute('disabled');
+
+                    modals.get(this.name).close();
+                    form.reset();
+
+                    crud.fire('bulk.saved', [event, this]);
+                    return;
+                }
+
+                // Normal HTML response handling
+                const string = result;
+    
                 const bulkNames = Array.from(
                     document.querySelectorAll('[data-bulk-ajax-refresh]')
                 ).map(el => el.getAttribute('data-bulk-ajax-refresh'));
