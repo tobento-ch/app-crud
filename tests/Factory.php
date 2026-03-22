@@ -173,16 +173,15 @@ class Factory
     public static function createTranslator(): Translation\TranslatorInterface
     {
         return new Translation\Translator(
-            resources: new Translation\Resources(
-                new Translation\Resource('*', 'de', [
-                    'Hello World' => 'Hallo Welt',
-                ]),
+            new Translation\FilesResources(
+                dirs: new Dirs(new Dir(__DIR__.'/../resources/trans/')),
             ),
-            modifiers: new Translation\Modifiers(
+            new Translation\Modifiers(
+                new Translation\Modifier\Pluralization(),
                 new Translation\Modifier\ParameterReplacer(),
             ),
-            missingTranslationHandler: new Translation\MissingTranslationHandler(),
-            locale: 'en',
+            new Translation\MissingTranslationHandler(),
+            'en',
         );
     }
     
