@@ -18,6 +18,8 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Entity\EntityInterface;
 
+require_once __DIR__.'/../function-trans.php';
+
 class BulkDeleteTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
@@ -48,7 +50,7 @@ class BulkDeleteTest extends AbstractAction
         
         $this->assertSame('bulk-delete', $action->name());
         $this->assertSame('{name}.bulk', $action->getRoute()[0] ?? null);
-        $this->assertSame('crud/bulk/delete', $action->getView());
+        $this->assertSame('crud/bulk/modal', $action->getView());
         $this->assertSame([], $action->getFieldsActions());
         $this->assertSame('index', $action->getLinkToAction());
         $this->assertSame([], $action->buttons()->names());

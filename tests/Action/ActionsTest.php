@@ -19,6 +19,8 @@ use Tobento\App\Crud\Action\ActionsInterface;
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action;
 
+require_once __DIR__.'/../function-trans.php';
+
 class ActionsTest extends TestCase
 {
     public function testConstructorMethod()

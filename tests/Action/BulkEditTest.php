@@ -18,6 +18,8 @@ use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Entity\EntityInterface;
 
+require_once __DIR__.'/../function-trans.php';
+
 class BulkEditTest extends AbstractAction
 {
     public function testDefaultInterfaceMethods()
@@ -47,7 +49,7 @@ class BulkEditTest extends AbstractAction
         
         $this->assertSame('edit-status', $action->name());
         $this->assertSame('{name}.bulk', $action->getRoute()[0] ?? null);
-        $this->assertSame('crud/bulk/edit', $action->getView());
+        $this->assertSame('crud/bulk/modal', $action->getView());
         $this->assertSame([], $action->getFieldsActions());
         $this->assertSame('index', $action->getLinkToAction());
         $this->assertSame([], $action->buttons()->names());
