@@ -1,6 +1,6 @@
 # App Crud
 
-A simple app CRUD.
+A simple and modular CRUD system.
 
 ## Table of Contents
 
@@ -65,6 +65,7 @@ A simple app CRUD.
             - [Show JSON Action](#show-json-action)
             - [Delete Action](#delete-action)
             - [Bulk Delete Action](#bulk-delete-action)
+            - [Bulk Download ZIP Action](#bulk-download-zip-action)
             - [Bulk Edit Action](#bulk-edit-action)
             - [Bulk Dynamic Edit Action](#bulk-dynamic-edit-action)
             - [Bulk Tree Update Action](#bulk-tree-update-action)
@@ -3225,12 +3226,10 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Index(title: 'Products')
-            
-            // you may set a custom view:
-            ->view('custom/crud/index')
-    ];
+    yield new Action\Index(title: 'Products')
+
+        // you may set a custom view:
+        ->view('custom/crud/index');
 }
 ```
 
@@ -3244,10 +3243,8 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Index(title: 'Products')
-            ->removeButton('delete', 'show'),
-    ];
+    yield new Action\Index(title: 'Products')
+        ->removeButton('delete', 'show');
 }
 ```
 
@@ -3261,12 +3258,10 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Create(title: 'New product')
-        
-            // you may set a custom view:
-            ->view('custom/crud/create')
-    ];
+    yield new Action\Create(title: 'New product')
+
+        // you may set a custom view:
+        ->view('custom/crud/create');
 }
 ```
 
@@ -3280,10 +3275,8 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Create(title: 'New product')
-            ->removeButton('create', 'edit'),
-    ];
+    yield new Action\Create(title: 'New product')
+        ->removeButton('create', 'edit');
 }
 ```
 
@@ -3297,9 +3290,7 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Store(),
-    ];
+    yield new Action\Store();
 }
 ```
 
@@ -3312,15 +3303,13 @@ use Tobento\App\Crud\Entity\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Edit(title: 'Edit product'),
-        
-        // or using the entity:
-        new Action\Edit(fn (EntityInterface $entity): string => 'Edit Product: '.$entity->get('sku'))
-        
-            // you may set a custom view:
-            ->view('custom/crud/edit')
-    ];
+    yield new Action\Edit(title: 'Edit product');
+
+    // or using the entity:
+    yield new Action\Edit(fn (EntityInterface $entity): string => 'Edit Product: '.$entity->get('sku'))
+
+        // you may set a custom view:
+        ->view('custom/crud/edit');
 }
 ```
 
@@ -3334,10 +3323,8 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Edit(title: 'Edit product')
-            ->removeButton('copy', 'new'),
-    ];
+    yield new Action\Edit(title: 'Edit product')
+        ->removeButton('copy', 'new');
 }
 ```
 
@@ -3349,9 +3336,7 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Update(),
-    ];
+    yield new Action\Update();
 }
 ```
 
@@ -3366,21 +3351,19 @@ use Tobento\App\Crud\Entity\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Update()
-            // by entity ids using an array:
-            ->unupdatable(ids: [12, 13], reason: 'Unupdatable because of...')
-            
-            // or using a closure:
-            ->unupdatable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar']))
-            
-            // or using a closure for the reason:
-            ->unupdatable([3], fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id())),
-            
-        // In addition, you may not display the edit button for those entities:
-        new Action\Index('Products')
-            ->displayButtonIf('edit', fn (EntityInterface $entity): bool => !in_array($entity->get('sku'), ['foo', 'bar']))
-    ];
+    yield new Action\Update()
+        // by entity ids using an array:
+        ->unupdatable(ids: [12, 13], reason: 'Unupdatable because of...')
+
+        // or using a closure:
+        ->unupdatable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar']))
+
+        // or using a closure for the reason:
+        ->unupdatable([3], fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id()));
+
+    // In addition, you may not display the edit button for those entities:
+    yield new Action\Index('Products')
+        ->displayButtonIf('edit', fn (EntityInterface $entity): bool => !in_array($entity->get('sku'), ['foo', 'bar']));
 }
 ```
 
@@ -3393,16 +3376,14 @@ use Tobento\App\Crud\Entity\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Copy(title: 'Copy product'),
-        
-        // or using the entity:
-        new Action\Copy(fn (EntityInterface $entity): string => 'Copy Product: '.$entity->get('sku'))
-        
-            // you may set a custom view:
-            ->view('custom/crud/copy')
-            //->view('crud/create') // is default view
-    ];
+    yield new Action\Copy(title: 'Copy product');
+
+    // or using the entity:
+    yield new Action\Copy(fn (EntityInterface $entity): string => 'Copy Product: '.$entity->get('sku'))
+
+        // you may set a custom view:
+        ->view('custom/crud/copy');
+        //->view('crud/create') // is default view
 }
 ```
 
@@ -3416,10 +3397,8 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Copy(title: 'Copy product')
-            ->removeButton('copy', 'new'),
-    ];
+    yield new Action\Copy(title: 'Copy product')
+        ->removeButton('copy', 'new');
 }
 ```
 
@@ -3432,16 +3411,14 @@ use Tobento\App\Crud\Entity\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Show(title: 'Show product'),
-        
-        // or using the entity:
-        new Action\Show(fn (EntityInterface $entity): string => 'Product: '.$entity->get('sku')),
-        
-        new Action\Show(title: 'Show product')
-            // you may set a custom view:
-            ->view('custom/crud/show')
-    ];
+    yield new Action\Show(title: 'Show product');
+
+    // or using the entity:
+    yield new Action\Show(fn (EntityInterface $entity): string => 'Product: '.$entity->get('sku'));
+
+    yield new Action\Show(title: 'Show product')
+        // you may set a custom view:
+        ->view('custom/crud/show');
 }
 ```
 
@@ -3455,10 +3432,8 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Show(title: 'Show product')
-            ->removeButton('back'),
-    ];
+    yield new Action\Show(title: 'Show product')
+        ->removeButton('back');
 }
 ```
 
@@ -3471,9 +3446,7 @@ use Tobento\App\Crud\Entity\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\ShowJson(),
-    ];
+    yield new Action\ShowJson();
 }
 ```
 
@@ -3485,9 +3458,7 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Delete(),
-    ];
+    yield new Action\Delete();
 }
 ```
 
@@ -3502,21 +3473,19 @@ use Tobento\App\Crud\Entity\EntityInterface;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Delete()
-            // by entity ids using an array:
-            ->undeletable(ids: [12, 13], reason: 'Undeletable because of...')
-            
-            // or using a closure:
-            ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar']))
-            
-            // or using a closure for the reason:
-            ->undeletable([3], fn (EntityInterface $entity): string => sprintf('ID %s undeletable because of...', $entity->id())),
-            
-        // In addition, you may not display the delete button for those entities:
-        new Action\Index('Products')
-            ->displayButtonIf('delete', fn (EntityInterface $entity): bool => !in_array($entity->get('sku'), ['foo', 'bar']))
-    ];
+    yield new Action\Delete()
+        // by entity ids using an array:
+        ->undeletable(ids: [12, 13], reason: 'Undeletable because of...')
+
+        // or using a closure:
+        ->undeletable(fn (EntityInterface $entity): bool => in_array($entity->get('sku'), ['foo', 'bar']))
+
+        // or using a closure for the reason:
+        ->undeletable([3], fn (EntityInterface $entity): string => sprintf('ID %s undeletable because of...', $entity->id()));
+
+    // In addition, you may not display the delete button for those entities:
+    yield new Action\Index('Products')
+        ->displayButtonIf('delete', fn (EntityInterface $entity): bool => !in_array($entity->get('sku'), ['foo', 'bar']));
 }
 ```
 
@@ -3534,9 +3503,135 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\BulkDelete(),
-    ];
+    yield new Action\BulkDelete()
+        // Modal specific
+        ->modalButtonLabel('Delete')
+        ->modalPosition('top', 'right')
+        ->modalSize('modal-m')
+        ->modalAnimation('modal-swing');
+}
+```
+
+Modal Reference:  
+https://github.com/tobento-ch/css-modal
+
+#### Bulk Download ZIP Action
+
+The **BulkDownloadZip** action allows users to generate a ZIP archive containing files from multiple records.  
+It supports two selection modes:
+
+- **Selected Records (`ids`)**  
+  Includes files only from the rows explicitly selected by the user.
+
+- **Filtered Records (`filtered`)**  
+  Includes files from all rows that match the currently active filters.
+
+Additional options allow users to:
+
+- choose which file fields to include
+- restrict by file extensions
+- exclude extensions
+- include only public storages
+- preserve folder structure
+- define the ZIP filename
+
+**Supported Fields**
+
+The action supports the following field types:
+
+- [File Source Field](#filesource-field)
+- [File Field](#file-field), also supports `->translatable()`
+- [Files Field](#files-field), also supports `->translatable()`
+
+All referenced files are automatically resolved and included in the ZIP.
+
+**Supports File Storage Repository**
+
+The action works with the following repositories from  
+https://github.com/tobento-ch/service-file-storage:
+
+- [FileRepository](https://github.com/tobento-ch/service-file-storage#file-repository)
+- [File and Folder Repository](https://github.com/tobento-ch/service-file-storage#file-and-folder-repository)
+
+Files (and folders, when applicable) are automatically resolved and added to the ZIP.
+
+**Example**
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    yield new Action\BulkDownloadZip(
+        // Unique identifier for the bulk action (must be unique per CRUD resource)
+        name: 'download-zip', // (default)
+        
+        // The label shown in the bulk-action dropdown
+        title: 'Download ZIP',
+    )
+        // Limit to specific storage names
+        ->onlyStorages('uploads-public', 'another')
+        
+        // Exclude specific storage names
+        ->exceptStorages('uploads-private', 'another')
+        
+        // Allow only public storages  (also configurable by the user in the modal)
+        ->onlyPublicStorages()
+        
+        // Include only files with these extensions (user-configurable)
+        ->onlyExtensions('jpg', 'png')
+        
+        // Exclude files with these extensions (user-configurable)
+        ->exceptExtensions('pdf', 'txt')
+        
+        // Include only these file fields from the records (user-configurable)
+        ->onlyFields('avatar', 'attachments')
+        
+        // Keep original folder structure inside the ZIP (user-configurable)
+        ->preserveFolderStructure()
+        
+        // Flatten all files into the ZIP root directory (user-configurable)
+        ->flatten()
+
+        // Modal specific
+        ->modalButtonLabel('Generate')
+        ->modalPosition('top', 'right')
+        ->modalSize('modal-m')
+        ->modalAnimation('modal-swing');
+}
+```
+
+Modal Reference:  
+https://github.com/tobento-ch/css-modal
+
+**Example: Customizing Fields with modifyFields()**
+
+```php
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Field\Fields;
+use Tobento\App\Crud\Field\FieldsInterface;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    yield new Action\BulkDownloadZip(
+        title: 'Download ZIP',
+    )
+        ->modifyFields(function (
+            ActionInterface $action,
+            FieldsInterface $fields,
+            BulkDownloadZip $zipAction
+        ): iterable|FieldsInterface {
+
+            // Convert to array for modification
+            $all = $fields->all();
+
+            // Return new Fields instance
+            return Fields::fromIterable($all);
+        });
 }
 ```
 
@@ -3550,21 +3645,28 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        // Bulk-edit a single field
-        new Action\BulkEdit(name: 'edit-status', title: 'Edit Status')
-            ->field('status')
-            
-            // Use create-action fields when the field is not included in the index fields,
-            // or when you depend on the create-action field logic for rendering.
-            ->fieldsFrom('create'), // otherwise index fields are used
-        
-        // Bulk-edit multiple fields
-        new Action\BulkEdit(name: 'edit-multiple', title: 'Edit Multiple Fields')
-            ->field('fieldname', 'another-fieldname'),
-    ];
+    // Bulk-edit a single field
+    yield new Action\BulkEdit(name: 'edit-status', title: 'Edit Status')
+        ->field('status')
+
+        // Use create-action fields when the field is not included in the index fields,
+        // or when you depend on the create-action field logic for rendering.
+        ->fieldsFrom('create') // otherwise index fields are used
+
+        // Modal specific
+        ->modalButtonLabel('Apply')
+        ->modalPosition('top', 'right')
+        ->modalSize('modal-m')
+        ->modalAnimation('modal-swing');
+
+    // Bulk-edit multiple fields
+    yield new Action\BulkEdit(name: 'edit-multiple', title: 'Edit Multiple Fields')
+        ->field('fieldname', 'another-fieldname');
 }
 ```
+
+Modal Reference:  
+https://github.com/tobento-ch/css-modal
 
 **Supported Fields**
 
@@ -3605,10 +3707,16 @@ protected function configureActions(): iterable|ActionsInterface
         ->dynamicFields(true)
         
         // Change the input name for the edited values
-        ->changeInputName('columns_to_update');
+        ->changeInputName('columns_to_update')
+        
+        // Modal specific
+        ->modalButtonLabel('Apply')
+        ->modalPosition('top', 'right')
+        ->modalSize('modal-m')
+        ->modalAnimation('modal-swing');
 
     // You may also map the edited values into a nested structure:
-    new Action\DynamicBulkEdit(
+    yield new Action\DynamicBulkEdit(
         name: 'edit-row-data',
         title: 'Edit Row Data',
     )
@@ -3628,6 +3736,9 @@ protected function configureActions(): iterable|ActionsInterface
         });
 }
 ```
+
+Modal Reference:  
+https://github.com/tobento-ch/css-modal
 
 **How It Works**
 
@@ -3724,13 +3835,11 @@ use Tobento\App\Crud\Action;
 
 protected function configureActions(): iterable|ActionsInterface
 {
-    return [
-        new Action\Index()->view('crud/index-tree'),
-        
-        new Action\BulkTreeUpdate()
-            // you may change the field names:
-            ->mapping(id: 'id', parentId: 'parent_id', sortorder: 'sortorder'), // defaults
-    ];
+    yield new Action\Index()->view('crud/index-tree');
+
+    yield new Action\BulkTreeUpdate()
+        // you may change the field names:
+        ->mapping(id: 'id', parentId: 'parent_id', sortorder: 'sortorder'); // defaults
 }
 ```
 
@@ -3764,14 +3873,12 @@ protected function configureActions(): iterable|ActionsInterface
             return ['id' => $entity->id()];
         });
         
-    return [
-        new Action\Index(title: 'Products')
-            ->addButton($viewInvoiceBtn),
-        
-        // Add custom action (step 2)
-        new ViewInvoice(),
-        //...
-    ];
+    yield new Action\Index(title: 'Products')
+        ->addButton($viewInvoiceBtn);
+
+    // Add custom action (step 2)
+    yield new ViewInvoice();
+    //...
 }
 ```
 
