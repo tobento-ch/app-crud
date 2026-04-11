@@ -47,6 +47,7 @@ class BulkDownloadZip extends Action\AbstractAction implements Action\BulkAction
 {
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\InteractsWithRequest;
     use Traits\ConfiguresModal;
     
     /**
@@ -311,9 +312,7 @@ class BulkDownloadZip extends Action\AbstractAction implements Action\BulkAction
         $storeAction->setController($this->controller());
         $this->actionProcessor()->preprocessAction(action: $storeAction);
         
-        $storeAction->setInput(new Input(
-            array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
-        ));
+        $storeAction->setInput($this->fetchInput(requester: $requester, action: $storeAction, fresh: true));
         
         $fields = Fields::fromIterable($this->configureFields($storeAction));
         $storeAction->setFields($fields);
@@ -427,15 +426,22 @@ class BulkDownloadZip extends Action\AbstractAction implements Action\BulkAction
         $view->asset('assets/crud/live.js')->attr('type', 'module');
         
         $indexAction = $this->actions()->get('index');
-        $createAction = $this->actions()->get('create');
         
-        if (is_null($indexAction) || is_null($createAction)) {
+        if (is_null($indexAction)) {
             return '';
         }
-
-        $fields = Fields::fromIterable($this->configureFields($createAction));
         
+        $createAction = $this->actions()->get('create');
+        
+        if (is_null($createAction)) {
+            $createAction = new Action\Create();
+            $createAction->setInput($indexAction->getInput());
+        }
+        
+        $createAction->setContainer($this->container());
+        $fields = Fields::fromIterable($this->configureFields($createAction));
         $createAction->setFields($fields);
+        
         $this->actionProcessor->processFields(action: $createAction, entity: new Entity());
         $this->setFields($createAction->fields());
         
