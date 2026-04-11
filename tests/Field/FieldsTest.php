@@ -40,6 +40,96 @@ class FieldsTest extends TestCase
         $this->assertTrue($iterable === $fields);
     }
     
+    public function testMergeMethodMergesTwoIterables()
+    {
+        $primary = [
+            new Field\Text('foo'),
+            new Field\Text('bar'),
+        ];
+
+        $secondary = [
+            new Field\Text('baz'),
+        ];
+
+        $fields = Fields::merge($primary, $secondary);
+
+        $this->assertSame(3, $fields->count());
+        $this->assertNotNull($fields->get('foo'));
+        $this->assertNotNull($fields->get('bar'));
+        $this->assertNotNull($fields->get('baz'));
+    }
+
+    public function testMergeMethodSecondaryOverridesPrimary()
+    {
+        $primary = [
+            new Field\Text('foo'),
+        ];
+
+        $secondary = [
+            new Field\Textarea('foo'), // same name, different type
+        ];
+
+        $fields = Fields::merge($primary, $secondary);
+
+        $this->assertSame(1, $fields->count());
+        $this->assertInstanceOf(Field\Textarea::class, $fields->get('foo'));
+    }
+
+    public function testMergeMethodOrderPrimaryThenSecondary()
+    {
+        $primary = [
+            new Field\Text('a'),
+            new Field\Text('b'),
+        ];
+
+        $secondary = [
+            new Field\Text('c'),
+        ];
+
+        $fields = Fields::merge($primary, $secondary);
+
+        $names = array_keys($fields->all());
+
+        $this->assertSame(['a', 'b', 'c'], $names);
+    }
+
+    public function testMergeMethodAcceptsFieldsInterface()
+    {
+        $primary = new Fields(
+            new Field\Text('foo')
+        );
+
+        $secondary = new Fields(
+            new Field\Text('bar')
+        );
+
+        $fields = Fields::merge($primary, $secondary);
+
+        $this->assertSame(2, $fields->count());
+        $this->assertNotNull($fields->get('foo'));
+        $this->assertNotNull($fields->get('bar'));
+    }
+
+    public function testMergeMethodIsImmutable()
+    {
+        $primary = new Fields(
+            new Field\Text('foo')
+        );
+
+        $secondary = new Fields(
+            new Field\Text('bar')
+        );
+
+        $merged = Fields::merge($primary, $secondary);
+
+        // originals unchanged
+        $this->assertSame(1, $primary->count());
+        $this->assertSame(1, $secondary->count());
+
+        // merged contains both
+        $this->assertSame(2, $merged->count());
+    }
+    
     public function testConstructorMethod()
     {
         $fields = new Fields();
