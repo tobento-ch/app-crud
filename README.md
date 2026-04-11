@@ -44,6 +44,7 @@ A simple and modular CRUD system.
         - [Different Fields Per Action](#different-fields-per-action)
         - [Validate Field](#validate-field)
         - [Translatable Field](#translatable-field)
+        - [Machine Translator](#machine-translator)        
         - [Unstorable Field](#unstorable-field)
         - [Readonly, Disabled and Hidden Field](#readonly-disabled-and-hidden-field)
         - [Formatting Field Value](#formatting-field-value)
@@ -2510,6 +2511,15 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
 
 ### Translatable Field
 
+Translatable fields allow you to store and manage content in multiple locales.  
+When a field is marked as `translatable()`, the CRUD system automatically renders
+one input per configured locale and handles reading, writing, and resolving the
+localized values for you.
+
+This is useful for any content that should exist in more than one language,
+such as titles, descriptions, slugs, or text blocks. The available locales are
+defined in your application's Language configuration.
+
 ```php
 use Tobento\App\Crud\Action\ActionInterface;
 use Tobento\App\Crud\Field\FieldsInterface;
@@ -2517,10 +2527,8 @@ use Tobento\App\Crud\Field;
 
 protected function configureFields(ActionInterface $action): iterable|FieldsInterface
 {
-    return [
-        new Field\Text(name: 'title')
-            ->translatable(),
-    ];
+    yield new Field\Text(name: 'title')
+        ->translatable();
 }
 ```
 
@@ -2542,6 +2550,98 @@ protected function configureColumns(): iterable|ColumnsInterface
 **Supported Locales**
 
 All locales are supported as defined in the [Language Config](https://github.com/tobento-ch/app-language#language-config).
+
+### Machine Translator
+
+The Machine Translator adds an automatic translation button to any
+`translatable()` field. When enabled, the CRUD interface displays a small
+action button next to each locale input. Clicking the button sends the
+source text to the machine-translation backend and automatically fills the
+target locale with the translated result.
+
+This feature streamlines multilingual content creation and is especially
+useful when managing titles, descriptions, or text blocks across multiple
+languages. Each field may optionally specify which translator provider
+should be used (e.g. `"deepl"`, `"google"`), customize the button label,
+or override HTML attributes.
+
+Machine translation is powered by  
+**app-machine-translator** https://github.com/tobento-ch/app-machine-translator
+
+**Requirements**
+
+To enable this machine translator, install:
+
+```
+composer require tobento/app-machine-translator
+```
+
+Then ensure the [Machine Translator is booted](https://github.com/tobento-ch/app-machine-translator#machine-translator-boot):
+
+```php
+$app->boot(\Tobento\App\MachineTranslator\Boot\MachineTranslator::class);
+```
+
+Next, make sure the Translate Feature is enabled:
+https://github.com/tobento-ch/app-machine-translator#translate-feature
+
+You must also configure at least one translator provider  
+(e.g. DeepL, Google, OpenAI) in your Machine Translator configuration.
+
+If your application uses ACL, the translation route may be protected by
+ACL permissions. Ensure the user has permission to access the machine-translate route.
+
+This setup allows you to build reusable CRUD packages or applications where
+fields can support machine translation out of the box without requiring the
+feature to be installed.
+
+> **Note:**  
+> If `->machineTranslator()` is enabled on a field but the Machine Translator
+> is **not installed or booted**, the button will simply not render.  
+> Once the Machine Translator package *is* installed and booted, the button
+> appears automatically and works out of the box.  
+> This allows you to build reusable CRUD packages or applications where fields
+> can support machine translation without requiring the feature to be installed.
+
+**Example**
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Text(name: 'title')
+        // Required for machineTranslator()
+        ->translatable()
+        
+        // Enable machine translator
+        ->machineTranslator(
+            // Optionally set a specific translator provider (e.g. "deepl")
+            translator: null,
+            
+            // Optionally change the default button label
+            label: 'Translate',
+            
+            // Optionally override HTML attributes
+            attributes: [
+                'class' => 'link',
+                'data-machine-translator' => [
+                    'foo' => 'bar',
+                ],
+            ],
+        );
+}
+```
+
+**Supported Fields**
+
+The following field types support the `->machineTranslator()` option:
+
+- [Text Field](#text-field)
+- [Textarea Field](#text-area)
+- [TextEditor Field](#texteditor-field)
 
 ### Unstorable Field
 
