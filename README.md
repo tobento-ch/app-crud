@@ -1498,8 +1498,6 @@ use Tobento\App\Crud\Field;
 
 new Field\Html(
     name: 'title',
-    // you may set a label, otherwise name is used:
-    label: 'TITLE',
 );
 ```
 
@@ -3637,7 +3635,17 @@ protected function configureActions(): iterable|ActionsInterface
 
 #### Bulk Edit Action
 
-You can make as many bulk edit actions as you want. Make sure the ```name``` parameter is unique and only contains a-z letters and hyphens.
+The **Bulk Edit** action allows users to update multiple entities at once.  
+It supports two selection modes:
+
+- **Selected Rows (`ids`)**  
+  Updates only the rows explicitly selected by the user in the table.
+
+- **Filtered Rows (`filtered`)**  
+  Updates all rows that match the currently active filters, regardless of manual selection.
+
+You can create as many bulk-edit actions as needed.  
+Make sure the `name` parameter is unique and contains only lowercase letters (`a-z`) and hyphens.
 
 ```php
 use Tobento\App\Crud\Action\ActionsInterface;
@@ -3683,8 +3691,16 @@ The following fields support bulk editing:
 The **Bulk Dynamic Edit Action** is an advanced version of the [Bulk Edit Action](#bulk-edit-action).  
 It allows users to edit **multiple fields at once**, with each field's **input type changing dynamically** based on the selected field.
 
+Just like the standard Bulk Edit action, it supports two selection modes:
+
+- **Selected Rows (`ids`)**  
+  Updates only the rows explicitly selected by the user in the table.
+
+- **Filtered Rows (`filtered`)**  
+  Updates all rows that match the currently active filters, regardless of manual selection.
+  
 You may create as many dynamic bulk-edit actions as needed.  
-As always, ensure the name parameter is unique and contains only a-z letters and hyphens.
+As always, ensure the `name` parameter is unique and contains only `a-z` letters and hyphens.
 
 ```php
 use Tobento\App\Crud\Action\ActionsInterface;
