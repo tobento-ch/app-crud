@@ -37,6 +37,7 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
 {
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\InteractsWithRequest;
     use Traits\ConfiguresModal;
     
     /**
@@ -140,9 +141,7 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         $storeAction->setController($this->controller());
         $this->actionProcessor()->preprocessAction(action: $storeAction);
         
-        $storeAction->setInput(new Input(
-            array_replace_recursive($requester->input()->all(), $requester->request()->getUploadedFiles())
-        ));
+        $storeAction->setInput($this->fetchInput(requester: $requester, action: $storeAction, fresh: true));
         
         $fields = Fields::fromIterable($this->configureFields($storeAction));
         $storeAction->setFields($fields);
@@ -251,12 +250,12 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     public function render(ViewInterface $view): string
     {
         $indexAction = $this->actions()->get('index');
-        $createAction = $this->actions()->get('create');
         
-        if (is_null($indexAction) || is_null($createAction)) {
+        if (is_null($indexAction)) {
             return '';
         }
-
+        
+        $createAction = new Action\Create();
         $fields = Fields::fromIterable($this->configureFields($createAction));
         
         $createAction->setFields($fields);
