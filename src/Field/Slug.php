@@ -33,6 +33,7 @@ class Slug extends AbstractField
     use Traits\HasValueFormatter;
     use Traits\Hidden;
     use Traits\PrefixSuffix;
+    use Traits\HasMachineTranslator;
     
     /**
      * @var null|string
@@ -468,5 +469,21 @@ class Slug extends AbstractField
                 'text' => $value,
             ],
         ));
+    }
+    
+    /**
+     * Slug fields never support the machine translator feature.
+     *
+     * Although the base field class and shared text template check for
+     * machine‑translator support, a slug must explicitly disable it to
+     * prevent the translator UI from being rendered. This override ensures
+     * that even if the field uses the shared text view, no translator
+     * button or attributes will appear.
+     *
+     * @return bool Always false for slug fields.
+     */
+    public function hasMachineTranslator(): bool
+    {
+        return false;
     }
 }
