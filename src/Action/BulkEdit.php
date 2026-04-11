@@ -21,8 +21,12 @@ use Tobento\App\Crud\ActionProcessorInterface;
 use Tobento\App\Crud\Entity\Entity;
 use Tobento\App\Crud\Exception\ActionNotFoundException;
 use Tobento\App\Crud\Exception\ActionProcessException;
+use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
+use Tobento\App\Crud\Field\Fields;
 use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\FilterProcessorInterface;
+use Tobento\App\Crud\Html\Message;
 use Tobento\App\Crud\Input\Input;
 use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
@@ -33,6 +37,7 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
 {
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\InteractsWithRequest;
     use Traits\ConfiguresModal;
     
     /**
@@ -70,6 +75,7 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
         
         $this->view('crud/bulk/modal');
         $this->modalButtonLabel(trans('Apply'));
+        $this->modalPosition('top');
     }
     
     /**
@@ -80,6 +86,17 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     public function name(): string
     {
         return $this->name;
+    }
+    
+    /**
+     * Returns a namespaced field name for this action.
+     *
+     * @param string $suffix Field-specific suffix.
+     * @return string
+     */
+    public function fieldName(string $suffix): string
+    {
+        return $this->name() . '_' . $suffix;
     }
     
     /**
@@ -133,7 +150,7 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
      */
     public function setFields(FieldsInterface $fields): static
     {
-        $this->fields = $fields->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));
+        $this->fields = $fields;
         return $this;
     }
     
@@ -167,14 +184,17 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     /**
      * Process bulk action.
      *
+     * @param FilterProcessorInterface $filterProcessor
      * @param ResponserInterface $responser
      * @return void
      * @throws ActionProcessException
      * @psalm-suppress RedundantCondition
      * @psalm-suppress NoValue
      */
-    public function processBulk(ResponserInterface $responser): void
-    {
+    public function processBulk(
+        FilterProcessorInterface $filterProcessor,
+        ResponserInterface $responser
+    ): void {
         $input = $this->getInput();
         $repository = $this->controller()->repository();
         $updateAction = $this->actions()->get('update');
@@ -182,11 +202,11 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
         if (! $updateAction instanceof Action\Update) {
             throw new ActionNotFoundException(actionName: 'update');
         }
-
-        $updateAction->setFields($this->fields());
-        $updateAction->setInput($input);
         
-        $ids = $input->get('ids', []);
+        $fields = $this->fields()->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));
+        
+        $updateAction->setFields($fields);
+        $updateAction->setInput($input);
 
         $attributes = $input->collection()
             ->onlyPresent($this->fields()->getNames())
@@ -194,6 +214,34 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
 
         if (empty($attributes)) {
             return;
+        }
+        
+        // handle mode:
+        $selectionMode = $input->get($this->fieldName('selection_mode'), 'ids'); // or filtered
+
+        // Ids selection mode
+        if ($selectionMode === 'ids') {
+            $ids = $input->get('ids', []);
+        } else {
+            // filtered selection mode
+            // Get Index action for filters
+            $indexAction = $this->actions()->get('index');
+
+            if (is_null($indexAction)) {
+                throw new ActionNotFoundException(actionName: 'index');
+            }
+
+            $indexAction->setFields($this->controller()->getConfiguredFields(action: $indexAction));
+
+            // Handle filters:
+            $filters = $this->controller()->getConfiguredFilters($indexAction);
+            $filters = $filterProcessor->processFilters(filters: $filters, action: $indexAction);
+
+            $ids = $this->controller()->repository()->findColumn(
+                column: $this->controller()->entityIdName(),
+                where: $filters->getWhereParameters(),
+                orderBy: $filters->getOrderByParameters(),
+            );
         }
         
         $updatedCount = 0;
@@ -262,11 +310,14 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     public function render(ViewInterface $view): string
     {
         $indexAction = $this->actions()->get('index');
-        $createAction = $this->actions()->get('create');
         
-        if (is_null($indexAction) || is_null($createAction)) {
+        if (is_null($indexAction)) {
             return '';
         }
+        
+        $createAction = new Action\Create();
+        $createAction->setController($indexAction->controller());
+        $createAction->setActions($this->actions());
         
         // Determine source of fields
         if ($this->fieldsFrom === 'create') {
@@ -280,16 +331,17 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
                 ->fields()
                 ->filter(fn (FieldInterface $f): bool => in_array($f->name(), $this->fieldNames));         
         }
-        
-        // Restore input if available
-        $input = $this->getInput();
 
-        if (empty($input->all())) {
-            $requester = $this->container()->get(RequesterInterface::class);
-            $createAction->setInput(new Input($requester->input()->all()));
-        }
+        // Restore input
+        $requester = $this->container()->get(RequesterInterface::class);
+        $createAction->setInput($this->fetchInput(requester: $requester, action: $this, fresh: false));
         
-        $createAction->setFields($fields);
+        // Merge and set fields
+        $createAction->setFields(Fields::merge(
+            primary: $fields,
+            secondary: $this->configureFields($createAction),
+        ));
+
         $this->actionProcessor->processFields(action: $createAction, entity: new Entity());
         $this->setFields($createAction->fields());
         
@@ -299,6 +351,31 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
                 'action' => $this,
             ],
         );
+    }
+    
+    /**
+     * Returns the configured fields.
+     *
+     * @param ActionInterface $action
+     * @return iterable<FieldInterface>|FieldsInterface
+     * @psalm-suppress UnusedParam
+     */
+    protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+    {
+        yield new Field\Select(
+            name: $this->fieldName('selection_mode'),
+            label: trans('Records to Edit')
+        )
+            ->group(trans('Options'))
+            ->options([
+                'ids' => trans('Selected Records'),
+                'filtered' => trans('All Filtered Records'),
+            ])
+            ->infoText(new Message(
+                title: trans('This will update multiple records.'),
+                warning: true,
+                attributes: ['class' => 'mt-s'],
+            ));
     }
     
     /**

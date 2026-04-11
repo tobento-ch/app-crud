@@ -26,6 +26,8 @@ use Tobento\App\Crud\Field;
 use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\App\Crud\Field\Fields;
 use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\FilterProcessorInterface;
+use Tobento\App\Crud\Html\Message;
 use Tobento\App\Crud\Input\Input;
 use Tobento\App\Crud\Input\InputInterface;
 use Tobento\App\Crud\InteractsWithRequestTrait;
@@ -43,6 +45,7 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     use InteractsWithRequestTrait;
     use HasActionProcessor;
     use Traits\HandleBulk;
+    use Traits\InteractsWithRequest;
     use Traits\ConfiguresModal;
     
     /**
@@ -98,6 +101,7 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         
         $this->view('crud/bulk/modal');
         $this->modalButtonLabel(trans('Apply'));
+        $this->modalPosition('top');
     }
     
     /**
@@ -108,6 +112,17 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     public function name(): string
     {
         return $this->name;
+    }
+    
+    /**
+     * Returns a namespaced field name for this action.
+     *
+     * @param string $suffix Field-specific suffix.
+     * @return string
+     */
+    public function fieldName(string $suffix): string
+    {
+        return $this->name() . '_' . $suffix;
     }
     
     /**
@@ -317,14 +332,17 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
     /**
      * Process bulk action.
      *
+     * @param FilterProcessorInterface $filterProcessor
      * @param ResponserInterface $responser
      * @return void
      * @throws ActionProcessException
      * @psalm-suppress RedundantCondition
      * @psalm-suppress NoValue
      */
-    public function processBulk(ResponserInterface $responser): void
-    {
+    public function processBulk(
+        FilterProcessorInterface $filterProcessor,
+        ResponserInterface $responser
+    ): void {
         $input = $this->getInput();
         $repository = $this->controller()->repository();
         $updateAction = $this->actions()->get('update');
@@ -341,8 +359,6 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         $updateAction->setFields($fields);
         $updateAction->setInput($input);
         
-        $ids = $input->get('ids', []);
-        
         $attributes = $input->collection()
             ->onlyPresent($fields->getNames())
             ->all();
@@ -353,6 +369,34 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         
         if ($this->inputAttributesModifier()) {
             $attributes = ($this->inputAttributesModifier())($attributes, $updateAction);
+        }
+        
+        // handle mode:
+        $selectionMode = $input->get($this->fieldName('selection_mode'), 'ids'); // or filtered
+
+        // Ids selection mode
+        if ($selectionMode === 'ids') {
+            $ids = $input->get('ids', []);
+        } else {
+            // filtered selection mode
+            // Get Index action for filters
+            $indexAction = $this->actions()->get('index');
+
+            if (is_null($indexAction)) {
+                throw new ActionNotFoundException(actionName: 'index');
+            }
+
+            $indexAction->setFields($this->controller()->getConfiguredFields(action: $indexAction));
+
+            // Handle filters:
+            $filters = $this->controller()->getConfiguredFilters($indexAction);
+            $filters = $filterProcessor->processFilters(filters: $filters, action: $indexAction);
+
+            $ids = $this->controller()->repository()->findColumn(
+                column: $this->controller()->entityIdName(),
+                where: $filters->getWhereParameters(),
+                orderBy: $filters->getOrderByParameters(),
+            );
         }
         
         $updatedCount = 0;
@@ -423,21 +467,18 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
         $view->asset('assets/crud/live.js')->attr('type', 'module');
         
         $indexAction = $this->actions()->get('index');
-        $createAction = $this->actions()->get('create');
         
-        if (is_null($indexAction) || is_null($createAction)) {
+        if (is_null($indexAction)) {
             return '';
         }
-
-        // Restore input if available
-        $input = $this->getInput();
-        $createAction->setInput($input);
         
-        if (empty($input->all())) {
-            // Try to restore from request (old input after validation)
-            $requester = $this->container()->get(RequesterInterface::class);
-            $createAction->setInput(new Input($requester->input()->all()));
-        }
+        $createAction = new Action\Create();
+        $createAction->setController($this->controller());
+        $createAction->setActions($this->actions());
+        
+        // Restore input
+        $requester = $this->container()->get(RequesterInterface::class);
+        $createAction->setInput($this->fetchInput(requester: $requester, action: $this, fresh: false));
         
         // Ensure fields exists  for dynamic field creation
         if ($this->fields()->empty()) {
@@ -446,7 +487,12 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
             $this->setFields($fields);
         }
         
-        $createAction->setFields($this->createFields());
+        // Merge and set fields
+        $createAction->setFields(Fields::merge(
+            primary: $this->createFields(),
+            secondary: $this->configureFields($createAction),
+        ));
+        
         $this->actionProcessor->processFields(action: $createAction, entity: new Entity());
         $this->setFields($createAction->fields()->parent(null));
         
@@ -699,5 +745,30 @@ final class DynamicBulkEdit extends AbstractAction implements BulkActionInterfac
 
             default => new Field\Text(name: 'value', label: $this->valueLabel),
         };
+    }
+    
+    /**
+     * Returns the configured fields.
+     *
+     * @param ActionInterface $action
+     * @return iterable<FieldInterface>|FieldsInterface
+     * @psalm-suppress UnusedParam
+     */
+    protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+    {
+        yield new Field\Select(
+            name: $this->fieldName('selection_mode'),
+            label: trans('Records to Edit')
+        )
+            ->group(trans('Options'))
+            ->options([
+                'ids' => trans('Selected Records'),
+                'filtered' => trans('All Filtered Records'),
+            ])
+            ->infoText(new Message(
+                title: trans('This will update multiple records.'),
+                warning: true,
+                attributes: ['class' => 'mt-s'],
+            ));
     }
 }
