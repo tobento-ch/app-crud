@@ -33,6 +33,7 @@ $form = $view->form();
                     ?>
                 </section>
             <?php } ?>
+            <?= $form->close() ?>
         </div>        
         <div class="modal-foot">
             <div class="buttons spaced">
@@ -40,6 +41,5 @@ $form = $view->form();
                 <span class="link modal-close"><?= $view->etrans('Cancel') ?></span>
             </div>
         </div>
-        <?= $form->close() ?>
     </div>
 </div>
