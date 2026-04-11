@@ -22,6 +22,9 @@ $form = $view->form();
                             text: $name,
                             for: $field->name().'.'.$locale,
                         ) ?>
+                        <?php if ($field->hasMachineTranslator()) { ?>
+                            <?= $field->renderMachineTranslator(toField: $field->name().'.'.$locale, view: $view) ?>
+                        <?php } ?>
                     </div>
                     <div class="field-body">
                         <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>

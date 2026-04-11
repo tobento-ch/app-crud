@@ -4,7 +4,7 @@ use \Tobento\Service\Support\HtmlString;
 
 $form = $view->form();
 ?>
-<?php if ($field->isTranslatable()) { ?>        
+<?php if ($field->isTranslatable()) { ?>
     <div class="field field-crud" data-field="<?= $view->esc($field->name()) ?>" data-translatable="1">
         <div class="field-label">
             <?= $form->label(
@@ -22,6 +22,9 @@ $form = $view->form();
                             text: $name,
                             for: $field->name().'.'.$locale,
                         ) ?>
+                        <?php if ($field->hasMachineTranslator()) { ?>
+                            <?= $field->renderMachineTranslator(toField: $field->name().'.'.$locale, view: $view) ?>
+                        <?php } ?>
                     </div>
                     <div class="field-body">
                         <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
