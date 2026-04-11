@@ -25,6 +25,7 @@ use Tobento\Service\View\ViewInterface;
 class TextEditor extends AbstractField
 {
     use Traits\Hidden;
+    use Traits\HasMachineTranslator;
     
     /**
      * @var array

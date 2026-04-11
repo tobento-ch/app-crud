@@ -26,6 +26,7 @@ class Text extends AbstractField implements LiveAwareInterface
     use Traits\Hidden;
     use Traits\Live;
     use Traits\PrefixSuffix;
+    use Traits\HasMachineTranslator;
     
     /**
      * @var string
@@ -280,7 +281,18 @@ class Text extends AbstractField implements LiveAwareInterface
         
         foreach($field->locales() as $locale => $name) {
             $html .= '<div class="mb-xs">';
-            $html .= '<div class="mb-xxs">'.$view->esc($name).'</div>';
+            
+            $html .= '<div class="mb-xxs">'.$view->esc($name);
+            
+            if ($field->hasMachineTranslator()) {
+                $html .= $field->renderMachineTranslator(
+                    toField: $field->name().'.'.$locale,
+                    view: $view
+                );
+            }
+            
+            $html .= '</div>';
+            
             $html .= $form->input(
                 name: $field->name().'.'.$locale,
                 type: $field->getType(),

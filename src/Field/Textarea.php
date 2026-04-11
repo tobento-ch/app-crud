@@ -28,6 +28,7 @@ class Textarea extends AbstractField implements LiveAwareInterface
     use Traits\HasValueFormatter;
     use Traits\Hidden;
     use Traits\Live;
+    use Traits\HasMachineTranslator;
     
     /**
      * Create a new Textarea.
@@ -157,7 +158,18 @@ class Textarea extends AbstractField implements LiveAwareInterface
         
         foreach($field->locales() as $locale => $name) {
             $html .= '<div class="mb-xs">';
-            $html .= '<div class="mb-xxs">'.$view->esc($name).'</div>';
+            
+            $html .= '<div class="mb-xxs">'.$view->esc($name);
+            
+            if ($field->hasMachineTranslator()) {
+                $html .= $field->renderMachineTranslator(
+                    toField: $field->name().'.'.$locale,
+                    view: $view
+                );
+            }
+            
+            $html .= '</div>';
+            
             $html .= $form->textarea(
                 name: $field->name().'.'.$locale,
                 value: $entity->get($field->name(), '', $locale),
