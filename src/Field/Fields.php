@@ -53,6 +53,24 @@ class Fields implements FieldsInterface
         
         return new Fields(...Iter::toArray($fields));
     }
+    
+    /**
+     * Merge two sets of fields into a new immutable Fields instance.
+     *
+     * @param iterable<FieldInterface> $primary
+     * @param iterable<FieldInterface> $secondary
+     * @return static
+     */
+    public static function merge(iterable $primary, iterable $secondary): static
+    {
+        $primaryFields = static::fromIterable($primary)->all();
+        $secondaryFields = static::fromIterable($secondary)->all();
+
+        // Secondary overrides primary if same name
+        $merged = array_merge($primaryFields, $secondaryFields);
+
+        return new Fields(...array_values($merged));
+    }
 
     /**
      * Adds the fields.
