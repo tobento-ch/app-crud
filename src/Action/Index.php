@@ -22,10 +22,13 @@ use Tobento\App\Crud\Button;
 use Tobento\App\Crud\Entity\Entities;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\FilterProcessorInterface;
+use Tobento\Service\Requester\RequesterInterface;
 use Tobento\Service\Responser\ResponserInterface;
 
 final class Index extends AbstractAction
 {
+    use Traits\InteractsWithRequest;
+    
     /**
      * Create a new Index.
      *
@@ -63,6 +66,7 @@ final class Index extends AbstractAction
     /**
      * Handle action.
      *
+     * @param RequesterInterface $requester
      * @param ActionProcessorInterface $actionProcessor
      * @param FilterProcessorInterface $filterProcessor
      * @param ResponserInterface $responser
@@ -70,6 +74,7 @@ final class Index extends AbstractAction
      * @psalm-suppress UndefinedInterfaceMethod
      */
     public function handle(
+        RequesterInterface $requester,
         ActionProcessorInterface $actionProcessor,
         FilterProcessorInterface $filterProcessor,
         ResponserInterface $responser,
@@ -78,6 +83,8 @@ final class Index extends AbstractAction
         $controller = $this->controller();
         
         $actionProcessor->preprocessAction(action: $this);
+        
+        $this->setInput($this->fetchInput(requester: $requester, action: $this));
         
         // Set the configured fields if none specified:
         if ($this->fields()->empty()) {
