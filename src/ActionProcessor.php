@@ -108,6 +108,7 @@ class ActionProcessor implements ActionProcessorInterface
         foreach($action->actions() as $a) {
             $a->setController($action->controller());
             $a->setContainer($this->autowire->container());
+            $a->setInput($action->getInput());
             $a->locales($action->getLocales());
         }
         
