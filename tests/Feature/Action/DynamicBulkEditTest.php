@@ -19,6 +19,7 @@ use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Filter;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
@@ -88,6 +89,9 @@ class DynamicBulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
                     fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id())
                 ),
             ],
+            filters: [
+                new Filter\Input(name: 'email', field: 'email'),
+            ],            
         );
     }
 
@@ -104,7 +108,8 @@ class DynamicBulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertBodyContains('Columns to update')
             ->assertBodyContains('Add column')
             ->assertBodyContains('Column')
-            ->assertBodyContains('New Value');
+            ->assertBodyContains('New Value')
+            ->assertBodyContains('Records to Edit');
     }
     
     public function testDynamicBulkEditIsRenderedUsingDynamicField()
@@ -120,7 +125,7 @@ class DynamicBulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertBodyContains('<select id="changes_{num}_value"');
     }
     
-    public function testUpdatesEntities()
+    public function testUpdatesEntitiesByIdsAsDefault()
     {
         $http = $this->fakeHttp();
         $http->request(
@@ -149,6 +154,99 @@ class DynamicBulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         $this->assertSame('inactive', $this->getCrudRepository()->findById(2)->get('status'));
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
         $this->assertSame('active', $this->getCrudRepository()->findById(3)->get('status'));
+    }
+    
+    public function testUpdatesEntitiesBySelectionModeIds()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'dynamic-bulk-edit'),
+            body: [
+                'ids' => ['1', '2', '12'],
+                'changes' => [
+                    1 => ['field' => 'email', 'value' => 'new@example.com'],
+                ],
+                'dynamic-bulk-edit_selection_mode' => 'ids',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com', 'status' => 'active'])->times(3)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(3);
+
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+    }
+    
+    public function testUpdatesEntitiesBySelectionModeFiltered()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'dynamic-bulk-edit'),
+            body: [
+                'changes' => [
+                    1 => ['field' => 'email', 'value' => 'new@example.com'],
+                ],
+                'dynamic-bulk-edit_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com', 'status' => 'active'])->times(3)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(3);
+
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+    }
+    
+    public function testUpdatesEntitiesBySelectionModeFilteredUsesFilters()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'GET',
+            uri: $this->generateIndexUri(),
+            query: ['filter' => ['email' => 'tim@example.com']],
+            body: [
+                'dynamic-bulk-edit_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
+        $this->getSeedFactory(['email' => 'tim@example.com'])->times(2)->create();
+        
+        $http->response()->assertStatus(200);
+        
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'dynamic-bulk-edit'),
+            body: [
+                'changes' => [
+                    1 => ['field' => 'email', 'value' => 'new@example.com'],
+                ],
+                'dynamic-bulk-edit_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(5);
+
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(4)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(5)->get('email'));
     }
 
     public function testNoEntitiesUpdated()

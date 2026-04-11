@@ -19,6 +19,7 @@ use Tobento\App\Crud\Action;
 use Tobento\App\Crud\Boot\Crud;
 use Tobento\App\Crud\Entity\EntityInterface;
 use Tobento\App\Crud\Field;
+use Tobento\App\Crud\Filter;
 use Tobento\App\Crud\Test\Factory;
 use Tobento\Service\Repository\RepositoryInterface;
 use Tobento\Service\Repository\Storage\Column;
@@ -74,6 +75,9 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
                     fn (EntityInterface $entity): string => sprintf('ID %s unupdatable because of...', $entity->id())
                 ),
             ],
+            filters: [
+                new Filter\Input(name: 'email', field: 'email'),
+            ],
         );
     }
     
@@ -90,10 +94,11 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertBodyContains('<form action="http://localhost/users/bulk/bulk-name" name="bulk-name" method="POST">')
             ->assertBodyContains('<input name="email" id="email" type="text" value>')
             ->assertBodyContains('<input name="firstname" id="firstname" type="text" value>')
-            ->assertBodyContains('<input name="lastname" id="lastname" type="text" value>');
+            ->assertBodyContains('<input name="lastname" id="lastname" type="text" value>')
+            ->assertBodyContains('Records to Edit');
     }
     
-    public function testUpdatesEntities()
+    public function testUpdatesEntitiesByIdsAsDefault()
     {
         $http = $this->fakeHttp();
         $http->request(
@@ -111,7 +116,97 @@ class BulkEditTest extends \Tobento\App\Crud\Test\Feature\TestCase
         
         $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
         $this->assertSame('new@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        // because id: 3 unupdatable
         $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+    }
+    
+    public function testUpdatesEntitiesBySelectionModeIds()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-email'),
+            body: [
+                'ids' => ['1', '2', '12'],
+                'email' => 'new@example.com',
+                'bulk-email_selection_mode' => 'ids',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(3);
+        
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        // because id: 3 unupdatable
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+    }
+    
+    public function testUpdatesEntitiesBySelectionModeFiltered()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-email'),
+            body: [
+                'email' => 'new@example.com',
+                'bulk-email_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(3);
+        
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        // because id: 3 unupdatable
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+    }
+    
+    public function testUpdatesEntitiesBySelectionModeFilteredUsesFilters()
+    {
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'GET',
+            uri: $this->generateIndexUri(),
+            query: ['filter' => ['email' => 'tim@example.com']],
+            body: [
+                'bulk-email_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $this->getSeedFactory(['email' => 'tom@example.com'])->times(3)->create();
+        $this->getSeedFactory(['email' => 'tim@example.com'])->times(2)->create();
+        
+        $http->response()->assertStatus(200);
+        
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-email'),
+            body: [
+                'email' => 'new@example.com',
+                'bulk-email_selection_mode' => 'filtered',
+            ],
+        );
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 record(s) have been updated.', true)
+            ->assertCrudIndexEntityCount(5);
+        
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(1)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(2)->get('email'));
+        $this->assertSame('tom@example.com', $this->getCrudRepository()->findById(3)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(4)->get('email'));
+        $this->assertSame('new@example.com', $this->getCrudRepository()->findById(5)->get('email'));
     }
     
     public function testUnupdatableEntitiesAreIgnored()
