@@ -23,7 +23,12 @@ $form = $view->form();
                             for: $field->name().'.'.$locale,
                         ) ?>
                         <?php if ($field->hasMachineTranslator()) { ?>
-                            <?= $field->renderMachineTranslator(toField: $field->name().'.'.$locale, view: $view) ?>
+                            <?= $field->renderMachineTranslator(
+                                toField: $field->name().'.'.$locale,
+                                field: $field,
+                                actionName: $actionName,
+                                view: $view
+                            ) ?>
                         <?php } ?>
                     </div>
                     <div class="field-body">
@@ -52,6 +57,14 @@ $form = $view->form();
             ) ?>
         </div>
         <div class="field-body">
+            <?php if ($field->hasMachineTranslator()) { ?>
+                <?= $field->renderMachineTranslator(
+                    toField: $field->name(),
+                    field: $field,
+                    actionName: $actionName,
+                    view: $view
+                ) ?>
+            <?php } ?>
             <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
             <div class="content">
                 <?= $form->textarea(

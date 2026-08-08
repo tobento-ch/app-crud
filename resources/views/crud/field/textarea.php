@@ -18,7 +18,12 @@
                             for: $field->name().'.'.$locale,
                         ) ?>
                         <?php if ($field->hasMachineTranslator()) { ?>
-                            <?= $field->renderMachineTranslator(toField: $field->name().'.'.$locale, view: $view) ?>
+                            <?= $field->renderMachineTranslator(
+                                toField: $field->name().'.'.$locale,
+                                field: $field,
+                                actionName: $actionName,
+                                view: $view
+                            ) ?>
                         <?php } ?>
                     </div>
                     <div class="field-body">
@@ -45,6 +50,14 @@
             ) ?>
         </div>
         <div class="field-body">
+            <?php if ($field->hasMachineTranslator()) { ?>
+                <?= $field->renderMachineTranslator(
+                    toField: $field->name(),
+                    field: $field,
+                    actionName: $actionName,
+                    view: $view
+                ) ?>
+            <?php } ?>
             <?= $view->esc($field->getInfoText(action: $actionName, below: false)) ?>
             <?= $form->textarea(
                 name: $field->name(),
