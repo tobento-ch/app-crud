@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Field\Traits;
 
+use Tobento\App\Crud\Field\FieldInterface;
 use Tobento\Service\Tag\Attributes;
 use Tobento\Service\View\ViewInterface;
 
@@ -24,26 +25,40 @@ trait HasMachineTranslator
     
     protected null|string $machineTranslatorLabel = null;
     
-    protected array $machineTranslatorAttributes = [];
+    /*
+     * @var array|callable
+     */
+    protected $machineTranslatorAttributes = [];
 
     /**
      * Enable machine translation for this field.
      *
      * @param string|null $translator Optional translator name (e.g. "deepl")
      * @param string|null $label Optional button label
-     * @param array $attributes Additional HTML attributes for the button
+     * @param array|callable $attributes Additional HTML attributes for the button
+     * @param bool $allowNonTranslatable
      */
     public function machineTranslator(
         null|string $translator = null,
         null|string $label = null,
-        array $attributes = [],
+        array|callable $attributes = [],
+        bool $allowNonTranslatable = false,
     ): static {
-        if (! $this->isTranslatable()) {
+        if (! $allowNonTranslatable && ! $this->isTranslatable()) {
             throw new \LogicException(
                 sprintf('Field "%s" must be translatable() before using machineTranslator()', $this->name())
             );
         }
-
+        
+        if (!is_array($attributes) && !is_callable($attributes)) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'machineTranslator() expects $attributes to be array or callable, %s given.',
+                    gettype($attributes)
+                )
+            );
+        }
+        
         $this->machineTranslatorEnabled = true;
         $this->machineTranslatorName = $translator;
         $this->machineTranslatorLabel = $label;
@@ -73,14 +88,20 @@ trait HasMachineTranslator
      * target field ("to") that should receive the translated text.
      *
      * @param string $toField The fully qualified field name (e.g. "title.en") to populate with the translation.
+     * @param FieldInterface $field
+     * @param string $actionName
      * @param ViewInterface $view The view instance used for asset loading and translations.
      * @return string The rendered HTML for the machine-translator button.
      * @psalm-suppress UndefinedInterfaceMethod
      *
      * @see https://github.com/tobento-ch/app-machine-translator#javascript-translator
      */
-    public function renderMachineTranslator(string $toField, ViewInterface $view): string
-    {
+    public function renderMachineTranslator(
+        string $toField,
+        FieldInterface $field,
+        string $actionName,
+        ViewInterface $view,
+    ): string {
         // Ensure translator.js is loaded
         $view->asset('assets/machine-translator/translator.js')->attr('type', 'module');
         
@@ -102,8 +123,16 @@ trait HasMachineTranslator
             ],
         ];
         
+        $attributes = [];
+        
+        if (is_callable($this->machineTranslatorAttributes)) {
+            $attributes = ($this->machineTranslatorAttributes)($field, $actionName, $view);
+        } elseif (is_array($this->machineTranslatorAttributes)) {
+            $attributes = $this->machineTranslatorAttributes;
+        }
+        
         // Merge custom attributes (user overrides)
-        $attrs = array_replace_recursive($attrs, $this->machineTranslatorAttributes);
+        $attrs = array_replace_recursive($attrs, $attributes);
 
         // Add translator name if provided
         if (is_string($this->machineTranslatorName)) {
