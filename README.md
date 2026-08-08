@@ -330,7 +330,7 @@ class ProductsController extends AbstractCrudController
      *
      * @return string
      */
-    protected function entityIdName(): string
+    public function entityIdName(): string
     {
         return 'id';
     }
@@ -2631,6 +2631,57 @@ protected function configureFields(ActionInterface $action): iterable|FieldsInte
                     'foo' => 'bar',
                 ],
             ],
+        );
+}
+```
+
+**Advanced Example (Dynamic Attributes, Selectors, Non-Translatable Fields)**
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Field\FieldsInterface;
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\Textarea(name: 'message');
+        
+    yield new Field\Textarea(name: 'translation')        
+        // Enable machine translator
+        ->machineTranslator(
+            // Allow translation even if the field is not marked ->translatable()
+            allowNonTranslatable: true,
+
+            // Attributes may be defined dynamically using a callable
+            attributes: function (Field\Textarea $field, string $actionName): array {
+                $id = $field->entity()->get('id');
+                $locale = $field->entity()->get('resource_locale', '');
+
+                // Optional locale label
+                $localeLabel = $locale !== ''
+                    ? trans('Locale: :locale', [':locale' => $locale])
+                    : '';
+
+                // Row‑scoped selectors (important for index views)
+                $fromSel = sprintf('[data-entity-id="%s"] [data-field="message"]', $id);
+                $toSel   = sprintf('[data-entity-id="%s"] textarea[name="translation"]', $id);
+
+                // Use selectors in index view, fallback to field name otherwise
+                $from = $actionName === 'index'
+                    ? ['from_selector' => $fromSel, 'to_selector' => $toSel]
+                    : ['from' => 'message'];
+
+                // Add info text to the field
+                $field->infoText($localeLabel);
+
+                return [
+                    'class' => 'button text-xxs mb-xs',
+                    'data-machine-translator' => [
+                        'locale' => $locale,
+                        'from_first' => null,
+                    ] + $from,
+                ];
+            },
         );
 }
 ```
