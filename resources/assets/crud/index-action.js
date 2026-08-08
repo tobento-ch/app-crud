@@ -195,26 +195,42 @@ const indexAction = (function(window, document) {
             });
 
             // Show dropdown menu on input click:
+            const dropdownEl = document.querySelector('[data-dropdown="bulk"]');
+            
             document.addEventListener('click', (e) => {
-
-                const el = e.target.closest('[name^="bulk"]');
-                const dropdownEl = document.querySelector('[data-dropdown="bulk"]');
                 
+                const el = e.target.closest('[name^="bulk"]');
+
                 if (!dropdownEl) {
                     return;
                 }
-                
+
                 if (el) {
+                    const bulkRows = document.querySelectorAll('[name="bulk[]"]');
+                    const hasRows = bulkRows.length > 0;
                     const count = document.querySelectorAll('[name="bulk[]"]:checked').length;
+                    const isOpen = !dropdownEl.classList.contains('display-none');
+
+                    if (!hasRows) {
+                        // Toggle behavior when no rows exist
+                        if (isOpen) {
+                            dropdownEl.classList.add('display-none');
+                            document.body.appendChild(dropdownEl);
+                        } else {
+                            dropdownEl.classList.remove('display-none');
+                            el.parentNode.appendChild(dropdownEl);
+                        }
+                        return;
+                    }
+
+                    // Normal behavior when rows exist
                     if (count > 0 && !e.target.closest('.modal')) {
                         dropdownEl.classList.remove('display-none');
                         el.parentNode.appendChild(dropdownEl);
                     } else {
                         dropdownEl.classList.add('display-none');
+                        document.body.appendChild(dropdownEl);
                     }
-                } else if (! e.target.closest('.crud-dropdown')) {
-                    dropdownEl.classList.add('display-none');
-                    document.body.appendChild(dropdownEl);
                 }
             });
             
