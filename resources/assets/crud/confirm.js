@@ -44,31 +44,52 @@ const crudConfirm = (function(window, document) {
                 el.removeAttribute('data-confirm');
                 return;
             }
-            
+
             const modal = modals.get('confirm');
-            
+
             if (e.target.hasAttribute('data-confirming')) {
                 el.removeAttribute('data-confirm');
                 return;
             }
-            
+
             e.preventDefault();
             e.stopPropagation();
 
-            let form = el.parentNode.cloneNode(true);
-            const btn = form.querySelector('[data-confirm]');
-            
-            if (form.tagName.toLowerCase() !== 'form') {
-                form = btn;
-            }
-            
-            form.setAttribute('data-btn', 'confirm');
+            const originalForm = el.closest('form');
+
+            // Clone full form so all fields are preserved
+            let form = originalForm.cloneNode(true);
+
+            // Hide the cloned form visually but keep it in DOM
+            form.style.display = 'none';
+
+            // Create a small visible confirm form with just the button
+            let visibleForm = document.createElement('form');
+            visibleForm.method = originalForm.method;
+            visibleForm.action = originalForm.action;
+            visibleForm.enctype = originalForm.enctype;
+
+            // On submit of visible form, submit the hidden full form instead
+            visibleForm.addEventListener('submit', function(ev) {
+                ev.preventDefault();
+                form.submit();
+            });
+
+            const btn = el.cloneNode(true);
+            btn.removeAttribute('data-confirm');
             btn.setAttribute('data-confirming', '');
             btn.setAttribute('data-modal-trigger', 'confirm');
-            btn.removeAttribute('data-confirm');
             btn.classList.remove('raw');
             btn.classList.add('button', 'primary');
-            modal.modalEl.querySelector('[data-btn="confirm"]').replaceWith(form);
+
+            visibleForm.appendChild(btn);
+            visibleForm.setAttribute('data-btn', 'confirm');
+
+            // Insert both into modal: hidden full form and visible confirm form
+            const container = modal.modalEl.querySelector('[data-btn="confirm"]');
+            container.replaceWith(visibleForm);
+            modal.modalEl.appendChild(form);
+
             modal.modalEl.querySelector('.modal-body p').textContent = el.getAttribute('data-confirm');
             modal.open();
         }
