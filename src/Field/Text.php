@@ -266,7 +266,18 @@ class Text extends AbstractField implements LiveAwareInterface
         $form = $view->form();
         
         if (! $field->isTranslatable()) {
-            $html = $form->input(
+            $html = '';
+            
+            if ($field->hasMachineTranslator()) {
+                $html .= $field->renderMachineTranslator(
+                    toField: $field->name(),
+                    field: $field,
+                    actionName: $action->name(),
+                    view: $view
+                );
+            }
+            
+            $html .= $form->input(
                 name: $field->name(),
                 type: $field->getType(),
                 value: $field->getValue($field),
@@ -283,10 +294,12 @@ class Text extends AbstractField implements LiveAwareInterface
             $html .= '<div class="mb-xs">';
             
             $html .= '<div class="mb-xxs">'.$view->esc($name);
-            
+
             if ($field->hasMachineTranslator()) {
                 $html .= $field->renderMachineTranslator(
                     toField: $field->name().'.'.$locale,
+                    field: $field,
+                    actionName: $action->name(),
                     view: $view
                 );
             }

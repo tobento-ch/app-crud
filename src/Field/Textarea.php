@@ -144,7 +144,18 @@ class Textarea extends AbstractField implements LiveAwareInterface
         $form = $view->form();
         
         if (! $field->isTranslatable()) {
-            $html = $form->textarea(
+            $html = '';
+            
+            if ($field->hasMachineTranslator()) {
+                $html .= $field->renderMachineTranslator(
+                    toField: $field->name(),
+                    field: $field,
+                    actionName: $action->name(),
+                    view: $view
+                );
+            }
+            
+            $html .= $form->textarea(
                 name: $field->name(),
                 value: $entity->get($field->name(), ''),
                 attributes: $attributes,
@@ -164,6 +175,8 @@ class Textarea extends AbstractField implements LiveAwareInterface
             if ($field->hasMachineTranslator()) {
                 $html .= $field->renderMachineTranslator(
                     toField: $field->name().'.'.$locale,
+                    field: $field,
+                    actionName: $action->name(),
                     view: $view
                 );
             }
