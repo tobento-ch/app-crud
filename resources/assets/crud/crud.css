@@ -108,6 +108,8 @@ body.crud {max-width: 100%;}
     overflow-wrap: anywhere;
     max-height: 400px; /* optional */
     overflow-y: auto; /* optional */
+    line-height: 0.8;
+    font-size: 1rem;
 }
 .crud .item-header {
   border-top: 1px solid var(--color-black);
