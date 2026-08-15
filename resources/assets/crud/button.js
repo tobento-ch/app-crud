@@ -13,6 +13,10 @@ const button = (function(window, document) {
                 return;
             }
             
+            if (el.hasAttribute('data-confirm')) {
+                return; // this click only opens the confirm modal; withModal() owns the rest
+            }
+            
             if (el.hasAttribute('data-loading')) {
                 button.handleLoading(e, el);
             }
