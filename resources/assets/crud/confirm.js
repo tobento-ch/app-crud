@@ -2,7 +2,9 @@ import modals from './../modal/modals.js';
 
 const crudConfirm = (function(window, document) {
     'use strict';
-
+    
+    let confirmButtonsTemplate = null;
+    
     const confirm = {
         handleClick: function(e, el) {
             if (el.getAttribute('data-confirm') === '') {
@@ -44,51 +46,53 @@ const crudConfirm = (function(window, document) {
                 el.removeAttribute('data-confirm');
                 return;
             }
-
             const modal = modals.get('confirm');
-
             if (e.target.hasAttribute('data-confirming')) {
                 el.removeAttribute('data-confirm');
                 return;
             }
-
             e.preventDefault();
             e.stopPropagation();
 
-            const originalForm = el.closest('form');
+            const buttonsWrap = modal.modalEl.querySelector('.modal-foot .buttons');
 
-            // Clone full form so all fields are preserved
+            // Cache the pristine buttons markup once, then always restore from it
+            // before inserting our form - this way we're never dependent on whatever
+            // state a previous confirm (or modal.close()) left behind.
+            if (confirmButtonsTemplate === null) {
+                confirmButtonsTemplate = buttonsWrap.innerHTML;
+            } else {
+                buttonsWrap.innerHTML = confirmButtonsTemplate;
+            }
+
+            const originalForm = el.closest('form');
             let form = originalForm.cloneNode(true);
 
-            // Hide the cloned form visually but keep it in DOM
-            form.style.display = 'none';
+            const allButtons = Array.from(originalForm.querySelectorAll('[data-button]'));
+            const idx = allButtons.indexOf(el);
+            const btn = form.querySelectorAll('[data-button]')[idx];
 
-            // Create a small visible confirm form with just the button
-            let visibleForm = document.createElement('form');
-            visibleForm.method = originalForm.method;
-            visibleForm.action = originalForm.action;
-            visibleForm.enctype = originalForm.enctype;
+            const hiddenWrap = document.createElement('div');
+            hiddenWrap.style.display = 'none';
+            while (form.firstChild) {
+                hiddenWrap.appendChild(form.firstChild);
+            }
+            form.appendChild(hiddenWrap);
 
-            // On submit of visible form, submit the hidden full form instead
-            visibleForm.addEventListener('submit', function(ev) {
-                ev.preventDefault();
-                form.submit();
-            });
-
-            const btn = el.cloneNode(true);
             btn.removeAttribute('data-confirm');
             btn.setAttribute('data-confirming', '');
             btn.setAttribute('data-modal-trigger', 'confirm');
             btn.classList.remove('raw');
             btn.classList.add('button', 'primary');
+            form.appendChild(btn);
 
-            visibleForm.appendChild(btn);
-            visibleForm.setAttribute('data-btn', 'confirm');
-
-            // Insert both into modal: hidden full form and visible confirm form
-            const container = modal.modalEl.querySelector('[data-btn="confirm"]');
-            container.replaceWith(visibleForm);
-            modal.modalEl.appendChild(form);
+            const container = buttonsWrap.querySelector('[data-btn="confirm"]');
+            if (container) {
+                container.replaceWith(form);
+            } else {
+                // defensive fallback — shouldn't happen now that we reset from template above
+                buttonsWrap.appendChild(form);
+            }
 
             modal.modalEl.querySelector('.modal-body p').textContent = el.getAttribute('data-confirm');
             modal.open();
