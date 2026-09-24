@@ -248,6 +248,15 @@ class Fields
                 ->open($this->open);
         }
         
+        if ($field instanceof Field\Text && $field->getType() === 'datetime-local') {
+            return new Input(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
+                ->group($this->group)
+                ->type('search')
+                ->comparison('like')
+                ->attributes(['aria-label' => $label, 'placeholder' => sprintf('%s-04-25', date('Y'))])
+                ->open($this->open);
+        }
+        
         return new Input(name: 'field.'.$name, field: $this->dotToJsonSyntax($name))
             ->group($this->group)
             ->type('search')
