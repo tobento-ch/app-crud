@@ -41,6 +41,11 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     use Traits\ConfiguresModal;
     
     /**
+     * @var null|callable
+     */    
+    private $deleteMessage = null;
+    
+    /**
      * Create a new BulkDelete.
      *
      * @param null|string $title
@@ -229,9 +234,13 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
         }
         
         if ($deletedCount > 0) {
+            $message = $this->deleteMessage
+                ? ($this->deleteMessage)($deletedCount)
+                : trans(':count record(s) have been deleted.', [':count' => $deletedCount]);
+
             $responser->messages()->add(
                 level: 'success',
-                message: trans(':count record(s) have been deleted.', [':count' => $deletedCount]),
+                message: $message,
             );
         } else {
             $responser->messages()->add(
@@ -278,6 +287,18 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     public function displayButton(): bool
     {
         return true;
+    }
+    
+    /**
+     * Sets a custom message callback for bulk deletion.
+     *
+     * @param callable(int $count):string $message
+     * @return static
+     */
+    public function deleteMessage(callable $message): static
+    {
+        $this->deleteMessage = $message;
+        return $this;
     }
     
     /**
