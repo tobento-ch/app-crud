@@ -3638,6 +3638,29 @@ protected function configureActions(): iterable|ActionsInterface
 }
 ```
 
+**Delete message**
+
+You can configure a success message that is shown after an entity has been deleted:
+
+```php
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Action\ActionsInterface;
+use Tobento\App\Crud\Entity\EntityInterface;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    yield new Action\Delete()
+        ->deleteMessage('Entity deleted successfully.');
+    
+    // Or generate the message dynamically based on the deleted entity:
+    yield new Action\Delete()
+        ->deleteMessage(fn (EntityInterface $entity): string => sprintf(
+            'Entity #%s has been deleted.',
+            $entity->get('id')
+        ));
+}
+```
+
 #### Bulk Delete Action
 
 The **BulkDelete** action allows users to remove multiple entities at once.  
@@ -3663,6 +3686,25 @@ protected function configureActions(): iterable|ActionsInterface
 
 Modal Reference:  
 https://github.com/tobento-ch/css-modal
+
+**Delete message**
+
+You can configure a success message that is shown after the bulk deletion has completed.  
+Bulk deletion always passes the number of deleted records to the callback.
+
+```php
+use Tobento\App\Crud\Action;
+use Tobento\App\Crud\Action\ActionsInterface;
+
+protected function configureActions(): iterable|ActionsInterface
+{
+    yield new Action\BulkDelete()
+        ->deleteMessage(fn (int $count): string => sprintf(
+            '%s record(s) have been deleted.',
+            $count
+        ));
+}
+```
 
 #### Bulk Download ZIP Action
 
@@ -4405,6 +4447,15 @@ $delete = new Button\Delete(label: 'Label', group: 'entity');
 
 $dropdown = new Button\Dropdown(label: 'Label', group: 'entity');
 
+$modal = new Button\Modal(label: 'Label', group: 'entity');
+// renders a modal containing buttons
+ 
+$descriptive = new Button\Descriptive(
+    button: new Button\Button(label: 'Label', group: 'entity'),
+    description: 'Lorem ipsum',
+);
+// renders a button with a description
+
 $form = new Button\Form(label: 'Label', group: 'entity')->method('POST');
 // renders a <form> element with the entity id as hidden input.
 ```
@@ -4494,6 +4545,55 @@ $link = new Button\Link(label: 'View invoice', group: 'entity')
     ->ajaxAction('Action performed successfully.')
     // Or disable it if previous set:
     ->ajaxAction(false);
+```
+
+**Modal Button**
+
+The modal button may be used anywhere a dropdown button can be used. It supports grouping buttons, searching buttons and displaying descriptive buttons.
+
+```php
+new Button\Modal(label: 'More', group: 'entity')
+    ->buttons(
+        new Button\Link(label: 'Edit', group: 'entity'),
+        new Button\Delete(label: 'Delete', group: 'entity'),
+    );
+```
+
+You may disable button searching:
+
+```php
+new Button\Modal(label: 'More', group: 'entity')
+    ->searchableButtons(false);
+```
+
+You may customize the search placeholder:
+
+```php
+new Button\Modal(label: 'More', group: 'entity')
+    ->searchableButtonsPlaceholder('Search for ...');
+```
+
+The modal button also supports all modal configuration methods:
+
+```php
+new Button\Modal(label: 'Create', group: 'entity')
+    ->modalPosition('top', 'right')
+    ->modalSize('modal-m')
+    ->modalAnimation('modal-swing');
+```
+
+**Descriptive Button**
+
+The descriptive button wraps another button and displays a description below it.
+
+```php
+new Button\Descriptive(
+    button: new Button\Button(label: 'Article', group: 'entity'),
+    description: 'Create a standard article.',
+    
+    // You may group descriptive buttons visually inside modal buttons: 
+    visualGroup: 'Group A',
+);
 ```
 
 #### Adding Buttons
