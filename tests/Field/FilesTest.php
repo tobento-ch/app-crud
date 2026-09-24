@@ -76,4 +76,31 @@ class FilesTest extends AbstractField
         
         new Field\Files(name: 'name')->disabled();
     }
+    
+    public function testGetRawFieldsMethodReturnsDeclaredFields()
+    {
+        $field = new Field\Files(name: 'gallery');
+
+        // Declare custom fields
+        $field->fields(
+            new Field\Text('src'),
+            new Field\Text('title'),
+        );
+
+        $raw = $field->getRawFields();
+
+        // Should contain the two declared fields + the internal "order" field
+        $this->assertSame(3, count($raw->getNames()));
+
+        // Check names
+        $names = $raw->getNames();
+        $this->assertContains('src', $names);
+        $this->assertContains('title', $names);
+        $this->assertContains('order', $names);
+
+        // Ensure "order" is the hidden internal field
+        $orderField = $raw->get('order');
+        $this->assertInstanceOf(Field\Text::class, $orderField);
+        $this->assertSame('order', $orderField->name());
+    }
 }
