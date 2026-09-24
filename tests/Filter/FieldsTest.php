@@ -255,4 +255,41 @@ class FieldsTest extends TestCase
         $this->assertInstanceof(Filter\Options::class, $filter);
         $this->assertSame('contains', $filter->getComparison());
     }
+    
+    public function testRendersDatetimeLocalFilter()
+    {
+        $fields = new Fields()
+            ->fields(new Field\Fields(
+                new Field\Text(name: 'created_at', label: 'LABEL')->type('datetime-local'),
+            ));
+
+        $filters = $fields->toFilters();
+        $filter = $filters[0] ?? null;
+
+        // Basic assertions
+        $this->assertSame(1, count($filters));
+        $this->assertInstanceof(Input::class, $filter);
+        $this->assertSame('field.created_at', $filter?->name());
+        $this->assertSame('created_at', $filter?->fieldName());
+        $this->assertSame('field', $filter?->getGroup());
+        $this->assertSame('search', $filter?->getType());
+        $this->assertSame('like', $filter?->getComparison());
+        $this->assertTrue($filter?->isOpen());
+        $this->assertFalse($filter?->isActive());
+
+        // Render and check placeholder + aria-label
+        $rendered = $filter->render(Factory::createView());
+
+        $expectedPlaceholder = sprintf('%s-04-25', date('Y'));
+
+        $this->assertStringContainsString(
+            sprintf('placeholder="%s"', $expectedPlaceholder),
+            $rendered
+        );
+
+        $this->assertStringContainsString(
+            '<input aria-label="LABEL"',
+            $rendered
+        );
+    }
 }
