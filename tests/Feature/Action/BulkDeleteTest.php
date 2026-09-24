@@ -203,4 +203,41 @@ class BulkDeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
             ->assertBodyContains('No records were deleted.', true)
             ->assertCrudIndexEntityCount(2);
     }
+    
+    public function testBulkDeleteMessageIsShown()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\PrimaryId('id'),
+                    new Field\Text('email'),
+                ],
+                actions: [
+                    new Action\Index('Users'),
+                    new Action\BulkDelete()
+                        ->deleteMessage(fn (int $count): string => sprintf(
+                            '%s items deleted.',
+                            $count
+                        )),
+                    new Action\Delete(),
+                ],
+            );
+        });
+
+        $http = $this->fakeHttp();
+        $http->request(
+            method: 'POST',
+            uri: $this->generateBulkUri(action: 'bulk-delete'),
+            body: ['ids' => ['1', '2']]
+        );
+        
+        $this->getSeedFactory()->times(3)->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('2 items deleted.')
+            ->assertCrudIndexEntityCount(1);
+    }
 }

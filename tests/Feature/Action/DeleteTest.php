@@ -127,4 +127,61 @@ class DeleteTest extends \Tobento\App\Crud\Test\Feature\TestCase
 
         $this->assertSame(3, $this->getCrudRepository()->count());
     }
+    
+    public function testDeleteMessageIsShown()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\PrimaryId('id'),
+                    new Field\Text('email'),
+                ],
+                actions: [
+                    new Action\Delete()->deleteMessage('Entity deleted successfully.'),
+                    new Action\Index(),
+                ],
+            );
+        });
+        
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(method: 'DELETE', uri: $this->generateDeleteUri(id: 1));
+
+        $this->getSeedFactory()->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('Entity deleted successfully.');
+    }
+    
+    public function testDeleteMessageIsShownUsingCallback()
+    {
+        $this->withCrudController(function (AppInterface $app) {
+            return Factory::createCrudController(
+                repository: $this->createRepository($app),
+                resourceName: $this->getCrudControllerResourceName(),
+                fields: [
+                    new Field\PrimaryId('id'),
+                    new Field\Text('email'),
+                ],
+                actions: [
+                    new Action\Delete()
+                        ->deleteMessage(fn (EntityInterface $e): string => sprintf('Entity %s deleted.', $e->get('id'))),
+                    new Action\Index(),
+                ],
+            );
+        });
+        
+        $http = $this->fakeHttp();
+        $http->previousUri($this->generateIndexUri());
+        $http->request(method: 'DELETE', uri: $this->generateDeleteUri(id: 1));
+
+        $this->getSeedFactory()->create();
+        
+        $http->followRedirects()
+            ->assertStatus(200)
+            ->assertBodyContains('Entity 1 deleted.');
+    }
 }
