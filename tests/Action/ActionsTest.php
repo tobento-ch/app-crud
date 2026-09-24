@@ -23,6 +23,24 @@ require_once __DIR__.'/../function-trans.php';
 
 class ActionsTest extends TestCase
 {
+    public function testFromIterableMethod()
+    {
+        $actions = Actions::fromIterable([
+            new Action\Index('Users'),
+            new Action\Delete(),
+        ]);
+
+        $this->assertSame(2, $actions->count());
+    }
+
+    public function testFromIterableMethodReturnsActionsIfProvided()
+    {
+        $iterable = new Actions();
+        $actions = Actions::fromIterable($iterable);
+
+        $this->assertTrue($iterable === $actions);
+    }
+
     public function testConstructorMethod()
     {
         $actions = new Actions();

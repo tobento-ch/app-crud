@@ -25,6 +25,24 @@ use Tobento\App\Crud\Input\Input;
 
 class FiltersTest extends TestCase
 {
+    public function testFromIterableMethod()
+    {
+        $filters = Filters::fromIterable([
+            new Filter\Pagination(),
+            new Filter\Input(name: 'foo', field: 'foo'),
+        ]);
+
+        $this->assertSame(2, $filters->count());
+    }
+
+    public function testFromIterableMethodReturnsFiltersIfProvided()
+    {
+        $iterable = new Filters();
+        $filters = Filters::fromIterable($iterable);
+
+        $this->assertTrue($iterable === $filters);
+    }
+    
     public function testConstructorMethod()
     {
         $filters = new Filters();
