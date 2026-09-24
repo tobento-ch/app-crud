@@ -1,6 +1,6 @@
 {
     "name": "tobento/app-crud",
-    "version": "2.0.15",
+    "version": "2.0.16",
     "type": "library",
     "description": "A simple and modular CRUD system.",
     "keywords": [
