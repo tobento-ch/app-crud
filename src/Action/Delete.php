@@ -38,6 +38,11 @@ final class Delete extends AbstractAction
     private $undeletableReason = '';
     
     /**
+     * @var null|callable|string
+     */    
+    private $deleteMessage = null;
+    
+    /**
      * Create a new Delete.
      *
      * @param null|string|Closure $title
@@ -117,6 +122,14 @@ final class Delete extends AbstractAction
             actionName: 'deleted',
         );
         
+        if ($this->deleteMessage !== null) {
+            $message = is_string($this->deleteMessage)
+                ? $this->deleteMessage
+                : ($this->deleteMessage)($this->entity());
+            
+            $responser->messages()->add(level: 'success', message: $message);
+        }
+        
         return $responser->redirect(uri: $this->getLinkUrl());
     }
 
@@ -166,5 +179,17 @@ final class Delete extends AbstractAction
         }
         
         return ($this->undeletableReason)($entity);
+    }
+    
+    /**
+     * Sets a custom message for deletion.
+     *
+     * @param string|callable(EntityInterface $entity):string $message
+     * @return static
+     */
+    public function deleteMessage(string|callable $message): static
+    {
+        $this->deleteMessage = $message;
+        return $this;
     }
 }
