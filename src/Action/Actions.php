@@ -13,8 +13,9 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Action;
 
-use Traversable;
 use ArrayIterator;
+use Traversable;
+use Tobento\Service\Iterable\Iter;
 
 /**
  * Actions
@@ -35,6 +36,21 @@ class Actions implements ActionsInterface
         ActionInterface ...$action,
     ) {
         $this->actions = $action;
+    }
+    
+    /**
+     * Create actions from iterable.
+     *
+     * @param iterable<ActionInterface> $actions
+     * @return static
+     */
+    public static function fromIterable(iterable $actions): static
+    {
+        if ($actions instanceof ActionsInterface) {
+            return $actions;
+        }
+
+        return new Actions(...Iter::toArray($actions));
     }
     
     /**

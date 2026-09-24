@@ -13,8 +13,9 @@ declare(strict_types=1);
 
 namespace Tobento\App\Crud\Filter;
 
-use Traversable;
 use ArrayIterator;
+use Traversable;
+use Tobento\Service\Iterable\Iter;
 
 /**
  * Filters
@@ -37,6 +38,21 @@ class Filters implements FiltersInterface
         foreach($filters as $filter) {
             $this->filters[$filter->name()] = $filter;
         }
+    }
+    
+    /**
+     * Create filters from iterable.
+     *
+     * @param iterable<FilterInterface> $filters
+     * @return static
+     */
+    public static function fromIterable(iterable $filters): static
+    {
+        if ($filters instanceof FiltersInterface) {
+            return $filters;
+        }
+
+        return new Filters(...Iter::toArray($filters));
     }
 
     /**
