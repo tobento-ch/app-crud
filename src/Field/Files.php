@@ -126,6 +126,16 @@ class Files extends AbstractField implements FieldsAwareInterface
     }
     
     /**
+     * Returns the raw fields.
+     *
+     * @return FieldsInterface
+     */
+    public function getRawFields(): FieldsInterface
+    {
+        return Fields::fromIterable($this->fields);
+    }
+    
+    /**
      * Returns the fields.
      *
      * @param ActionInterface $action
