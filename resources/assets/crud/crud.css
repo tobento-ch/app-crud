@@ -310,3 +310,10 @@ ul.crud-tree input:not([type="checkbox"]):not([type="radio"]):not([type="file"])
   box-sizing: border-box;
   width: calc(100% - 1.5rem);
 }
+
+/* Button descriptive and modal */
+.crud-btn-descriptive .descriptive-desc {font-size: var(--text-xxs); line-height: var(--text-xxs-lh);}
+.crud-button-modal .modal-buttons {margin-bottom: 1rem;}
+.crud-button-modal .modal-buttons > * {margin-bottom: 0.5rem;}
+.crud-button-modal .crud-btn-descriptive {margin-bottom: 1rem;}
+.crud-button-modal .modal-group-title {margin-bottom: 0.25rem; font-size: var(--text-s); line-height: var(--text-s-lh);}
