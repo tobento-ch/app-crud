@@ -77,6 +77,19 @@ class ResourceTypes implements ResourceTypesInterface
     }
     
     /**
+     * Returns a new instance with the types filtered.
+     *
+     * @param callable(ResourceTypeInterface): bool $callback Return true to keep the type.
+     * @return static
+     */
+    public function filter(callable $callback): static
+    {
+        $new = clone $this;
+        $new->types = array_filter($this->types, $callback);
+        return $new;
+    }
+    
+    /**
      * Returns all types.
      *
      * @return array<string, ResourceTypeInterface>
