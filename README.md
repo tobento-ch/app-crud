@@ -113,6 +113,7 @@ A simple and modular CRUD system.
         - [Create Resource Type](#create-resource-type)
         - [Create Controller Supporting Resource Types](#create-controller-supporting-resource-types)
         - [Configure Resource Types](#configure-resource-types)
+        - [Filter Resource Types](#filter-resource-types)
     - [HTML Message](#html-message)
     - [Security](#security)
     - [Testing](#testing)
@@ -6299,6 +6300,41 @@ $app->on(
         $types->add(new AnotherArticleType());
     }
 );
+```
+
+### Filter Resource Types
+
+Use the ```filter``` method to get only the types you need, for example to offer only some types in the select options or to configure the actions of some types only. It returns a new instance and leaves the original unchanged.
+
+```php
+use Tobento\App\Crud\ResourceTypeInterface;
+
+$blogTypes = $types->filter(
+    fn (ResourceTypeInterface $type): bool => str_starts_with($type->name(), 'blog')
+);
+
+var_dump($blogTypes->names());
+// array(1) { [0]=> string(4) "blog" }
+```
+
+Example using it within the controller:
+
+```php
+// only offer some types:
+new Field\Select(name: 'type', label: 'Type')->options(
+    $this->types
+        ->filter(fn (ResourceTypeInterface $type): bool => $type->name() !== 'legacy')
+        ->titles()
+),
+
+// configure the actions of some types only:
+$allowedTypes = $this->types->filter(
+    fn (ResourceTypeInterface $type): bool => $type->name() !== 'legacy'
+);
+
+foreach($allowedTypes as $type) {
+    $type->configureActions($actions);
+}
 ```
 
 ## HTML Message
