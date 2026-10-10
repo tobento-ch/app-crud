@@ -15,14 +15,18 @@ namespace Tobento\App\Crud\Button;
 
 use Stringable;
 use Tobento\Service\Tag\Attributes;
-use Tobento\Service\Tag\Str;
 use Tobento\Service\View\ViewInterface;
 
 /**
  * Descriptive
  */
-final class Descriptive extends AbstractButton
+final class Descriptive extends AbstractButton implements ButtonsAwareInterface
 {
+    /**
+     * @var null|ButtonsInterface
+     */
+    private null|ButtonsInterface $buttons = null;
+    
     /**
      * Create a new Descriptive instance.
      *
@@ -40,6 +44,45 @@ final class Descriptive extends AbstractButton
         $this->icon = $button->getIcon();
         $this->name = $button->getName();
         $this->attributes = new Attributes();
+        
+        $this->buttons($button);
+    }
+    
+    /**
+     * Sets the buttons.
+     *
+     * @param ButtonInterface ...$buttons
+     * @return static $this
+     */
+    public function buttons(ButtonInterface ...$buttons): static
+    {
+        $this->buttons = new Buttons(...$buttons);
+        $this->button = $buttons[0] ?? $this->button;
+        return $this;
+    }
+    
+    /**
+     * Returns a new instance with the given buttons.
+     *
+     * @param ButtonsInterface $buttons
+     * @return static
+     */
+    public function withButtons(ButtonsInterface $buttons): static
+    {
+        $new = clone $this;
+        $new->buttons = $buttons;
+        $new->button = $buttons->first() ?? $this->button;
+        return $new;
+    }
+    
+    /**
+     * Returns the buttons.
+     *
+     * @return ButtonsInterface
+     */
+    public function getButtons(): ButtonsInterface
+    {
+        return $this->buttons ?? new Buttons();
     }
     
     /**
@@ -81,6 +124,10 @@ final class Descriptive extends AbstractButton
      */
     public function render(ViewInterface $view): string
     {
+        if ($this->getButtons()->first() === null) {
+            return '';
+        }
+        
         // Render the inner button
         if ($this->getDesc() === '') {
             return $this->getButton()->render($view);
