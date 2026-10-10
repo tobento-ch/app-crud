@@ -68,6 +68,16 @@ class ResourceTypesTest extends TestCase
         $types->get('foo');
     }
     
+    public function testFilterMethod()
+    {
+        $types = new ResourceTypes(new FooResourceType(), new BarResourceType());
+        $filtered = $types->filter(fn(ResourceTypeInterface $t): bool => $t->name() === 'foo');
+
+        $this->assertFalse($types === $filtered);
+        $this->assertSame(['foo', 'bar'], $types->names());
+        $this->assertSame(['foo'], $filtered->names());
+    }
+    
     public function testAllMethod()
     {
         $types = new ResourceTypes();
