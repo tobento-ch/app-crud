@@ -28,6 +28,13 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
      * @var array<int, FieldInterface>
      */
     protected array $fields = [];
+    
+    /**
+     * The original names of the fields by object id, as the fields get renamed.
+     *
+     * @var array<int, string>
+     */
+    protected array $originalNames = [];
 
     /**
      * @var bool
@@ -193,6 +200,7 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
     public function fields(FieldInterface ...$fields): static
     {
         $this->fields = $fields;
+        $this->originalNames = [];
         return $this;
     }
     
@@ -204,11 +212,20 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
      */
     public function getFields(ActionInterface $action): FieldsInterface
     {
-        return $this->configureFields(new Fields(...$this->fields), $action);
+        // remove the fields before creating the fields, as filtering the fields would clone them:
+        $fields = array_filter(
+            $this->fields,
+            fn (FieldInterface $field): bool => !in_array($this->originalName($field), $this->fieldsToRemove)
+        );
+        
+        return $this->configureFields(new Fields(...$fields), $action);
     }
     
     /**
      * Returns the configured fields.
+     *
+     * The fields are renamed from their original name, so the result is the
+     * same no matter how often the fields are configured.
      *
      * @param FieldsInterface $fields
      * @param ActionInterface $action
@@ -216,18 +233,18 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
      */
     protected function configureFields(FieldsInterface $fields, ActionInterface $action): FieldsInterface
     {
-        if (!empty($this->fieldsToRemove)) {
-            $fields = $fields->filter(fn (FieldInterface $field) => !in_array($field->name(), $this->fieldsToRemove));
-        }
-        
         foreach($fields as $field) {
-            if (isset($this->renameFields[$field->name()])) {
-                $field->rename($this->renameFields[$field->name()]);
+            $name = $this->originalName($field);
+            
+            if (isset($this->renameFields[$name])) {
+                $name = $this->renameFields[$name];
             }
             
             if ($this->prependGroupName) {
-                $field->rename($this->name().'.'.$field->name());
+                $name = $this->name().'.'.$name;
             }
+            
+            $field->rename($name);
             
             if ($action->name() !== 'index' && $this->displayAsCard) {
                 $field->parent($this->name());
@@ -245,6 +262,17 @@ class Group extends AbstractField implements ParentFieldsAwareInterface
         }
         
         return $fields;
+    }
+    
+    /**
+     * Returns the original name of the given field, before it got renamed.
+     *
+     * @param FieldInterface $field
+     * @return string
+     */
+    protected function originalName(FieldInterface $field): string
+    {
+        return $this->originalNames[spl_object_id($field)] ??= $field->name();
     }
     
     /**
