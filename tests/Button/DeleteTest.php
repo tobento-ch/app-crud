@@ -67,10 +67,11 @@ class DeleteTest extends AbstractButton
     {
         $button = new Delete(label: 'label', group: 'group')
             ->name('delete')
+            ->withUrl('https://example.com/articles/3')
             ->withEntity(new Entity(['id' => 3]));
         
         $this->assertSame(
-            '<form action method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs" data-button="delete">label</button></form>',
+            '<form action="https://example.com/articles/3" method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs" data-button="delete">label</button></form>',
             $button->render(Factory::createView())
         );
     }
@@ -79,10 +80,11 @@ class DeleteTest extends AbstractButton
     {
         $button = new Delete(label: 'label', group: 'group')
             ->primary()
+            ->withUrl('https://example.com/articles/3')
             ->withEntity(new Entity(['id' => 3]));
         
         $this->assertSame(
-            '<form action method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs primary" data-button="label">label</button></form>',
+            '<form action="https://example.com/articles/3" method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs primary" data-button="label">label</button></form>',
             $button->render(Factory::createView())
         );
     }
@@ -91,10 +93,11 @@ class DeleteTest extends AbstractButton
     {
         $button = new Delete(label: 'label', group: 'group')
             ->raw()
+            ->withUrl('https://example.com/articles/3')
             ->withEntity(new Entity(['id' => 3]));
         
         $this->assertSame(
-            '<form action method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs raw" data-button="label">label</button></form>',
+            '<form action="https://example.com/articles/3" method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs raw" data-button="label">label</button></form>',
             $button->render(Factory::createView())
         );
     }
@@ -103,10 +106,11 @@ class DeleteTest extends AbstractButton
     {
         $button = new Delete(label: 'label', group: 'group')
             ->icon('foo')
+            ->withUrl('https://example.com/articles/3')
             ->withEntity(new Entity(['id' => 3]));
         
         $this->assertSame(
-            '<form action method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs" data-button="label"><i>foo</i>label</button></form>',
+            '<form action="https://example.com/articles/3" method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs" data-button="label"><i>foo</i>label</button></form>',
             $button->render(Factory::createView())
         );
     }
@@ -115,10 +119,11 @@ class DeleteTest extends AbstractButton
     {
         $button = new Delete(label: 'label', group: 'group')
             ->attr('data-foo', 'value')
+            ->withUrl('https://example.com/articles/3')
             ->withEntity(new Entity(['id' => 3]));
         
         $this->assertSame(
-            '<form action method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button data-foo="value" class="button text-xs" data-button="label">label</button></form>',
+            '<form action="https://example.com/articles/3" method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button data-foo="value" class="button text-xs" data-button="label">label</button></form>',
             $button->render(Factory::createView())
         );
     }
@@ -127,10 +132,11 @@ class DeleteTest extends AbstractButton
     {
         $button = new Delete(label: '<p>label</p>', group: 'group')
             ->name('delete')
+            ->withUrl('https://example.com/articles/3')
             ->withEntity(new Entity(['id' => 3]));
         
         $this->assertSame(
-            '<form action method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs" data-button="delete">&lt;p&gt;label&lt;/p&gt;</button></form>',
+            '<form action="https://example.com/articles/3" method="POST"><input name="_method" type="hidden" value="DELETE"><input name="id" type="hidden" value="3"><button class="button text-xs" data-button="delete">&lt;p&gt;label&lt;/p&gt;</button></form>',
             $button->render(Factory::createView())
         );
     }
@@ -140,5 +146,13 @@ class DeleteTest extends AbstractButton
         $button = new Delete(label: 'label', group: 'group');
         
         $this->assertSame('', $button->render(Factory::createView()));
-    }    
+    }
+    
+    public function testRenderMethodWithoutUrlReturnsEmptyString()
+    {
+        $button = new Delete(label: 'label', group: 'group')
+            ->withEntity(new Entity(['id' => 3]));
+        
+        $this->assertSame('', $button->render(Factory::createView()));
+    }
 }

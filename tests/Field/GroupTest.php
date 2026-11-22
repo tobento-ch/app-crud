@@ -173,4 +173,29 @@ class GroupTest extends AbstractField
         
         $this->assertSame(2, $field->getFields(new Action\Create())->count());
     }
+    
+    public function testRepeatedGetFieldsKeepsTheSameNames()
+    {
+        $url = new Field\Text('url', 'Url');
+        $label = new Field\Text('label', 'Label');
+        $foo = new Field\Text('foo', 'Foo');
+        
+        $field = new Field\Group(name: 'link')
+            ->fields($url, $label, $foo)
+            ->prependGroupName()
+            ->renameFields(['label' => 'text'])
+            ->removeField('foo');
+        
+        foreach ([1, 2, 3] as $call) {
+            $names = array_map(
+                fn (FieldInterface $field): string => $field->name(),
+                $field->getFields(new Action\Index())->all()
+            );
+            
+            $this->assertSame(['link.url', 'link.text'], array_values($names));
+        }
+        
+        $this->assertSame('link.url', $url->name());
+        $this->assertSame('link.text', $label->name());
+    }
 }

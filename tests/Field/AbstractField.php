@@ -262,6 +262,17 @@ abstract class AbstractField extends TestCase
         $this->assertSame('required', $field->getRequiredText(action: 'create'));
         $this->assertSame('', $field->getRequiredText(action: 'edit'));
         
+        // Test required rule not being the first rule.
+        $field = new $fieldName('name')->validate(['sometimes', 'required', 'string']);
+        $this->assertSame('required', $field->getRequiredText(action: 'create'));
+        
+        // Test required rule with an error message.
+        $field = new $fieldName('name')->validate([['required', 'error' => 'Message'], 'string']);
+        $this->assertSame('required', $field->getRequiredText(action: 'create'));
+        
+        $field = new $fieldName('name')->validate(['sometimes', 'string']);
+        $this->assertSame('', $field->getRequiredText(action: 'create'));
+        
         if (!$withTranslatable) {
             return;
         }
@@ -288,6 +299,17 @@ abstract class AbstractField extends TestCase
         $field = new $fieldName('name')->validate(store: 'required|string');
         $this->assertSame('', $field->getOptionalText(action: 'create'));
         $this->assertSame('optional', $field->getOptionalText(action: 'edit'));
+        
+        // Test required rule not being the first rule.
+        $field = new $fieldName('name')->validate(['sometimes', 'required', 'string']);
+        $this->assertSame('', $field->getOptionalText(action: 'create'));
+        
+        // Test required rule with an error message.
+        $field = new $fieldName('name')->validate([['required', 'error' => 'Message'], 'string']);
+        $this->assertSame('', $field->getOptionalText(action: 'create'));
+        
+        $field = new $fieldName('name')->validate(['sometimes', 'string']);
+        $this->assertSame('optional', $field->getOptionalText(action: 'create'));
         
         if (!$withTranslatable) {
             return;
