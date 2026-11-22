@@ -60,4 +60,20 @@ class BulkEditTest extends AbstractAction
         $this->assertSame('edit-status', new Action\BulkEdit(name: 'edit-status')->title());
         $this->assertSame('Foo', new Action\BulkEdit(name: 'edit-status', title: 'Foo')->title());
     }
+    
+    public function testFieldMethod()
+    {
+        $action = new Action\BulkEdit(name: 'edit-status');
+        $this->assertSame([], $action->getFieldNames());
+        
+        $action->field('status', 'title');
+        $this->assertSame(['status', 'title'], $action->getFieldNames());
+    }
+    
+    public function testFieldsFromMethod()
+    {
+        $this->assertSame('index', new Action\BulkEdit(name: 'edit-status')->getFieldsFrom());
+        $this->assertSame('create', new Action\BulkEdit(name: 'edit-status', fieldsFrom: 'create')->getFieldsFrom());
+        $this->assertSame('create', new Action\BulkEdit(name: 'edit-status')->fieldsFrom('create')->getFieldsFrom());
+    }
 }

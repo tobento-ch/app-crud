@@ -61,4 +61,16 @@ class BulkDeleteTest extends AbstractAction
         $this->assertSame('Delete', new Action\BulkDelete()->title());
         $this->assertSame('Foo', new Action\BulkDelete(title: 'Foo')->title());
     }
+    
+    public function testDeleteMessageMethod()
+    {
+        $action = new Action\BulkDelete();
+        $this->assertNull($action->getDeleteMessage());
+        
+        $message = fn (int $count): string => $count.' deleted';
+        $action->deleteMessage($message);
+        
+        $this->assertSame($message, $action->getDeleteMessage());
+        $this->assertSame('3 deleted', $action->getDeleteMessage()(3));
+    }
 }
