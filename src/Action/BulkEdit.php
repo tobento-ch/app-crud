@@ -143,6 +143,16 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     }
     
     /**
+     * Returns the field names.
+     *
+     * @return array<array-key, string>
+     */
+    public function getFieldNames(): array
+    {
+        return $this->fieldNames;
+    }
+    
+    /**
      * Sets the fields.
      *
      * @param FieldsInterface $fields
@@ -169,6 +179,16 @@ final class BulkEdit extends AbstractAction implements BulkActionInterface
     {
         $this->fieldsFrom = $action;
         return $this;
+    }
+    
+    /**
+     * Return the fields from.
+     *
+     * @return string
+     */
+    public function getFieldsFrom(): string
+    {
+        return $this->fieldsFrom;
     }
     
     /**
