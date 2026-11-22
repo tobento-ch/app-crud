@@ -93,38 +93,44 @@ const live = (function(window, document) {
                     replaces = replaces.concat(config.selectors);
 
                     const doc = (new DOMParser()).parseFromString(data.html, 'text/html');
+                    const triggerField = el.closest('[data-field]');
 
                     replaces.forEach(selector => {
-                        const newEls = doc.querySelectorAll(selector);
-                        const oldEls = document.querySelectorAll(selector);
-
-                        // Replace existing fields
-                        oldEls.forEach((oldEl, index) => {
-                            const newEl = newEls[index];
-                            if (newEl) {
-                                oldEl.replaceWith(newEl);
-                            } else {
+                        const newEls = Array.from(doc.querySelectorAll(selector));
+                        const oldEls = Array.from(document.querySelectorAll(selector));
+                        const newNames = newEls.map(newEl => newEl.getAttribute('data-field'));
+                        
+                        // Elements without data-field (custom selectors): replace by position.
+                        if (newNames.some(name => name === null)) {
+                            oldEls.forEach((oldEl, index) => {
+                                newEls[index] ? oldEl.replaceWith(newEls[index]) : oldEl.remove();
+                            });
+                            return;
+                        }
+                        
+                        // Remove fields no longer rendered.
+                        oldEls.forEach(oldEl => {
+                            if (!newNames.includes(oldEl.getAttribute('data-field'))) {
                                 oldEl.remove();
                             }
                         });
-
-                        // Insert new fields that do not exist in DOM
+                        
+                        // Replace existing fields by name and insert new ones in server render order.
+                        let insertAfter = triggerField;
+                        
                         newEls.forEach(newEl => {
-                            const field = newEl.getAttribute('data-field');
-
-                            // If field does not exist in DOM, insert it after the field that triggered the update
-                            if (!document.querySelector('[data-field="'+field+'"]')) {
-
-                                const targetField = el.closest('[data-field]');
-
-                                if (targetField) {
-                                    targetField.after(newEl);
-                                } else {
-                                    // fallback: append at end of container
-                                    const container = document.querySelector('[data-field]')?.parentNode;
-                                    container?.appendChild(newEl);
-                                }
+                            const oldEl = document.querySelector('[data-field="'+newEl.getAttribute('data-field')+'"]');
+                            
+                            if (oldEl) {
+                                oldEl.replaceWith(newEl);
+                            } else if (insertAfter) {
+                                insertAfter.after(newEl);
+                            } else {
+                                // fallback: append at end of container
+                                document.querySelector('[data-field]')?.parentNode?.appendChild(newEl);
                             }
+                            
+                            insertAfter = newEl;
                         });
                     });
                     
