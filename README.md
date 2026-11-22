@@ -34,6 +34,7 @@ A simple and modular CRUD system.
             - [Options Field](#options-field)
             - [PrimaryId Field](#primaryid-field)
             - [Radios Field](#radios-field)
+            - [Search Engine Preview Field](#search-engine-preview-field)
             - [Select Field](#select-field)
             - [Single Options Field](#single-options-field)
             - [Slug Field](#slug-field)
@@ -1837,6 +1838,119 @@ new Field\Radios('colors')
 ```
 
 You may check out the [Validate Field](#validate-field) section for more detail.
+
+#### Search Engine Preview Field
+
+The search engine preview field shows how an entry is displayed as a search engine result, with its title, url and description. The preview is updated live while editing the fields it gets its values from.
+
+```php
+use Tobento\App\Crud\Field;
+
+new Field\SearchEnginePreview(
+    name: 'preview',
+    // you may set a label, otherwise name is used:
+    label: 'Preview',
+);
+```
+
+**Sources**
+
+Use the ```titleFrom```, ```slugFrom``` and ```descriptionFrom``` methods to define the fields to get the values from. If you define more than one field, the first non-empty value is used:
+
+```php
+use Tobento\App\Crud\Field;
+
+new Field\SearchEnginePreview(name: 'preview')
+    // uses the title if the meta title is empty:
+    ->titleFrom('meta_title', 'title')
+    ->slugFrom('slug')
+    ->descriptionFrom('meta_description', 'intro');
+```
+
+Html values, such as from a [TextEditor Field](#texteditor-field), are displayed as plain text.
+
+**Uri**
+
+Use the ```uri``` method to define the url of the entry with the ```{slug}``` and ```{locale}``` placeholders. A relative uri is resolved against the base uri, an absolute uri is used as it is:
+
+```php
+use Tobento\App\Crud\Field;
+
+new Field\SearchEnginePreview(name: 'preview')
+    ->slugFrom('slug')
+    ->uri('{slug}'); // default
+    
+new Field\SearchEnginePreview(name: 'preview')
+    ->slugFrom('slug')
+    ->uri('{locale}/blog/{slug}');
+    
+new Field\SearchEnginePreview(name: 'preview')
+    ->slugFrom('slug')
+    ->uri('https://shop.example.com/{slug}');
+```
+
+**Translatable Fields**
+
+If any of the source fields is translatable, the preview shows the first locale and switches to the locale of the field being edited. You do not need to set the preview field as translatable.
+
+```php
+use Tobento\App\Crud\Field;
+
+protected function configureFields(ActionInterface $action): iterable|FieldsInterface
+{
+    yield new Field\SearchEnginePreview(name: 'preview', label: 'Preview')
+        ->titleFrom('meta_title', 'title')
+        ->slugFrom('slug')
+        ->descriptionFrom('meta_description')
+        ->uri('{locale}/blog/{slug}');
+    
+    yield new Field\Text(name: 'title', label: 'Title')
+        ->translatable();
+    
+    yield new Field\Slug(name: 'slug', label: 'Slug')
+        ->fromField('title')
+        ->translatable();
+    
+    yield new Field\Text(name: 'meta_title', label: 'Meta Title')
+        ->translatable();
+    
+    yield new Field\Textarea(name: 'meta_description', label: 'Meta Description')
+        ->translatable();
+}
+```
+
+**Show and Index**
+
+By default, the preview is only displayed on the create and edit action. You may display it on the show and index action too:
+
+```php
+use Tobento\App\Crud\Field;
+
+new Field\SearchEnginePreview(name: 'preview')
+    ->showable(true) // default false
+    ->indexable(true); // default false
+```
+
+On the show action, a preview is displayed for each locale. On the index action, the preview is displayed in the current locale and the description is shortened to 100 characters.
+
+As the preview field has no column to sort or search by, exclude it from the [Fields Filter](#fields-filter) and the [Fields Sort Order Filter](#fields-sort-order-filter) when displaying it on the index action:
+
+```php
+use Tobento\App\Crud\Action\ActionInterface;
+use Tobento\App\Crud\Filter\FiltersInterface;
+use Tobento\App\Crud\Filter;
+
+protected function configureFilters(ActionInterface $action): iterable|FiltersInterface
+{
+    return [
+        new Filter\FieldsSortOrder()->except('preview'),
+        ...new Filter\Fields()
+            ->fields($action->fields())
+            ->except('preview')
+            ->toFilters(),
+    ];
+}
+```
 
 #### Select Field
 
