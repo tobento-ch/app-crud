@@ -1065,8 +1065,13 @@ abstract class AbstractField implements FieldInterface
         
         if (is_array($rules)) {
             foreach($rules as $rule) {
-                if (is_string($rule)) {
-                    return str_contains($rule, 'required');
+                if (is_string($rule) && str_contains($rule, 'required')) {
+                    return true;
+                }
+                
+                // rule with parameters or an error message, e.g. ['required', 'error' => '...']
+                if (is_array($rule) && is_string($rule[0] ?? null) && str_contains($rule[0], 'required')) {
+                    return true;
                 }
             }
         }
