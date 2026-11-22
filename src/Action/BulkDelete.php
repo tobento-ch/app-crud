@@ -302,6 +302,16 @@ final class BulkDelete extends AbstractAction implements BulkActionInterface
     }
     
     /**
+     * Returns the custom message callback for bulk deletion.
+     *
+     * @return null|callable
+     */
+    public function getDeleteMessage(): null|callable
+    {
+        return $this->deleteMessage;
+    }
+    
+    /**
      * Returns the configured fields.
      *
      * @param ActionInterface $action
