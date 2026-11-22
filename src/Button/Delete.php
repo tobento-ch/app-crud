@@ -52,7 +52,7 @@ final class Delete extends AbstractButton
      */
     public function render(ViewInterface $view): string
     {
-        if (is_null($this->entity)) {
+        if (is_null($this->entity) || $this->url === '') {
             return '';
         }
         
